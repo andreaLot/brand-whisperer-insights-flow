@@ -86,15 +86,8 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({ onSelect }) => {
         />
       </div>
       
-      {/* Add custom styling to ensure Google Places dropdown is visible */}
-      <style jsx>{`
-        .pac-container {
-          z-index: 10000;
-          background-color: white;
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-          border-radius: 0.375rem;
-        }
-      `}</style>
+      {/* We're using CSS already in App.css */}
+      {/* Google Places styles are already defined in App.css */}
     </div>
   );
 };
