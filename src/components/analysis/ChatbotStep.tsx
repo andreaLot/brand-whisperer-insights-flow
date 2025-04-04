@@ -10,6 +10,12 @@ interface ChatbotStepProps {
   onChatComplete: () => void;
 }
 
+// Define the message type to enforce type safety
+type MessageType = {
+  type: 'bot' | 'user';
+  text: string;
+};
+
 const ChatbotStep: React.FC<ChatbotStepProps> = ({ 
   primaryCategory, 
   location, 
@@ -18,7 +24,7 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
   const categoryText = primaryCategory || "your business";
   const locationText = location || "your location";
   
-  const [messages, setMessages] = useState<Array<{type: 'bot' | 'user', text: string}>>([
+  const [messages, setMessages] = useState<MessageType[]>([
     {
       type: 'bot',
       text: `We've analyzed ${categoryText} in ${locationText} and found some interesting insights. Would you like to see the detailed results now?`
@@ -32,15 +38,15 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
     if (!userInput.trim()) return;
     
     // Add user message
-    const newMessages = [...messages, {type: 'user', text: userInput}];
+    const newMessages = [...messages, {type: 'user' as const, text: userInput}];
     setMessages(newMessages);
     setUserInput('');
     setIsWaiting(true);
     
     // Simulate bot thinking
     setTimeout(() => {
-      const botResponse = {
-        type: 'bot' as const,
+      const botResponse: MessageType = {
+        type: 'bot',
         text: "Great! I'll show you the complete analysis results right away."
       };
       setMessages([...newMessages, botResponse]);

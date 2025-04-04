@@ -1,11 +1,9 @@
-
 import React from 'react';
 import ResultsStep from './ResultsStep';
 import LocationSelector from '@/components/LocationSelector';
 import { AnalysisResult, BusinessCategory } from "@/services/AnalysisService";
 import { PlaceSelectionResult } from '@/hooks/useGooglePlaces';
-
-type Step = 'welcome' | 'business-name' | 'category-detection' | 'analyzing' | 'results';
+import { Step } from './ConversationPanel';
 
 interface InputPanelProps {
   step: Step;

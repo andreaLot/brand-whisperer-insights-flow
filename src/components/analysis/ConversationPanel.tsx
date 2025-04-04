@@ -1,4 +1,3 @@
-
 import React from 'react';
 import ConversationBubble from "@/components/ConversationBubble";
 import AnalysisWelcome from './AnalysisWelcome';
@@ -9,7 +8,7 @@ import ResultsStep from './ResultsStep';
 import ChatbotStep from './ChatbotStep';
 import { BusinessCategory, AnalysisResult } from "@/services/AnalysisService";
 
-type Step = 'welcome' | 'business-name' | 'category-detection' | 'analyzing' | 'chatbot' | 'results';
+export type Step = 'welcome' | 'business-name' | 'category-detection' | 'analyzing' | 'chatbot' | 'results';
 
 interface ConversationPanelProps {
   step: Step;
