@@ -1,11 +1,9 @@
-
 import React, { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import ConversationBubble from "@/components/ConversationBubble";
 import RobotAvatar from "@/components/RobotAvatar";
 import SearchInput from "@/components/SearchInput";
-import ProgressIndicator from "@/components/ProgressIndicator";
 import LocationSelector from "@/components/LocationSelector";
 import ResultCard from "@/components/ResultCard";
 import SummaryBox from "@/components/SummaryBox";
@@ -138,32 +136,29 @@ const Index = () => {
     <div className="min-h-screen flex flex-col items-center justify-center bg-brand-black p-4 text-white">
       <div className="w-full max-w-5xl flex flex-col md:flex-row gap-8">
         {/* Left side - Conversation */}
-        <div className="w-full md:w-2/5 flex flex-col gap-6">
-          <ProgressIndicator 
-            currentStep={getCurrentStepNumber()} 
-            totalSteps={5} 
-          />
-          
+        <div className="w-full md:w-1/2 flex flex-col gap-6">
           <div className="flex items-start gap-4">
             <RobotAvatar />
             
             <ConversationBubble>
               {step === 'welcome' && (
-                <div className="space-y-4">
+                <div className="space-y-6">
                   <h2 className="text-2xl font-semibold">
                     Let's get started! Simply enter your <span className="text-brand-blue-light">business name</span> and <span className="text-brand-blue-light">select a location</span> you'd like to analyze.
                   </h2>
                   <Button 
                     onClick={() => setStep('business-name')}
-                    className="bg-brand-blue hover:bg-brand-blue-light text-white transition-colors"
+                    variant="elegant"
+                    size="xl"
+                    className="mt-4"
                   >
-                    Start Analysis
+                    Begin Analysis
                   </Button>
                 </div>
               )}
               
               {step === 'business-name' && (
-                <div className="space-y-4">
+                <div className="space-y-6">
                   <h2 className="text-2xl font-semibold">
                     Enter your <span className="text-brand-blue-light">business name</span>
                   </h2>
@@ -174,7 +169,7 @@ const Index = () => {
               )}
               
               {step === 'location' && (
-                <div className="space-y-4">
+                <div className="space-y-6">
                   <h2 className="text-2xl font-semibold">
                     Select a <span className="text-brand-blue-light">location</span> you'd like to analyze.
                   </h2>
@@ -185,7 +180,7 @@ const Index = () => {
               )}
               
               {step === 'category-detection' && (
-                <div className="space-y-4">
+                <div className="space-y-6">
                   <h2 className="text-2xl font-semibold">
                     Detecting your <span className="text-brand-blue-light">business category</span>...
                   </h2>
@@ -197,11 +192,11 @@ const Index = () => {
               )}
               
               {step === 'analyzing' && (
-                <div className="space-y-4">
+                <div className="space-y-6">
                   <h2 className="text-2xl font-semibold">
                     Analyzing your presence across <span className="text-brand-blue-light">multiple platforms</span>...
                   </h2>
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     <div className="flex items-center gap-2">
                       <Loader2 className="animate-spin" size={16} />
                       <span>Checking Perplexity results</span>
@@ -223,7 +218,7 @@ const Index = () => {
               )}
               
               {step === 'results' && analysisResult && (
-                <div className="space-y-4">
+                <div className="space-y-6">
                   <h2 className="text-2xl font-semibold">
                     Analysis Complete for <span className="text-brand-blue-light">{analysisResult.businessName}</span>
                   </h2>
@@ -240,7 +235,9 @@ const Index = () => {
                   </div>
                   <Button 
                     onClick={handleStartOver}
-                    className="bg-brand-blue hover:bg-brand-blue-light text-white transition-colors"
+                    variant="elegant"
+                    size="xl"
+                    className="mt-4"
                   >
                     Start New Analysis
                   </Button>
@@ -251,7 +248,7 @@ const Index = () => {
         </div>
         
         {/* Right side - Input/Results */}
-        <div className="w-full md:w-3/5">
+        <div className="w-full md:w-1/2">
           {(step === 'welcome' || step === 'business-name') && (
             <SearchInput
               placeholder="Search for your business"
