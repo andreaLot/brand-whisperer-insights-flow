@@ -1,35 +1,18 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useToast } from "@/hooks/use-toast";
+import { 
+  UseGooglePlacesOptions, 
+  PlaceSelectionResult,
+  UseGooglePlacesReturn 
+} from './useGooglePlaces.types';
+import { loadGoogleMapsScript, checkIfGoogleMapsLoaded } from '@/utils/googleMapsLoader';
+import { 
+  initializeAutocomplete, 
+  cleanupAutocomplete as cleanupAutocompleteUtil 
+} from '@/utils/autocompleteManager';
 
-interface UseGooglePlacesOptions {
-  countryRestrictions?: string[];
-  types?: string[];
-}
-
-export interface PlaceSelectionResult {
-  name?: string;
-  address?: string;
-  phoneNumber?: string;
-  businessStatus?: string;
-  categories?: string[];
-  isOperational?: boolean;
-  website?: string;
-  placeId?: string;
-  geometry?: {
-    lat?: number;
-    lng?: number;
-  };
-}
-
-interface UseGooglePlacesReturn {
-  isLoaded: boolean;
-  placesFailed: boolean;
-  initAutocomplete: (inputElement: HTMLInputElement) => void;
-  cleanupAutocomplete: () => void;
-  scriptLoading: boolean;
-  selectedPlace: PlaceSelectionResult | null;
-}
+export type { PlaceSelectionResult } from './useGooglePlaces.types';
 
 export const useGooglePlaces = ({
   countryRestrictions = ['us'],
@@ -49,51 +32,30 @@ export const useGooglePlaces = ({
     if (scriptLoading) return;
     
     // Check if the script is already loaded
-    if (window.google?.maps?.places?.Autocomplete) {
+    if (checkIfGoogleMapsLoaded()) {
       console.log('Google Maps already loaded, initializing directly');
       setIsLoaded(true);
       return;
     }
     
-    if (!document.getElementById('google-maps-script')) {
-      setScriptLoading(true);
-      const script = document.createElement('script');
-      script.id = 'google-maps-script';
-      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyA48zqyAgIxKc6BsZHUwV7piqagv7nQPbw&libraries=places`;
-      script.async = true;
-      script.defer = true;
-      script.onload = () => {
-        console.log('Google Maps script loaded successfully');
+    setScriptLoading(true);
+    loadGoogleMapsScript(
+      // onLoad callback
+      () => {
         setIsLoaded(true);
         setScriptLoading(false);
-        
-        // Check if the Places library is available
-        if (window.google?.maps?.places) {
-          console.log('Places library available:', !!window.google.maps.places);
-        } else {
-          console.error('Places library not available after script load');
-          setPlacesFailed(true);
-          toast({
-            title: "Error loading location service",
-            description: "Please try refreshing the page",
-            variant: "destructive",
-          });
-        }
-      };
-      script.onerror = (error) => {
-        console.error('Failed to load Google Maps script:', error);
+      },
+      // onError callback
+      () => {
         setScriptLoading(false);
         setPlacesFailed(true);
         toast({
           title: "Error loading location service",
-          description: "Please check your internet connection and try again",
+          description: "Please try refreshing the page",
           variant: "destructive",
         });
-      };
-      document.head.appendChild(script);
-    } else {
-      setIsLoaded(true);
-    }
+      }
+    );
 
     return () => {
       cleanupAutocomplete();
@@ -102,19 +64,9 @@ export const useGooglePlaces = ({
 
   // Clean up autocomplete and listeners
   const cleanupAutocomplete = () => {
-    // Remove the place_changed listener if it exists
-    if (listenerRef.current) {
-      listenerRef.current.remove();
-      listenerRef.current = null;
-      console.log('Autocomplete listener removed');
-    }
-    
-    // Clear instance listeners on the autocomplete object
-    if (autocompleteRef.current) {
-      google.maps.event.clearInstanceListeners(autocompleteRef.current);
-      autocompleteRef.current = null;
-      console.log('Autocomplete instance cleaned up');
-    }
+    cleanupAutocompleteUtil(autocompleteRef.current, listenerRef.current);
+    autocompleteRef.current = null;
+    listenerRef.current = null;
   };
 
   const initAutocomplete = (inputElement: HTMLInputElement) => {
@@ -123,81 +75,38 @@ export const useGooglePlaces = ({
       return;
     }
 
-    try {
-      console.log('Attempting to initialize autocomplete...');
-      
-      // Clean up previous autocomplete instance if it exists
-      cleanupAutocomplete();
-      
-      // Verify the Places library is available
-      if (!window.google?.maps?.places?.Autocomplete) {
-        console.error('Google Places API not available');
-        setPlacesFailed(true);
-        toast({
-          title: "Location search unavailable",
-          description: "Could not initialize location search",
-          variant: "destructive",
-        });
-        return;
+    // Clean up previous autocomplete instance if it exists
+    cleanupAutocomplete();
+    
+    const autocomplete = initializeAutocomplete(
+      inputElement, 
+      { countryRestrictions, types },
+      (placeData) => {
+        setSelectedPlace(placeData);
       }
-      
-      // Create new autocomplete instance with expanded fields
-      autocompleteRef.current = new google.maps.places.Autocomplete(inputElement, {
-        fields: [
-          'address_components', 
-          'formatted_address', 
-          'geometry', 
-          'name',
-          'business_status',
-          'formatted_phone_number',
-          'types',
-          'website',
-          'place_id',
-          'opening_hours'
-        ],
-        types: types,
-        componentRestrictions: countryRestrictions.length ? { country: countryRestrictions } : undefined
-      });
-
-      console.log('Autocomplete initialized with expanded fields');
-      
-      // Add listener for place selection and store reference to allow cleanup
-      listenerRef.current = google.maps.event.addListener(autocompleteRef.current, 'place_changed', () => {
-        const place = autocompleteRef.current?.getPlace();
-        console.log('Place selected event:', place);
-        
-        if (place) {
-          // Extract and structure the place data
-          const placeData: PlaceSelectionResult = {
-            name: place.name,
-            address: place.formatted_address,
-            phoneNumber: place.formatted_phone_number,
-            businessStatus: place.business_status,
-            categories: place.types,
-            isOperational: place.opening_hours?.isOpen?.() ?? undefined,
-            website: place.website,
-            placeId: place.place_id,
-            geometry: place.geometry?.location ? {
-              lat: place.geometry.location.lat(),
-              lng: place.geometry.location.lng()
-            } : undefined
-          };
-          
-          console.log('Extracted place data:', placeData);
-          setSelectedPlace(placeData);
-        }
-      });
-      
-      console.log('Place changed listener added');
-    } catch (error) {
-      console.error('Error initializing Google Places Autocomplete:', error);
+    );
+    
+    if (!autocomplete) {
       setPlacesFailed(true);
       toast({
-        title: "Error setting up location search",
-        description: "Please try again or enter location manually",
+        title: "Location search unavailable",
+        description: "Could not initialize location search",
         variant: "destructive",
       });
+      return;
     }
+    
+    autocompleteRef.current = autocomplete;
+    
+    // Store a reference to the listener for cleanup
+    // This is a workaround since we can't directly access the listener from initializeAutocomplete
+    listenerRef.current = {
+      remove: () => {
+        if (autocompleteRef.current) {
+          google.maps.event.clearInstanceListeners(autocompleteRef.current);
+        }
+      }
+    };
   };
 
   return {
