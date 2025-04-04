@@ -6,16 +6,21 @@ import BusinessNameStep from './BusinessNameStep';
 import CategoryDetectionStep from './CategoryDetectionStep';
 import AnalyzingStep from './AnalyzingStep';
 import ResultsStep from './ResultsStep';
+import ChatbotStep from './ChatbotStep';
 import { BusinessCategory, AnalysisResult } from "@/services/AnalysisService";
 
-type Step = 'welcome' | 'business-name' | 'category-detection' | 'analyzing' | 'results';
+type Step = 'welcome' | 'business-name' | 'category-detection' | 'analyzing' | 'chatbot' | 'results';
 
 interface ConversationPanelProps {
   step: Step;
   analysisResult: AnalysisResult | null;
   suggestedCategories: BusinessCategory[];
+  primaryCategory?: string;
+  location?: string;
   onBeginAnalysis: () => void;
   onStartOver: () => void;
+  onAnalysisComplete: () => void;
+  onChatComplete: () => void;
   handleLocationSelect: (location: string) => void;
 }
 
@@ -23,8 +28,12 @@ const ConversationPanel: React.FC<ConversationPanelProps> = ({
   step,
   analysisResult,
   suggestedCategories,
+  primaryCategory,
+  location,
   onBeginAnalysis,
   onStartOver,
+  onAnalysisComplete,
+  onChatComplete,
   handleLocationSelect
 }) => {
   return (
@@ -43,7 +52,19 @@ const ConversationPanel: React.FC<ConversationPanelProps> = ({
         )}
         
         {step === 'analyzing' && (
-          <AnalyzingStep />
+          <AnalyzingStep 
+            primaryCategory={primaryCategory} 
+            location={location} 
+            onAnalysisComplete={onAnalysisComplete}
+          />
+        )}
+        
+        {step === 'chatbot' && (
+          <ChatbotStep 
+            primaryCategory={primaryCategory}
+            location={location}
+            onChatComplete={onChatComplete}
+          />
         )}
         
         {step === 'results' && analysisResult && (

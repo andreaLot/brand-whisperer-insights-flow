@@ -4,9 +4,10 @@ import { useToast } from "@/hooks/use-toast";
 import { AnalysisService, AnalysisResult, BusinessCategory } from "@/services/AnalysisService";
 import ConversationPanel from '@/components/analysis/ConversationPanel';
 import InputPanel from '@/components/analysis/InputPanel';
+import { PlaceSelectionResult } from '@/hooks/useGooglePlaces';
 
 // Flow step type
-type Step = 'welcome' | 'business-name' | 'category-detection' | 'analyzing' | 'results';
+type Step = 'welcome' | 'business-name' | 'category-detection' | 'analyzing' | 'chatbot' | 'results';
 
 const Index = () => {
   const { toast } = useToast();
@@ -14,15 +15,26 @@ const Index = () => {
   const [businessName, setBusinessName] = useState('Default Business'); // Default business name
   const [location, setLocation] = useState('');
   const [category, setCategory] = useState('');
+  const [primaryCategory, setPrimaryCategory] = useState<string | undefined>(undefined);
   const [suggestedCategories, setSuggestedCategories] = useState<BusinessCategory[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
 
   // Handle location selection
-  const handleLocationSelect = (selectedLocation: string) => {
+  const handleLocationSelect = (selectedLocation: string, placeData?: PlaceSelectionResult) => {
     setLocation(selectedLocation);
     setIsLoading(true);
     setStep('category-detection');
+    
+    // Set business name and primary category if available
+    if (placeData) {
+      setBusinessName(placeData.name || 'Default Business');
+      
+      // Extract primary category (first type from the types array)
+      if (placeData.categories && placeData.categories.length > 0) {
+        setPrimaryCategory(placeData.categories[0]);
+      }
+    }
 
     // Detect business category
     detectCategory();
@@ -42,7 +54,6 @@ const Index = () => {
       // Move to analysis step after a short delay
       setTimeout(() => {
         setStep('analyzing');
-        analyzeBrand();
       }, 2000);
     } catch (error) {
       console.error('Error detecting category:', error);
@@ -55,9 +66,15 @@ const Index = () => {
     }
   };
 
-  // Analyze the brand
-  const analyzeBrand = async () => {
+  // When analysis visualization is complete, move to chatbot step
+  const handleAnalysisComplete = () => {
+    setStep('chatbot');
+  };
+
+  // When chat is complete, show results
+  const handleChatComplete = async () => {
     try {
+      // Only fetch results when moving from chat to results
       const result = await AnalysisService.analyzeBrand(businessName, location, category);
       setAnalysisResult(result);
       setIsLoading(false);
@@ -74,11 +91,17 @@ const Index = () => {
     }
   };
 
+  // Analyze the brand
+  const analyzeBrand = () => {
+    // This is now just a placeholder - analysis happens when chat completes
+  };
+
   // Start over from beginning
   const handleStartOver = () => {
     setStep('welcome');
     setLocation('');
     setCategory('');
+    setPrimaryCategory(undefined);
     setSuggestedCategories([]);
     setAnalysisResult(null);
   };
@@ -96,8 +119,12 @@ const Index = () => {
           step={step}
           analysisResult={analysisResult}
           suggestedCategories={suggestedCategories}
+          primaryCategory={primaryCategory}
+          location={location}
           onBeginAnalysis={handleBeginAnalysis}
           onStartOver={handleStartOver}
+          onAnalysisComplete={handleAnalysisComplete}
+          onChatComplete={handleChatComplete}
           handleLocationSelect={handleLocationSelect}
         />
         
