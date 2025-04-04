@@ -20,6 +20,7 @@ const buttonVariants = cva(
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
         elegant: "bg-gradient-to-r from-brand-blue to-brand-blue-light border border-white/10 shadow-lg text-white hover:shadow-brand-blue/20 hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5",
+        dynamic: "relative text-white border border-white/10 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 overflow-hidden",
       },
       size: {
         default: "h-10 px-4 py-2",
@@ -43,14 +44,20 @@ export interface ButtonProps
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
+  ({ className, variant, size, asChild = false, children, ...props }, ref) => {
     const Comp = asChild ? Slot : "button"
+    
     return (
       <Comp
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
         {...props}
-      />
+      >
+        {variant === 'dynamic' && (
+          <span className="absolute inset-0 bg-gradient-to-r from-[#4C9AFF] via-[#9b87f5] to-[#D946EF] animate-gradient-x"></span>
+        )}
+        <span className={cn("relative z-10", variant === 'dynamic' && "bg-black/20 backdrop-blur-sm px-10 py-3 rounded-md")}>{children}</span>
+      </Comp>
     )
   }
 )

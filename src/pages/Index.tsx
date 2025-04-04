@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -146,7 +145,7 @@ const Index = () => {
                 <div className="pt-12">
                   <Button 
                     onClick={() => setStep('business-name')}
-                    variant="elegant"
+                    variant="dynamic"
                     size="xl"
                     className="mt-4"
                   >
@@ -234,7 +233,7 @@ const Index = () => {
                 </div>
                 <Button 
                   onClick={handleStartOver}
-                  variant="elegant"
+                  variant="dynamic"
                   size="xl"
                   className="mt-4"
                 >
