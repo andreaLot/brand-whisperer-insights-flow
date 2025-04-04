@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Input } from "@/components/ui/input";
 import { MapPin } from 'lucide-react';
-import { toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 interface LocationSelectorProps {
   onSelect: (location: string) => void;
@@ -19,12 +19,12 @@ const injectGooglePlacesStyles = () => {
     styleElement.id = 'google-places-autocomplete-styles';
     styleElement.innerHTML = `
       .pac-container {
-        z-index: 10000 !important;
-        background-color: white !important;
-        color: black !important;
-        border: 1px solid #ccc !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-        margin-top: 2px !important;
+        z-index: 9999 !important;
+        background-color: #1e1e1e !important;
+        color: white !important;
+        border: 1px solid #333 !important;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5) !important;
+        margin-top: 4px !important;
         border-radius: 0.375rem !important;
         font-family: inherit !important;
       }
@@ -32,15 +32,30 @@ const injectGooglePlacesStyles = () => {
       .pac-item {
         padding: 8px 12px !important;
         cursor: pointer !important;
+        color: #f3f4f6 !important;
+        border-bottom: 1px solid #333 !important;
       }
       
       .pac-item:hover {
-        background-color: #f3f4f6 !important;
+        background-color: #333 !important;
+      }
+      
+      .pac-icon {
+        color: white !important;
       }
       
       .pac-item-query {
-        color: #000 !important;
+        color: white !important;
         font-size: 14px !important;
+      }
+
+      .pac-matched {
+        color: #8b5cf6 !important;
+        font-weight: bold !important;
+      }
+
+      .pac-item-selected {
+        background-color: #374151 !important;
       }
     `;
     document.head.appendChild(styleElement);
@@ -53,6 +68,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
   countryRestrictions = ['us'], // Default to US
   types = ['establishment', 'geocode'] // Default to establishments and addresses
 }) => {
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoaded, setIsLoaded] = useState(false);
   const [scriptLoading, setScriptLoading] = useState(false);
@@ -192,14 +208,17 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
       
       console.log('Place changed listener added');
       
-      // Force the pac-container to have a higher z-index
+      // Manually force the pac-container to have a higher z-index
+      // This runs after a delay to ensure the DOM elements are created
       setTimeout(() => {
         const containers = document.querySelectorAll('.pac-container');
         console.log('PAC containers found:', containers.length);
         containers.forEach(container => {
           (container as HTMLElement).style.zIndex = '10000';
+          (container as HTMLElement).style.position = 'absolute';
+          (container as HTMLElement).style.display = 'block';
         });
-      }, 1000);
+      }, 500);
       
     } catch (error) {
       console.error('Error initializing Google Places Autocomplete:', error);
@@ -217,6 +236,18 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
     console.log('Input changed:', e.target.value);
   };
 
+  // Add a manual focus handler to ensure autocomplete visibility
+  const handleInputFocus = () => {
+    console.log('Input focused');
+    // Re-apply z-index to ensure dropdown is visible when focused
+    setTimeout(() => {
+      const containers = document.querySelectorAll('.pac-container');
+      containers.forEach(container => {
+        (container as HTMLElement).style.zIndex = '10000';
+      });
+    }, 100);
+  };
+
   return (
     <div className="relative w-full animate-fade-in">
       <div className="relative">
@@ -227,7 +258,8 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
           placeholder="Enter a location"
           value={searchTerm}
           onChange={handleInputChange}
-          className="pl-10 py-6 bg-white text-black border-0 rounded-md w-full focus:ring-2 focus:ring-brand-blue transition-all"
+          onFocus={handleInputFocus}
+          className="pl-10 py-6 bg-brand-gray-dark text-white border border-gray-700 rounded-md w-full focus:ring-2 focus:ring-violet-500 transition-all"
           autoComplete="off" // Prevent browser's default autocomplete from interfering
         />
       </div>
