@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -138,23 +139,25 @@ const Index = () => {
         <div className="w-full md:w-1/2 flex flex-col gap-6">
           <ConversationBubble>
             {step === 'welcome' && (
-              <div className="space-y-6">
+              <div className="space-y-10">
                 <h2 className="text-xl font-normal">
                   Let's get started! Simply enter your <span className="text-brand-blue-light">business name</span> and <span className="text-brand-blue-light">select a location</span> you'd like to analyze.
                 </h2>
-                <Button 
-                  onClick={() => setStep('business-name')}
-                  variant="elegant"
-                  size="xl"
-                  className="mt-4"
-                >
-                  Begin Analysis
-                </Button>
+                <div className="pt-6">
+                  <Button 
+                    onClick={() => setStep('business-name')}
+                    variant="elegant"
+                    size="xl"
+                    className="mt-4"
+                  >
+                    Begin Analysis
+                  </Button>
+                </div>
               </div>
             )}
             
             {step === 'business-name' && (
-              <div className="space-y-6">
+              <div className="space-y-10">
                 <h2 className="text-xl font-normal">
                   Enter your <span className="text-brand-blue-light">business name</span>
                 </h2>
@@ -165,7 +168,7 @@ const Index = () => {
             )}
             
             {step === 'location' && (
-              <div className="space-y-6">
+              <div className="space-y-10">
                 <h2 className="text-xl font-normal">
                   Select a <span className="text-brand-blue-light">location</span> you'd like to analyze.
                 </h2>
