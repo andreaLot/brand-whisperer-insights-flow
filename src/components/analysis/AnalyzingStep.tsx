@@ -16,7 +16,15 @@ const AnalyzingStep: React.FC<AnalyzingStepProps> = ({
   onAnalysisComplete
 }) => {
   const categoryText = primaryCategory || "your business category";
-  const platforms = ["Gemini", "OpenAI", "Perplexity", "Grok"];
+  
+  // Define platforms with their specific colors
+  const platforms = [
+    { name: "Gemini", color: "#33C3F0" },      // Ocean blue
+    { name: "OpenAI", color: "#8B5CF6" },      // Vivid purple
+    { name: "Perplexity", color: "#F97316" },  // Bright orange
+    { name: "Grok", color: "#ea384c" }         // Red
+  ];
+  
   const [currentPlatformIndex, setCurrentPlatformIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
   const [progress, setProgress] = useState(0);
@@ -80,7 +88,7 @@ const AnalyzingStep: React.FC<AnalyzingStepProps> = ({
     >
       <div className="mb-8">
         <motion.h2 
-          className="text-xl font-medium mb-2"
+          className="text-2xl font-medium mb-4 text-center"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
@@ -90,14 +98,17 @@ const AnalyzingStep: React.FC<AnalyzingStepProps> = ({
         
         <AnimatePresence mode="wait">
           <motion.p 
-            key={platforms[currentPlatformIndex]}
-            className="text-sm text-gray-400"
+            key={platforms[currentPlatformIndex].name}
+            className="text-xl text-center font-medium"
             initial={{ opacity: 0 }}
             animate={{ opacity: isVisible ? 1 : 0 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.6 }}
           >
-            Currently checking on <span className="text-brand-blue-light font-medium">{platforms[currentPlatformIndex]}</span>
+            Currently checking on{" "}
+            <span style={{ color: platforms[currentPlatformIndex].color }} className="font-bold">
+              {platforms[currentPlatformIndex].name}
+            </span>
           </motion.p>
         </AnimatePresence>
       </div>
