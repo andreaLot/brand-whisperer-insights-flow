@@ -1,3 +1,4 @@
+
 import React from 'react';
 import ConversationBubble from "@/components/ConversationBubble";
 import AnalysisWelcome from './AnalysisWelcome';
@@ -50,6 +51,7 @@ const ConversationPanel: React.FC<ConversationPanelProps> = ({
           <CategoryDetectionStep suggestedCategories={suggestedCategories} />
         )}
         
+        {/* Modified to allow for continuous flow without abrupt transitions */}
         {step === 'analyzing' && (
           <AnalyzingStep 
             primaryCategory={primaryCategory} 
@@ -58,6 +60,7 @@ const ConversationPanel: React.FC<ConversationPanelProps> = ({
           />
         )}
         
+        {/* This will be shown after analysis is complete */}
         {step === 'chatbot' && (
           <ChatbotStep 
             primaryCategory={primaryCategory}

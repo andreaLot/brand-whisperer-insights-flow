@@ -15,66 +15,95 @@ const AnalyzingStep: React.FC<AnalyzingStepProps> = ({
 }) => {
   const categoryText = primaryCategory || "your business category";
   const locationText = location ? ` in ${location}` : "";
-  const [currentStep, setCurrentStep] = useState(0);
-  const steps = [
-    "Checking Perplexity results",
-    "Checking Gemini insights",
-    "Analyzing Grok data",
-    "Gathering SearchGPT results"
-  ];
+  const [currentText, setCurrentText] = useState("");
+  const [platformIndex, setPlatformIndex] = useState(0);
+  const [isComplete, setIsComplete] = useState(false);
+  const [showLoader, setShowLoader] = useState(true);
+  const platforms = ["Perplexity", "OpenAI", "Gemini", "Grok"];
 
+  // Initial text that appears character by character
+  const baseText = `Analyzing your presence across multiple platforms...
+
+We will now run a research to see how visible you are in AI Search for ${categoryText}${locationText}.`;
+
+  // Function to simulate typing effect
   useEffect(() => {
-    // Longer loading time for each step (2.5 seconds per step)
-    const interval = setInterval(() => {
-      setCurrentStep(prev => {
-        // When all steps are complete, trigger the completion callback
-        if (prev === steps.length - 1) {
-          clearInterval(interval);
-          // Delay the completion callback by 2 seconds to show all steps completed
-          setTimeout(() => {
-            if (onAnalysisComplete) {
-              onAnalysisComplete();
-            }
-          }, 2000);
-          return prev;
-        }
-        return prev + 1;
-      });
-    }, 2500);
-
-    // Initial 10-second delay before starting the step-by-step process
-    const initialTimer = setTimeout(() => {
-      setCurrentStep(0);
-    }, 10000);
-
-    return () => {
-      clearInterval(interval);
-      clearTimeout(initialTimer);
+    let timeout: NodeJS.Timeout;
+    let currentIndex = 0;
+    
+    const typeNextCharacter = () => {
+      if (currentIndex < baseText.length) {
+        setCurrentText(baseText.substring(0, currentIndex + 1));
+        currentIndex++;
+        timeout = setTimeout(typeNextCharacter, 50); // Adjust speed here (50ms per character)
+      } else {
+        // Base text is complete, start platform sequence after a delay
+        setTimeout(() => {
+          setShowLoader(true);
+          cycleSearchPlatforms();
+        }, 1000);
+      }
     };
-  }, [onAnalysisComplete, steps.length]);
+    
+    // Start typing after initial delay
+    timeout = setTimeout(typeNextCharacter, 1000);
+    
+    return () => clearTimeout(timeout);
+  }, [baseText]);
+
+  // Function to cycle through search platforms
+  const cycleSearchPlatforms = () => {
+    let currentPlatformIndex = 0;
+    
+    const updateSearchText = () => {
+      setCurrentText(prev => {
+        // Remove any existing platform text first
+        let baseTextOnly = prev;
+        platforms.forEach(platform => {
+          baseTextOnly = baseTextOnly.replace(`\n\nSearching on ${platform}...`, "");
+        });
+        
+        // Add the current platform
+        return `${baseTextOnly}\n\nSearching on ${platforms[currentPlatformIndex]}...`;
+      });
+      
+      currentPlatformIndex++;
+      
+      if (currentPlatformIndex < platforms.length) {
+        // Continue to the next platform after a delay
+        setTimeout(updateSearchText, 3000); // 3 seconds per platform
+      } else {
+        // All platforms completed
+        setTimeout(() => {
+          setIsComplete(true);
+          if (onAnalysisComplete) {
+            setTimeout(() => {
+              onAnalysisComplete();
+            }, 2000);
+          }
+        }, 2000);
+      }
+    };
+    
+    // Start the platform cycle
+    updateSearchText();
+  };
 
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-normal">
-        Analyzing your presence across <span className="text-brand-blue-light">multiple platforms</span>...
-      </h2>
-      <p className="text-sm mb-4">
-        We will now run a research on Perplexity, Gemini, OpenAI, and Grok to see how visible
-        you are in AI Search for {categoryText}{locationText}.
-      </p>
-      <div className="space-y-3 mt-8">
-        {steps.map((step, index) => (
-          <div key={index} className="flex items-center gap-2">
-            {index <= currentStep ? (
-              <Loader2 className="animate-spin" size={16} />
-            ) : (
-              <div className="w-4 h-4 ml-1"></div>
-            )}
-            <span className={`text-sm ${index <= currentStep ? 'text-white' : 'text-gray-500'}`}>
-              {step}
+      <div className="min-h-[300px]">
+        {/* Display the gradually appearing text */}
+        <div className="whitespace-pre-line">{currentText}</div>
+        
+        {/* Show the loading spinner when appropriate */}
+        {showLoader && (
+          <div className="mt-6 flex items-center gap-2">
+            <Loader2 className="animate-spin" size={16} />
+            <span className="text-sm text-brand-blue-light">
+              {isComplete ? "Analysis complete" : "Analyzing..."}
             </span>
           </div>
-        ))}
+        )}
       </div>
     </div>
   );
