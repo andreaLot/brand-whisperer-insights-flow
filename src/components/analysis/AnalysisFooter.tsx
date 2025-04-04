@@ -23,13 +23,7 @@ const AnalysisFooter: React.FC = () => {
             repeatType: "reverse" 
           }}
         ></motion.span>
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 0.5 }}
-        >
-          Brand Whisperer v1.0
-        </motion.p>
+        <p>Brand Whisperer v1.0</p>
         <motion.span 
           className="bg-brand-blue-light/20 h-1 w-1 rounded-full"
           animate={{ 
