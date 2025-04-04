@@ -74,8 +74,11 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             background: linear-gradient(-45deg, rgba(255, 166, 61, 0.7), rgba(255, 61, 119, 0.7), rgba(51, 138, 255, 0.7), rgba(60, 240, 197, 0.7));
             background-size: 300% 300%;
             animation: gradientMove 6s ease infinite;
-            transform: translateY(5px) scale(0.95);
+            transform: translateY(5px);
             z-index: -1;
+            width: 100%;
+            max-width: 100%;
+            height: 100%;
           }
         `;
         document.head.appendChild(style);
@@ -83,7 +86,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     }, []);
     
     return (
-      <div className={variant === 'dynamic' ? "relative group" : ""}>
+      <div className={variant === 'dynamic' ? "relative group w-fit" : ""}>
         {variant === 'dynamic' && (
           <div className="absolute inset-0 btn-shadow rounded-md opacity-70 group-hover:opacity-100 transition-opacity duration-300"></div>
         )}
