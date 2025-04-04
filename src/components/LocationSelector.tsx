@@ -10,6 +10,44 @@ interface LocationSelectorProps {
   types?: string[]; // Optional prop to restrict to specific place types
 }
 
+// Custom CSS for Google Places Autocomplete dropdown
+// This will be injected once when the component mounts
+const injectGooglePlacesStyles = () => {
+  // Only inject if not already present
+  if (!document.getElementById('google-places-autocomplete-styles')) {
+    const styleElement = document.createElement('style');
+    styleElement.id = 'google-places-autocomplete-styles';
+    styleElement.innerHTML = `
+      .pac-container {
+        z-index: 10000 !important;
+        background-color: white !important;
+        color: black !important;
+        border: 1px solid #ccc !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+        margin-top: 2px !important;
+        border-radius: 0.375rem !important;
+        font-family: inherit !important;
+      }
+      
+      .pac-item {
+        padding: 8px 12px !important;
+        cursor: pointer !important;
+      }
+      
+      .pac-item:hover {
+        background-color: #f3f4f6 !important;
+      }
+      
+      .pac-item-query {
+        color: #000 !important;
+        font-size: 14px !important;
+      }
+    `;
+    document.head.appendChild(styleElement);
+    console.log('Google Places Autocomplete styles injected');
+  }
+};
+
 const LocationSelector: React.FC<LocationSelectorProps> = ({ 
   onSelect, 
   countryRestrictions = ['us'], // Default to US
@@ -21,6 +59,19 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   const listenerRef = useRef<google.maps.MapsEventListener | null>(null);
+
+  // Inject custom styles for the autocomplete dropdown
+  useEffect(() => {
+    injectGooglePlacesStyles();
+    return () => {
+      // Optional cleanup
+      const styleElement = document.getElementById('google-places-autocomplete-styles');
+      if (styleElement) {
+        // Don't remove the styles on unmount as they may be needed by other instances
+        // document.head.removeChild(styleElement);
+      }
+    };
+  }, []);
 
   // Load the Google Maps script
   useEffect(() => {
@@ -183,34 +234,6 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
       {!isLoaded && (
         <div className="text-sm text-gray-500 mt-2">Loading location search...</div>
       )}
-      
-      <style jsx>{`
-        /* Ensure the autocomplete dropdown is visible */
-        :global(.pac-container) {
-          z-index: 10000 !important;
-          background-color: white !important;
-          color: black !important;
-          border: 1px solid #ccc !important;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-          margin-top: 2px !important;
-          border-radius: 0.375rem !important;
-          font-family: inherit !important;
-        }
-        
-        :global(.pac-item) {
-          padding: 8px 12px !important;
-          cursor: pointer !important;
-        }
-        
-        :global(.pac-item:hover) {
-          background-color: #f3f4f6 !important;
-        }
-        
-        :global(.pac-item-query) {
-          color: #000 !important;
-          font-size: 14px !important;
-        }
-      `}</style>
     </div>
   );
 };
