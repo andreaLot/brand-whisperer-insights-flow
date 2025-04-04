@@ -49,7 +49,11 @@ const ResultCard: React.FC<ResultCardProps> = ({
                 className="p-1.5 bg-brand-gray-dark rounded-full"
                 initial={{ scale: 0.5, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                transition={{ 
+                  type: "spring", 
+                  stiffness: 500, 
+                  damping: 15 // Less damping for bouncier effect
+                }}
               >
                 {icon}
               </motion.div>
@@ -61,7 +65,11 @@ const ResultCard: React.FC<ResultCardProps> = ({
               className="text-sm bg-gradient-to-r from-brand-blue to-brand-blue-light px-2.5 py-1 rounded-full font-medium"
               initial={{ x: 20, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.2 }}
+              transition={{ 
+                delay: 0.2,
+                type: "spring",
+                stiffness: 300
+              }}
             >
               Rank: #{rank}
             </motion.span>
@@ -76,7 +84,11 @@ const ResultCard: React.FC<ResultCardProps> = ({
               className={`font-semibold text-lg ${getScoreColor(score)}`}
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.4, type: "spring" }}
+              transition={{ 
+                delay: 0.3, 
+                type: "spring",
+                stiffness: 500
+              }}
             >
               {score}
               <span className="text-xs text-gray-400">/{maxScore}</span>
@@ -88,7 +100,11 @@ const ResultCard: React.FC<ResultCardProps> = ({
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${percentage}%` }}
-                transition={{ duration: 1, ease: "easeOut", delay: 0.5 }}
+                transition={{ 
+                  duration: 0.8, // Faster animation
+                  ease: "easeOut", 
+                  delay: 0.3 // Start sooner
+                }}
                 className={`shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center ${getProgressColor(score)}`}
               />
             </div>
@@ -98,7 +114,7 @@ const ResultCard: React.FC<ResultCardProps> = ({
             className={`text-xs px-2.5 py-1.5 mt-2 rounded bg-gradient-to-r ${getScoreGradient(score)}`}
             initial={{ opacity: 0, y: 5 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
+            transition={{ delay: 0.4 }}
           >
             {score >= 80 ? "Excellent visibility" : 
              score >= 60 ? "Good visibility" : 

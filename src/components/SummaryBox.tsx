@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle, AlertCircle, Lightbulb, ChevronDown } from 'lucide-react';
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Collapsible,
   CollapsibleContent,
@@ -39,27 +39,51 @@ const SummaryBox: React.FC<SummaryBoxProps> = ({
     show: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1
+        staggerChildren: 0.08 // Faster staggering for smoother appearance
       }
     }
   };
 
   const item = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0 }
+    hidden: { opacity: 0, y: 10 },
+    show: { 
+      opacity: 1, 
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 500,
+        damping: 24
+      }
+    }
   };
 
   return (
     <Card className="bg-brand-gray-dark border border-gray-700 text-white shadow-lg">
       <CardContent className="pt-6 space-y-6">
         <div className="flex items-center justify-between">
-          <h3 className="text-xl font-medium">Brand Analysis Summary</h3>
-          <div className={`flex flex-col items-center gap-1`}>
+          <motion.h3 
+            className="text-xl font-medium"
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            Brand Analysis Summary
+          </motion.h3>
+          <motion.div 
+            className={`flex flex-col items-center gap-1`}
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ 
+              delay: 0.2,
+              type: "spring",
+              stiffness: 500
+            }}
+          >
             <div className={`text-2xl font-bold ${getScoreColor(overallScore)}`}>
               {overallScore}
             </div>
             <div className="text-xs text-gray-400">Overall Score</div>
-          </div>
+          </motion.div>
         </div>
 
         <motion.div
