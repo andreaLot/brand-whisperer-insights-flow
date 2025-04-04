@@ -53,6 +53,16 @@ const InputPanel: React.FC<InputPanelProps> = ({
         </div>
       )}
       
+      {step === 'analyzing' && (
+        <div className="bg-brand-gray-dark rounded-lg p-6 border border-gray-700 animate-fade-in">
+          <h3 className="text-lg font-medium mb-4">AI Search Analysis</h3>
+          <p className="text-sm text-gray-300">
+            We will now run a research on Perplexity, Gemini, OpenAI, and Grok to see how visible
+            you are in AI Search for the category of the business in your location.
+          </p>
+        </div>
+      )}
+      
       {step === 'results' && analysisResult && (
         <ResultsStep
           analysisResult={analysisResult}
