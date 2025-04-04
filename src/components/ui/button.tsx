@@ -48,16 +48,23 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const Comp = asChild ? Slot : "button"
     
     return (
-      <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
-        ref={ref}
-        {...props}
-      >
+      <>
         {variant === 'dynamic' && (
-          <span className="absolute inset-0 bg-gradient-to-r from-[#4C9AFF] via-[#9b87f5] to-[#D946EF] animate-gradient-x"></span>
+          <div className="btn-shadow w-full h-full">
+            <span className="absolute inset-0 bg-gradient-to-r from-[#FFA63D] via-[#FF3D77] via-[#338AFF] to-[#3CF0C5] rounded-[50px] animate-gradient-x"></span>
+          </div>
         )}
-        <span className={cn("relative z-10", variant === 'dynamic' && "bg-black/20 backdrop-blur-sm px-10 py-3 rounded-md")}>{children}</span>
-      </Comp>
+        <Comp
+          className={cn(buttonVariants({ variant, size, className }))}
+          ref={ref}
+          {...props}
+        >
+          {variant === 'dynamic' && (
+            <span className="absolute inset-0 bg-gradient-to-r from-[#FFA63D] via-[#FF3D77] via-[#338AFF] to-[#3CF0C5] rounded-[50px] animate-gradient-x"></span>
+          )}
+          <span className={cn("relative z-10", variant === 'dynamic' && "bg-black/20 backdrop-blur-sm px-10 py-3 rounded-md")}>{children}</span>
+        </Comp>
+      </>
     )
   }
 )
