@@ -33,15 +33,15 @@ const ResultCard: React.FC<ResultCardProps> = ({
   };
 
   return (
-    <Card className="bg-brand-gray-dark border border-gray-700 text-white shadow-lg animate-fade-in">
+    <Card className="bg-gradient-to-br from-brand-gray-dark to-brand-blue-dark/30 border border-gray-700 text-white shadow-lg animate-fade-in hover:shadow-brand-blue/10 hover:shadow-xl transition-all duration-300">
       <CardHeader className="pb-2">
         <CardTitle className="text-lg flex items-center justify-between">
-          <div className="flex items-center">
-            {icon && <span className="mr-2">{icon}</span>}
+          <div className="flex items-center gap-2">
+            {icon && <span className="p-1.5 bg-brand-gray-dark rounded-full">{icon}</span>}
             <span>{platform}</span>
           </div>
           {rank && (
-            <span className="text-sm bg-brand-blue px-2 py-1 rounded-full">
+            <span className="text-sm bg-gradient-to-r from-brand-blue to-brand-blue-light px-2.5 py-1 rounded-full font-medium">
               Rank: #{rank}
             </span>
           )}
@@ -56,8 +56,12 @@ const ResultCard: React.FC<ResultCardProps> = ({
         </div>
         <Progress
           value={percentage}
-          className="h-2 bg-gray-700"
-          indicatorClassName={getProgressColor(score)}
+          className={`h-2 bg-gray-700`}
+          // Fix: Use the correct class on the Progress component directly
+          // instead of trying to use an indicatorClassName prop
+          style={{ 
+            ['--progress-background' as any]: getProgressColor(score) 
+          }}
         />
       </CardContent>
     </Card>
