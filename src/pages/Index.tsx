@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
-import { AnalysisService, AnalysisResult, BusinessCategory } from "@/services/AnalysisService";
+import { AnalysisService, AnalysisResult, BusinessCategory, ApifyBusinessResult, ApifyCategoryResult } from "@/services/AnalysisService";
 import ConversationPanel, { Step } from '@/components/analysis/ConversationPanel';
 import InputPanel from '@/components/analysis/InputPanel';
 import { PlaceSelectionResult } from '@/hooks/useGooglePlaces';
@@ -17,8 +17,11 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [webhookSent, setWebhookSent] = useState(false);
+  const [apifyBusinessResult, setApifyBusinessResult] = useState<ApifyBusinessResult | null>(null);
+  const [apifyCategoryResults, setApifyCategoryResults] = useState<ApifyCategoryResult[]>([]);
+  const [apifyLoading, setApifyLoading] = useState(false);
 
-  const handleLocationSelect = (selectedLocation: string, placeData?: PlaceSelectionResult) => {
+  const handleLocationSelect = async (selectedLocation: string, placeData?: PlaceSelectionResult) => {
     setLocation(selectedLocation);
     setIsLoading(true);
     setStep('category-detection');
@@ -31,7 +34,54 @@ const Index = () => {
       }
     }
 
+    // Start Apify API calls in parallel with category detection
+    fetchApifyData(businessName, selectedLocation);
     detectCategory();
+  };
+
+  const fetchApifyData = async (business: string, locationValue: string) => {
+    setApifyLoading(true);
+    
+    try {
+      // Run both Apify calls in parallel
+      const [businessResult, categoryResult] = await Promise.allSettled([
+        AnalysisService.fetchBusinessFromApify(business, locationValue),
+        primaryCategory ? 
+          AnalysisService.fetchCategoryFromApify(primaryCategory, locationValue) :
+          Promise.resolve([])
+      ]);
+      
+      // Handle business result
+      if (businessResult.status === 'fulfilled' && businessResult.value) {
+        setApifyBusinessResult(businessResult.value);
+        console.log("Apify business data received:", businessResult.value);
+        
+        // If we didn't get a category from place data, try to use the one from Apify
+        if (!primaryCategory && businessResult.value.category) {
+          setPrimaryCategory(businessResult.value.category);
+          setCategory(businessResult.value.category);
+        }
+      } else {
+        console.error("Apify business data fetch failed:", businessResult);
+      }
+      
+      // Handle category results
+      if (categoryResult.status === 'fulfilled' && Array.isArray(categoryResult.value)) {
+        setApifyCategoryResults(categoryResult.value);
+        console.log("Apify category data received:", categoryResult.value);
+      } else {
+        console.error("Apify category data fetch failed:", categoryResult);
+      }
+    } catch (error) {
+      console.error("Error fetching data from Apify:", error);
+      toast({
+        title: "API Error",
+        description: "Failed to fetch data from Apify. Using fallback data.",
+        variant: "destructive"
+      });
+    } finally {
+      setApifyLoading(false);
+    }
   };
 
   const detectCategory = async () => {
@@ -39,7 +89,7 @@ const Index = () => {
       const categories = await AnalysisService.detectCategory(businessName);
       setSuggestedCategories(categories);
 
-      if (categories.length > 0) {
+      if (categories.length > 0 && !primaryCategory) {
         setCategory(categories[0].name);
       }
 
@@ -96,9 +146,6 @@ const Index = () => {
     }
   };
 
-  const analyzeBrand = () => {
-  };
-
   const handleStartOver = () => {
     setStep('welcome');
     setLocation('');
@@ -107,6 +154,8 @@ const Index = () => {
     setSuggestedCategories([]);
     setAnalysisResult(null);
     setWebhookSent(false);
+    setApifyBusinessResult(null);
+    setApifyCategoryResults([]);
   };
 
   const handleBeginAnalysis = () => {
@@ -139,6 +188,9 @@ const Index = () => {
           handleBusinessNameSubmit={() => {}}
           handleLocationSelect={handleLocationSelect}
           handleStartOver={handleStartOver}
+          apifyBusinessResult={apifyBusinessResult}
+          apifyCategoryResults={apifyCategoryResults}
+          apifyLoading={apifyLoading}
         />
       </div>
       
