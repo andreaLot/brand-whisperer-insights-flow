@@ -1,6 +1,5 @@
 
 import React from 'react';
-import LocationSelector from '@/components/LocationSelector';
 import ResultsStep from './ResultsStep';
 import { AnalysisResult, BusinessCategory } from "@/services/AnalysisService";
 
@@ -29,13 +28,6 @@ const InputPanel: React.FC<InputPanelProps> = ({
 }) => {
   return (
     <div className="w-full md:w-1/2">
-      {step === 'welcome' && (
-        <div className="bg-brand-gray-dark rounded-lg p-6 border border-gray-700 animate-fade-in">
-          <h3 className="text-lg font-medium mb-4">Select Location</h3>
-          <LocationSelector onSelect={handleLocationSelect} />
-        </div>
-      )}
-      
       {step === 'category-detection' && suggestedCategories.length > 0 && (
         <div className="bg-brand-gray-dark rounded-lg p-6 border border-gray-700 animate-fade-in">
           <h3 className="text-lg font-medium mb-4">Detected Categories:</h3>

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { AnalysisService, AnalysisResult, BusinessCategory } from "@/services/AnalysisService";
@@ -50,7 +51,7 @@ const Index = () => {
         description: "Failed to detect business category. Please try again.",
         variant: "destructive"
       });
-      setStep('welcome');
+      setStep('business-name');
     }
   };
 
@@ -69,7 +70,7 @@ const Index = () => {
         variant: "destructive"
       });
       setIsLoading(false);
-      setStep('welcome');
+      setStep('business-name');
     }
   };
 
@@ -84,7 +85,7 @@ const Index = () => {
 
   // Begin analysis flow
   const handleBeginAnalysis = () => {
-    setStep('welcome');
+    setStep('business-name');
   };
 
   return (
