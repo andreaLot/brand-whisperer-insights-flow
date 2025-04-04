@@ -122,26 +122,31 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-1 mb-4 space-y-4 overflow-y-auto max-h-[350px]">
+      <div className="flex-1 mb-4 space-y-4 overflow-y-auto max-h-[350px] pr-2">
         {messages.map((message, index) => (
           <div 
             key={index} 
-            className={`flex ${message.type === 'bot' ? 'justify-start' : 'justify-end'}`}
+            className={`flex ${message.type === 'bot' ? 'justify-start' : 'justify-end'} animate-fade-in`}
           >
             {message.type === 'bot' && <RobotAvatar />}
             
             <div 
-              className={`px-4 py-2 rounded-lg max-w-[80%] ${
+              className={`px-4 py-3 rounded-lg max-w-[80%] shadow-lg transition-all duration-300 ${
                 message.type === 'bot' 
-                  ? 'ml-2 bg-brand-gray-dark border border-gray-700' 
-                  : 'mr-2 bg-brand-blue-dark'
+                  ? 'ml-2 bg-gradient-to-br from-brand-gray-dark to-brand-blue-dark/70 border border-gray-700/50' 
+                  : 'mr-2 bg-gradient-to-br from-brand-blue-dark to-brand-blue/40 border border-brand-blue-light/20'
               }`}
+              style={{
+                boxShadow: message.type === 'bot' 
+                  ? '0 4px 12px rgba(0,0,0,0.2), inset 0 1px rgba(255,255,255,0.07)' 
+                  : '0 4px 12px rgba(0,82,204,0.15), inset 0 1px rgba(255,255,255,0.1)'
+              }}
             >
               <p className="text-sm">{message.text}</p>
             </div>
             
             {message.type === 'user' && (
-              <div className="w-10 h-10 bg-brand-blue-light rounded-full flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-brand-blue-light to-brand-blue rounded-full flex items-center justify-center shadow-lg">
                 <Check size={20} />
               </div>
             )}
@@ -155,7 +160,11 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
             onClick={() => handleButtonClick(getButtonText())}
             variant="dynamic" 
             size="xl" 
-            className="w-full md:w-auto"
+            className="w-full md:w-auto shadow-[0_4px_14px_rgba(0,82,204,0.4)]"
+            style={{
+              transition: "all 0.3s ease",
+              transform: "translateY(0)",
+            }}
           >
             {getButtonText()}
           </Button>
