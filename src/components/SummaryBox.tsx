@@ -1,7 +1,13 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, AlertCircle, InfoIcon } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { CheckCircle, AlertCircle, Lightbulb, ChevronDown } from 'lucide-react';
+import { motion } from "framer-motion";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 interface SummaryBoxProps {
   overallScore: number;
@@ -21,53 +27,125 @@ const SummaryBox: React.FC<SummaryBoxProps> = ({
     if (score >= 60) return 'text-yellow-500';
     return 'text-red-500';
   };
+  
+  const scoreGradient = (score: number) => {
+    if (score >= 80) return 'from-green-500/20 to-green-500/5';
+    if (score >= 60) return 'from-yellow-500/20 to-yellow-500/5';
+    return 'from-red-500/20 to-red-500/5';
+  };
+
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 }
+  };
 
   return (
-    <Card className="bg-brand-gray-dark border border-gray-700 text-white shadow-lg animate-fade-in">
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          <span>Brand Analysis Summary</span>
-          <span className={`font-semibold text-xl ${getScoreColor(overallScore)}`}>
-            {overallScore}/100
-          </span>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <h3 className="text-lg font-medium flex items-center">
-            <CheckCircle size={18} className="text-green-500 mr-2" />
-            Strengths
-          </h3>
-          <ul className="list-disc list-inside pl-5 text-sm text-gray-300">
-            {strengths.map((strength, index) => (
-              <li key={`strength-${index}`}>{strength}</li>
-            ))}
-          </ul>
+    <Card className="bg-brand-gray-dark border border-gray-700 text-white shadow-lg">
+      <CardContent className="pt-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xl font-medium">Brand Analysis Summary</h3>
+          <div className={`flex flex-col items-center gap-1`}>
+            <div className={`text-2xl font-bold ${getScoreColor(overallScore)}`}>
+              {overallScore}
+            </div>
+            <div className="text-xs text-gray-400">Overall Score</div>
+          </div>
         </div>
 
-        <div className="space-y-2">
-          <h3 className="text-lg font-medium flex items-center">
-            <AlertCircle size={18} className="text-red-500 mr-2" />
-            Areas for Improvement
-          </h3>
-          <ul className="list-disc list-inside pl-5 text-sm text-gray-300">
-            {weaknesses.map((weakness, index) => (
-              <li key={`weakness-${index}`}>{weakness}</li>
-            ))}
-          </ul>
-        </div>
+        <motion.div
+          className="space-y-4"
+          variants={container}
+          initial="hidden"
+          animate="show"
+        >
+          <Collapsible defaultOpen className="border border-gray-700 rounded-lg overflow-hidden">
+            <CollapsibleTrigger className="flex items-center justify-between w-full p-3 bg-gradient-to-r from-green-500/10 to-transparent hover:from-green-500/20 transition-all">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 bg-green-500/20 rounded-full">
+                  <CheckCircle size={16} className="text-green-500" />
+                </div>
+                <span className="font-medium">Strengths</span>
+              </div>
+              <ChevronDown size={16} className="text-gray-400" />
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <motion.ul className="p-4 pt-2 space-y-2" variants={container}>
+                {strengths.map((strength, index) => (
+                  <motion.li 
+                    key={`strength-${index}`} 
+                    className="text-sm text-gray-300 pl-8 relative"
+                    variants={item}
+                  >
+                    <span className="absolute left-0 top-0 text-green-500">•</span>
+                    {strength}
+                  </motion.li>
+                ))}
+              </motion.ul>
+            </CollapsibleContent>
+          </Collapsible>
 
-        <div className="space-y-2">
-          <h3 className="text-lg font-medium flex items-center">
-            <InfoIcon size={18} className="text-brand-blue mr-2" />
-            Recommendations
-          </h3>
-          <ul className="list-disc list-inside pl-5 text-sm text-gray-300">
-            {recommendations.map((recommendation, index) => (
-              <li key={`recommendation-${index}`}>{recommendation}</li>
-            ))}
-          </ul>
-        </div>
+          <Collapsible defaultOpen className="border border-gray-700 rounded-lg overflow-hidden">
+            <CollapsibleTrigger className="flex items-center justify-between w-full p-3 bg-gradient-to-r from-red-500/10 to-transparent hover:from-red-500/20 transition-all">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 bg-red-500/20 rounded-full">
+                  <AlertCircle size={16} className="text-red-500" />
+                </div>
+                <span className="font-medium">Areas for Improvement</span>
+              </div>
+              <ChevronDown size={16} className="text-gray-400" />
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <motion.ul className="p-4 pt-2 space-y-2" variants={container}>
+                {weaknesses.map((weakness, index) => (
+                  <motion.li 
+                    key={`weakness-${index}`} 
+                    className="text-sm text-gray-300 pl-8 relative"
+                    variants={item}
+                  >
+                    <span className="absolute left-0 top-0 text-red-500">•</span>
+                    {weakness}
+                  </motion.li>
+                ))}
+              </motion.ul>
+            </CollapsibleContent>
+          </Collapsible>
+
+          <Collapsible defaultOpen className="border border-gray-700 rounded-lg overflow-hidden">
+            <CollapsibleTrigger className="flex items-center justify-between w-full p-3 bg-gradient-to-r from-blue-500/10 to-transparent hover:from-blue-500/20 transition-all">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 bg-brand-blue/20 rounded-full">
+                  <Lightbulb size={16} className="text-brand-blue-light" />
+                </div>
+                <span className="font-medium">Recommendations</span>
+              </div>
+              <ChevronDown size={16} className="text-gray-400" />
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <motion.ul className="p-4 pt-2 space-y-2" variants={container}>
+                {recommendations.map((recommendation, index) => (
+                  <motion.li 
+                    key={`recommendation-${index}`} 
+                    className="text-sm text-gray-300 pl-8 relative"
+                    variants={item}
+                  >
+                    <span className="absolute left-0 top-0 text-brand-blue-light">•</span>
+                    {recommendation}
+                  </motion.li>
+                ))}
+              </motion.ul>
+            </CollapsibleContent>
+          </Collapsible>
+        </motion.div>
       </CardContent>
     </Card>
   );

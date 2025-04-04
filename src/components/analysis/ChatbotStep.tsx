@@ -1,9 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import ProgressIndicator from '@/components/ProgressIndicator';
-import { MessageSquareMore } from 'lucide-react';
+import { MessageSquareMore, Bot, ArrowRight } from 'lucide-react';
 import { AnalysisService } from "@/services/AnalysisService";
+import { motion } from "framer-motion";
 
 interface ChatbotStepProps {
   primaryCategory?: string;
@@ -20,14 +20,17 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
 }) => {
   const [step, setStep] = useState(0);
   const [webhookSent, setWebhookSent] = useState(false);
+  const [buttonEnabled, setButtonEnabled] = useState(false);
 
   useEffect(() => {
-    // Progress through chatbot steps
-    if (step === 0) {
-      const timer = setTimeout(() => setStep(1), 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [step]);
+    // Progress through chatbot steps with visual animation
+    const timer = setTimeout(() => {
+      setStep(1);
+      setButtonEnabled(true);
+    }, 2000);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     // Send webhook data when the component mounts
@@ -53,55 +56,75 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
     sendData();
   }, [businessName, location, primaryCategory, webhookSent]);
 
-  // Button text based on the current step
-  const getButtonText = () => {
-    switch (step) {
-      case 0:
-        return "Analyzing the business...";
-      case 1:
-        return "Continue to Results";
-      default:
-        return "Continue";
-    }
-  };
-
   return (
-    <div className="space-y-6">
-      <div className="space-y-3">
-        <h2 className="text-xl font-bold text-brand-blue-light flex items-center gap-2">
-          <MessageSquareMore size={22} />
+    <div className="space-y-8">
+      <div>
+        <h2 className="text-xl font-medium text-brand-blue-light flex items-center gap-2 mb-2">
+          <Bot size={22} />
           AI Brand Analysis
         </h2>
-        
-        <div className="space-y-4">
-          <div className="bg-gradient-to-br from-brand-gray-dark to-brand-blue-dark/30 p-4 rounded-xl border border-gray-700 shadow-lg hover:shadow-brand-blue/10 transition-all duration-300">
-            <p>Analyzing <span className="font-semibold text-brand-blue-light">{businessName}</span> in {location || "your location"}...</p>
-          </div>
-          
-          {step >= 1 && (
-            <div className="bg-gradient-to-br from-brand-gray-dark to-brand-blue-dark/30 p-4 rounded-xl border border-gray-700 shadow-lg hover:shadow-brand-blue/10 transition-all duration-300 animate-fade-in">
-              <p>We're gathering insights on <span className="text-brand-blue-light">{primaryCategory}</span> businesses to provide you with a comprehensive analysis.</p>
-            </div>
-          )}
-        </div>
+        <p className="text-sm text-gray-400">
+          We've gathered insights on your business's online presence
+        </p>
       </div>
       
-      <Button 
-        onClick={onChatComplete}
-        disabled={step < 1}
-        variant="dynamic"
-        size="xl"
-        className="w-full animate-pulse shadow-md hover:shadow-xl transition-all duration-300"
-      >
-        {step === 0 ? (
-          <span className="flex items-center gap-2">
-            <ProgressIndicator currentStep={1} totalSteps={3} />
-            {getButtonText()}
-          </span>
-        ) : (
-          getButtonText()
+      <div className="space-y-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="bg-gradient-to-br from-brand-gray-dark to-brand-blue-dark/30 p-4 rounded-xl border border-gray-700"
+        >
+          <div className="flex items-start gap-3">
+            <div className="bg-brand-blue/20 p-1.5 rounded-full mt-0.5">
+              <MessageSquareMore size={16} className="text-brand-blue-light" />
+            </div>
+            <p className="text-sm">
+              Analyzing <span className="font-semibold text-brand-blue-light">{businessName}</span> in {location || "your location"}...
+            </p>
+          </div>
+        </motion.div>
+        
+        {step >= 1 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="bg-gradient-to-br from-brand-gray-dark to-brand-blue-dark/30 p-4 rounded-xl border border-gray-700"
+          >
+            <div className="flex items-start gap-3">
+              <div className="bg-brand-blue/20 p-1.5 rounded-full mt-0.5">
+                <Bot size={16} className="text-brand-blue-light" />
+              </div>
+              <div className="space-y-2">
+                <p className="text-sm">
+                  Analysis of <span className="text-brand-blue-light">{primaryCategory}</span> businesses is complete.
+                </p>
+                <p className="text-xs text-gray-400">
+                  Ready to view your comprehensive brand analysis
+                </p>
+              </div>
+            </div>
+          </motion.div>
         )}
-      </Button>
+      </div>
+      
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1 }}
+      >
+        <Button 
+          onClick={onChatComplete}
+          disabled={!buttonEnabled}
+          variant="dynamic"
+          size="lg"
+          className="w-full transition-all duration-500 flex items-center justify-center gap-2"
+        >
+          Continue to Results 
+          <ArrowRight size={16} />
+        </Button>
+      </motion.div>
     </div>
   );
 };

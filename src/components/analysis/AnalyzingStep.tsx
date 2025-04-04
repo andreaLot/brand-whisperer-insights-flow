@@ -1,6 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
-import { Loader2 } from "lucide-react";
+import { Loader2, Search, CheckCircle } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface AnalyzingStepProps {
   primaryCategory?: string;
@@ -15,95 +17,106 @@ const AnalyzingStep: React.FC<AnalyzingStepProps> = ({
 }) => {
   const categoryText = primaryCategory || "your business category";
   const locationText = location ? ` in ${location}` : "";
-  const [currentText, setCurrentText] = useState("");
-  const [platformIndex, setPlatformIndex] = useState(0);
-  const [isComplete, setIsComplete] = useState(false);
-  const [showLoader, setShowLoader] = useState(true);
-  const platforms = ["Perplexity", "OpenAI", "Gemini", "Grok"];
-
-  // Initial text that appears character by character
-  const baseText = `Analyzing your presence across multiple platforms...
-
-We will now run a research to see how visible you are in AI Search for ${categoryText}${locationText}.`;
-
-  // Function to simulate typing effect
+  const [progress, setProgress] = useState(0);
+  const [currentPlatform, setCurrentPlatform] = useState("");
+  const [analyzedPlatforms, setAnalyzedPlatforms] = useState<string[]>([]);
+  const platforms = ["Perplexity", "Gemini", "Grok", "SearchGPT"];
+  
   useEffect(() => {
-    let timeout: NodeJS.Timeout;
-    let currentIndex = 0;
+    // Start with initial progress
+    setProgress(5);
     
-    const typeNextCharacter = () => {
-      if (currentIndex < baseText.length) {
-        setCurrentText(baseText.substring(0, currentIndex + 1));
-        currentIndex++;
-        timeout = setTimeout(typeNextCharacter, 50); // Adjust speed here (50ms per character)
-      } else {
-        // Base text is complete, start platform sequence after a delay
-        setTimeout(() => {
-          setShowLoader(true);
-          cycleSearchPlatforms();
-        }, 1000);
-      }
-    };
-    
-    // Start typing after initial delay
-    timeout = setTimeout(typeNextCharacter, 1000);
-    
-    return () => clearTimeout(timeout);
-  }, [baseText]);
-
-  // Function to cycle through search platforms
-  const cycleSearchPlatforms = () => {
-    let currentPlatformIndex = 0;
-    
-    const updateSearchText = () => {
-      setCurrentText(prev => {
-        // Remove any existing platform text first
-        let baseTextOnly = prev;
-        platforms.forEach(platform => {
-          baseTextOnly = baseTextOnly.replace(`\n\nSearching on ${platform}...`, "");
-        });
+    // Simulate analysis progress with smooth progress bar animation
+    const interval = setInterval(() => {
+      setProgress(prevProgress => {
+        const newProgress = prevProgress + 1;
         
-        // Add the current platform
-        return `${baseTextOnly}\n\nSearching on ${platforms[currentPlatformIndex]}...`;
+        // Handle platform transitions
+        if (newProgress === 25) {
+          setCurrentPlatform(platforms[0]);
+          setAnalyzedPlatforms(prev => [...prev, platforms[0]]);
+        } else if (newProgress === 50) {
+          setCurrentPlatform(platforms[1]);
+          setAnalyzedPlatforms(prev => [...prev, platforms[1]]);
+        } else if (newProgress === 75) {
+          setCurrentPlatform(platforms[2]);
+          setAnalyzedPlatforms(prev => [...prev, platforms[2]]);
+        } else if (newProgress === 90) {
+          setCurrentPlatform(platforms[3]);
+          setAnalyzedPlatforms(prev => [...prev, platforms[3]]);
+        }
+        
+        // When complete, call the completion handler after a delay
+        if (newProgress >= 100) {
+          clearInterval(interval);
+          setTimeout(() => {
+            if (onAnalysisComplete) onAnalysisComplete();
+          }, 1500);
+          return 100;
+        }
+        return newProgress;
       });
-      
-      currentPlatformIndex++;
-      
-      if (currentPlatformIndex < platforms.length) {
-        // Continue to the next platform after a delay
-        setTimeout(updateSearchText, 3000); // 3 seconds per platform
-      } else {
-        // All platforms completed
-        setTimeout(() => {
-          setIsComplete(true);
-          if (onAnalysisComplete) {
-            setTimeout(() => {
-              onAnalysisComplete();
-            }, 2000);
-          }
-        }, 2000);
-      }
-    };
+    }, 120); // Speed of analysis simulation
     
-    // Start the platform cycle
-    updateSearchText();
-  };
+    return () => clearInterval(interval);
+  }, [onAnalysisComplete, platforms]);
 
   return (
     <div className="space-y-6">
-      <div className="min-h-[300px]">
-        {/* Display the gradually appearing text */}
-        <div className="whitespace-pre-line">{currentText}</div>
-        
-        {/* Show the loading spinner when appropriate */}
-        {showLoader && (
-          <div className="mt-6 flex items-center gap-2">
-            <Loader2 className="animate-spin" size={16} />
-            <span className="text-sm text-brand-blue-light">
-              {isComplete ? "Analysis complete" : "Analyzing..."}
-            </span>
+      <div className="mb-8">
+        <h2 className="text-xl font-medium mb-2">
+          <span className="text-brand-blue-light">Analyzing</span> {categoryText}{locationText}
+        </h2>
+        <p className="text-sm text-gray-400">Checking your visibility across multiple AI platforms</p>
+      </div>
+      
+      <div className="space-y-6">
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm">
+            <span>Analysis progress</span>
+            <span className="font-medium">{progress}%</span>
           </div>
-        )}
+          <Progress 
+            value={progress} 
+            className="h-2 bg-gray-700"
+            style={{ 
+              ['--progress-background' as any]: 'linear-gradient(90deg, #0052CC, #4C9AFF)'
+            }}
+          />
+        </div>
+        
+        <AnimatePresence>
+          <motion.div 
+            className="space-y-3 mt-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            {analyzedPlatforms.map((platform, index) => (
+              <motion.div
+                key={platform}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="flex items-center gap-3 p-2.5 rounded-lg bg-gray-800/50 border border-gray-700"
+              >
+                <CheckCircle size={18} className="text-green-500" />
+                <span className="text-sm">{platform} analysis complete</span>
+              </motion.div>
+            ))}
+            
+            {currentPlatform && !analyzedPlatforms.includes(currentPlatform) && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-center gap-3 p-2.5 rounded-lg bg-gray-800/50 border border-gray-700"
+              >
+                <Search size={18} className="text-brand-blue-light animate-pulse" />
+                <span className="text-sm">Analyzing {currentPlatform}...</span>
+              </motion.div>
+            )}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );

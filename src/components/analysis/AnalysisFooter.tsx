@@ -1,11 +1,21 @@
 
 import React from 'react';
+import { motion } from 'framer-motion';
 
 const AnalysisFooter: React.FC = () => {
   return (
-    <div className="mt-12 text-center text-xs text-gray-500">
-      <p>Brand Whisperer v1.0 - Embed this tool on your website with a simple iframe.</p>
-    </div>
+    <motion.div 
+      className="mt-12 text-center"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 1, duration: 0.5 }}
+    >
+      <div className="flex items-center justify-center space-x-2 text-xs text-gray-500">
+        <span className="bg-brand-blue-light/20 h-1 w-1 rounded-full"></span>
+        <p>Brand Whisperer v1.0</p>
+        <span className="bg-brand-blue-light/20 h-1 w-1 rounded-full"></span>
+      </div>
+    </motion.div>
   );
 };
 
