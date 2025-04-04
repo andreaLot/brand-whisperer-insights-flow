@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
-import { Loader2, Search, CheckCircle, ArrowRight } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
 import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
 
 interface AnalyzingStepProps {
   primaryCategory?: string;
@@ -16,50 +16,60 @@ const AnalyzingStep: React.FC<AnalyzingStepProps> = ({
   onAnalysisComplete
 }) => {
   const categoryText = primaryCategory || "your business category";
-  const locationText = location ? ` in ${location}` : "";
+  const platforms = ["Gemini", "OpenAI", "Perplexity", "Grok"];
+  const [currentPlatformIndex, setCurrentPlatformIndex] = useState(0);
+  const [isVisible, setIsVisible] = useState(true);
   const [progress, setProgress] = useState(0);
-  const [currentPlatform, setCurrentPlatform] = useState("");
-  const [analyzedPlatforms, setAnalyzedPlatforms] = useState<string[]>([]);
-  const platforms = ["Perplexity", "Gemini", "Grok", "SearchGPT"];
-  
+  const [isComplete, setIsComplete] = useState(false);
+
+  // Handle platform rotation with fade effect
   useEffect(() => {
-    // Start with initial progress
-    setProgress(5);
-    
-    // Simulate analysis progress with smooth progress bar animation
-    const interval = setInterval(() => {
+    // If analysis is complete, don't continue the animation
+    if (isComplete) return;
+
+    const fadeInterval = setInterval(() => {
+      setIsVisible(false);
+      
+      // Wait for fade out, then change platform and fade in
+      setTimeout(() => {
+        setCurrentPlatformIndex(prevIndex => (prevIndex + 1) % platforms.length);
+        setIsVisible(true);
+      }, 600);
+    }, 2000); // Change platform every 2 seconds
+
+    return () => clearInterval(fadeInterval);
+  }, [platforms.length, isComplete]);
+  
+  // Handle progress and completion
+  useEffect(() => {
+    const progressInterval = setInterval(() => {
       setProgress(prevProgress => {
-        const newProgress = prevProgress + 1;
+        const newProgress = prevProgress + 0.5;
         
-        // Handle platform transitions
-        if (newProgress === 25) {
-          setCurrentPlatform(platforms[0]);
-          setAnalyzedPlatforms(prev => [...prev, platforms[0]]);
-        } else if (newProgress === 50) {
-          setCurrentPlatform(platforms[1]);
-          setAnalyzedPlatforms(prev => [...prev, platforms[1]]);
-        } else if (newProgress === 75) {
-          setCurrentPlatform(platforms[2]);
-          setAnalyzedPlatforms(prev => [...prev, platforms[2]]);
-        } else if (newProgress === 90) {
-          setCurrentPlatform(platforms[3]);
-          setAnalyzedPlatforms(prev => [...prev, platforms[3]]);
-        }
-        
-        // When complete, call the completion handler after a delay
         if (newProgress >= 100) {
-          clearInterval(interval);
-          setTimeout(() => {
-            if (onAnalysisComplete) onAnalysisComplete();
-          }, 1000); // Reduced delay for smoother transition
+          clearInterval(progressInterval);
+          setIsComplete(true);
           return 100;
         }
+        
         return newProgress;
       });
-    }, 80); // Faster speed for more fluid animation
+    }, 150); // Slower progress to give time for the animation
     
-    return () => clearInterval(interval);
-  }, [onAnalysisComplete, platforms]);
+    return () => clearInterval(progressInterval);
+  }, []);
+  
+  // Handle completion
+  useEffect(() => {
+    if (isComplete && onAnalysisComplete) {
+      // Wait a moment before triggering completion
+      const timeout = setTimeout(() => {
+        onAnalysisComplete();
+      }, 2000);
+      
+      return () => clearTimeout(timeout);
+    }
+  }, [isComplete, onAnalysisComplete]);
 
   return (
     <motion.div 
@@ -75,90 +85,40 @@ const AnalyzingStep: React.FC<AnalyzingStepProps> = ({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
         >
-          <span className="text-brand-blue-light">Analyzing</span> {categoryText}{locationText}
+          <span className="text-brand-blue-light">Checking</span> your visibility for {categoryText}
         </motion.h2>
-        <motion.p 
-          className="text-sm text-gray-400"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.4, delay: 0.2 }}
-        >
-          Checking visibility across AI platforms
-        </motion.p>
-      </div>
-      
-      <div className="space-y-6">
-        <div className="space-y-2">
-          <div className="flex justify-between text-sm">
-            <span>Analysis progress</span>
-            <motion.span 
-              className="font-medium"
-              key={progress}
-              initial={{ scale: 0.8 }}
-              animate={{ scale: 1 }}
-              transition={{ type: "spring", stiffness: 500, damping: 10 }}
-            >
-              {progress}%
-            </motion.span>
-          </div>
-          <Progress 
-            value={progress} 
-            className="h-2 bg-gray-700"
-            style={{ 
-              ['--progress-background' as any]: 'linear-gradient(90deg, #0052CC, #4C9AFF)'
-            }}
-          />
-        </div>
         
-        <AnimatePresence>
-          <motion.div 
-            className="space-y-3 mt-6"
+        <AnimatePresence mode="wait">
+          <motion.p 
+            key={platforms[currentPlatformIndex]}
+            className="text-sm text-gray-400"
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
+            animate={{ opacity: isVisible ? 1 : 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6 }}
           >
-            {analyzedPlatforms.map((platform, index) => (
-              <motion.div
-                key={platform}
-                initial={{ opacity: 0, x: -15 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ 
-                  type: "spring", 
-                  stiffness: 500,
-                  damping: 25,
-                  delay: index * 0.08
-                }}
-                className="flex items-center gap-3 p-2.5 rounded-lg bg-gray-800/50 border border-gray-700"
-              >
-                <CheckCircle size={18} className="text-green-500" />
-                <span className="text-sm">{platform}</span>
-                <span className="text-xs text-green-400 ml-auto">Complete</span>
-              </motion.div>
-            ))}
-            
-            {currentPlatform && !analyzedPlatforms.includes(currentPlatform) && (
-              <motion.div
-                initial={{ opacity: 0, x: -15 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ type: "spring", stiffness: 500 }}
-                className="flex items-center gap-3 p-2.5 rounded-lg bg-gray-800/50 border border-gray-700"
-              >
-                <Search size={18} className="text-brand-blue-light animate-pulse" />
-                <span className="text-sm">{currentPlatform}</span>
-                <motion.div 
-                  className="ml-auto flex items-center"
-                  animate={{ opacity: [0.5, 1, 0.5] }}
-                  transition={{ repeat: Infinity, duration: 1.5 }}
-                >
-                  <span className="h-1.5 w-1.5 bg-brand-blue-light rounded-full mr-1"></span>
-                  <span className="h-1.5 w-1.5 bg-brand-blue-light rounded-full mr-1 opacity-75"></span>
-                  <span className="h-1.5 w-1.5 bg-brand-blue-light rounded-full opacity-50"></span>
-                </motion.div>
-              </motion.div>
-            )}
-          </motion.div>
+            Currently checking on <span className="text-brand-blue-light font-medium">{platforms[currentPlatformIndex]}</span>
+          </motion.p>
         </AnimatePresence>
       </div>
+      
+      {isComplete && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mt-8"
+        >
+          <Button 
+            onClick={onAnalysisComplete}
+            variant="elegant"
+            size="lg"
+            className="w-full mt-4"
+          >
+            View Results <ArrowRight size={16} />
+          </Button>
+        </motion.div>
+      )}
     </motion.div>
   );
 };
