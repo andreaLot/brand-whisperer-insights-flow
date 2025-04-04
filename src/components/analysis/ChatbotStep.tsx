@@ -57,13 +57,13 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
           if (buttonText.includes('competitors')) {
             newBotMessage = {
               type: 'bot',
-              text: `I've identified the top competitors for ${categoryText} in ${locationText}. Would you like to know more about their online presence or get SEO recommendations?`
+              text: `I've identified the top competitors for ${categoryText} in ${locationText}. Would you like to know more about their online presence?`
             };
             nextStage = 'competitors';
           } else {
             newBotMessage = {
               type: 'bot',
-              text: `Based on our analysis, here are some key SEO opportunities for ${categoryText} in ${locationText}. Would you like to see your competitor analysis next or see the full results?`
+              text: `Based on our analysis, here are some key SEO opportunities for ${categoryText} in ${locationText}. Would you like to see your competitor analysis next?`
             };
             nextStage = 'seo';
           }
@@ -104,89 +104,19 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
     }, 1000);
   };
 
-  // Determine which buttons to show based on the current stage
-  const getButtons = () => {
+  // Get the appropriate button text based on the current stage
+  const getButtonText = () => {
     switch (currentStage) {
       case 'initial':
-        return (
-          <>
-            <Button 
-              variant="outline" 
-              className="flex items-center gap-2 bg-brand-blue-dark hover:bg-brand-blue"
-              onClick={() => handleButtonClick("Show me my competitors")}
-            >
-              <ChevronRight size={16} />
-              <span>Show me my competitors</span>
-            </Button>
-            <Button 
-              variant="outline" 
-              className="flex items-center gap-2 bg-brand-blue-dark hover:bg-brand-blue"
-              onClick={() => handleButtonClick("SEO opportunities")}
-            >
-              <ChevronRight size={16} />
-              <span>SEO opportunities</span>
-            </Button>
-          </>
-        );
-        
+        return "Show me my competitors";
       case 'competitors':
-        return (
-          <>
-            <Button 
-              variant="outline" 
-              className="flex items-center gap-2 bg-brand-blue-dark hover:bg-brand-blue"
-              onClick={() => handleButtonClick("Online presence details")}
-            >
-              <ChevronRight size={16} />
-              <span>Online presence details</span>
-            </Button>
-            <Button 
-              variant="outline" 
-              className="flex items-center gap-2 bg-brand-blue-dark hover:bg-brand-blue"
-              onClick={() => handleButtonClick("SEO recommendations")}
-            >
-              <ChevronRight size={16} />
-              <span>SEO recommendations</span>
-            </Button>
-          </>
-        );
-        
+        return "Show SEO recommendations";
       case 'seo':
-        return (
-          <>
-            <Button 
-              variant="outline" 
-              className="flex items-center gap-2 bg-brand-blue-dark hover:bg-brand-blue"
-              onClick={() => handleButtonClick("Competitor analysis")}
-            >
-              <ChevronRight size={16} />
-              <span>Competitor analysis</span>
-            </Button>
-            <Button 
-              variant="outline" 
-              className="flex items-center gap-2 bg-brand-blue-dark hover:bg-brand-blue"
-              onClick={() => handleButtonClick("Content strategy tips")}
-            >
-              <ChevronRight size={16} />
-              <span>Content strategy tips</span>
-            </Button>
-          </>
-        );
-        
+        return "See competitor analysis";
       case 'final':
-        return (
-          <Button 
-            variant="outline" 
-            className="flex items-center gap-2 bg-brand-blue-dark hover:bg-brand-blue"
-            onClick={() => handleButtonClick("Show full results")}
-          >
-            <Check size={16} />
-            <span>Show full results</span>
-          </Button>
-        );
-        
+        return "Show full results";
       default:
-        return null;
+        return "Continue";
     }
   };
 
@@ -220,8 +150,15 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
       </div>
       
       {showButtons && (
-        <div className="flex flex-col gap-3 mt-auto">
-          {getButtons()}
+        <div className="mt-auto">
+          <Button 
+            onClick={() => handleButtonClick(getButtonText())}
+            variant="dynamic" 
+            size="xl" 
+            className="w-full md:w-auto"
+          >
+            {getButtonText()}
+          </Button>
         </div>
       )}
     </div>
