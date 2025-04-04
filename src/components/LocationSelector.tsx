@@ -159,9 +159,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
       });
     }
     
-    // No dependencies on onSelect to prevent re-initialization on parent re-renders
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoaded]);
+  }, [isLoaded, types, countryRestrictions]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -185,6 +183,34 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
       {!isLoaded && (
         <div className="text-sm text-gray-500 mt-2">Loading location search...</div>
       )}
+      
+      <style jsx>{`
+        /* Ensure the autocomplete dropdown is visible */
+        :global(.pac-container) {
+          z-index: 10000 !important;
+          background-color: white !important;
+          color: black !important;
+          border: 1px solid #ccc !important;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+          margin-top: 2px !important;
+          border-radius: 0.375rem !important;
+          font-family: inherit !important;
+        }
+        
+        :global(.pac-item) {
+          padding: 8px 12px !important;
+          cursor: pointer !important;
+        }
+        
+        :global(.pac-item:hover) {
+          background-color: #f3f4f6 !important;
+        }
+        
+        :global(.pac-item-query) {
+          color: #000 !important;
+          font-size: 14px !important;
+        }
+      `}</style>
     </div>
   );
 };
