@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -140,7 +141,7 @@ const Index = () => {
             {step === 'welcome' && (
               <div className="space-y-10">
                 <h2 className="text-xl font-normal">
-                  Let's get started! Simply enter your <span className="text-brand-blue-light">business name</span> and <span className="text-brand-blue-light">select a location</span> you'd like to analyze.
+                  Let's get started! Simply enter your <span className="text-brand-blue-light">business name</span> and <span className="text-brand-blue-light">select a location</span> you'd like to analyze<span className="typewriter-cursor"></span>
                 </h2>
                 <div className="pt-12">
                   <Button 
@@ -169,7 +170,7 @@ const Index = () => {
             {step === 'location' && (
               <div className="space-y-10">
                 <h2 className="text-xl font-normal">
-                  Select a <span className="text-brand-blue-light">location</span> you'd like to analyze.
+                  Select a <span className="text-brand-blue-light">location</span> you'd like to analyze<span className="typewriter-cursor"></span>
                 </h2>
                 <p className="text-gray-300 text-sm">
                   This helps us analyze your local presence and competition.
