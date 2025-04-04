@@ -26,4 +26,5 @@ export interface UseGooglePlacesReturn {
   cleanupAutocomplete: () => void;
   scriptLoading: boolean;
   selectedPlace: PlaceSelectionResult | null;
+  apifyBusinessResult: any | null;
 }

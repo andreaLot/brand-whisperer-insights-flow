@@ -1,12 +1,17 @@
 
 import React from 'react';
 import LocationSelector from '@/components/LocationSelector';
+import { PlaceSelectionResult } from '@/hooks/useGooglePlaces';
 
 interface BusinessNameStepProps {
-  handleLocationSelect: (location: string) => void;
+  handleLocationSelect: (location: string, placeData?: PlaceSelectionResult, apifyResult?: any) => void;
 }
 
 const BusinessNameStep: React.FC<BusinessNameStepProps> = ({ handleLocationSelect }) => {
+  const handleSelect = (location: string, placeData?: PlaceSelectionResult, apifyResult?: any) => {
+    handleLocationSelect(location, placeData, apifyResult);
+  };
+
   return (
     <div className="space-y-10">
       <h2 className="text-xl font-normal">
@@ -17,7 +22,7 @@ const BusinessNameStep: React.FC<BusinessNameStepProps> = ({ handleLocationSelec
       </p>
       
       <div className="mt-4">
-        <LocationSelector onSelect={handleLocationSelect} />
+        <LocationSelector onSelect={handleSelect} />
       </div>
     </div>
   );

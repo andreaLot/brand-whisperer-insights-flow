@@ -6,7 +6,7 @@ import LocationInput from '@/components/LocationInput';
 import StatusMessage from '@/components/StatusMessage';
 
 interface LocationSelectorProps {
-  onSelect: (location: string, placeData?: PlaceSelectionResult) => void;
+  onSelect: (location: string, placeData?: PlaceSelectionResult, apifyResult?: any) => void;
   countryRestrictions?: string[];
   types?: string[];
 }
@@ -25,7 +25,8 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
     initAutocomplete,
     cleanupAutocomplete,
     scriptLoading,
-    selectedPlace
+    selectedPlace,
+    apifyBusinessResult
   } = useGooglePlaces({
     countryRestrictions,
     types
@@ -56,10 +57,20 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
       const locationText = selectedPlace.address || selectedPlace.name || '';
       if (locationText) {
         setSearchTerm(locationText);
-        onSelect(locationText, selectedPlace);
+        onSelect(locationText, selectedPlace, null);
       }
     }
   }, [selectedPlace, onSelect]);
+
+  // Handle when apifyBusinessResult changes
+  useEffect(() => {
+    if (selectedPlace && apifyBusinessResult) {
+      const locationText = selectedPlace.address || selectedPlace.name || '';
+      if (locationText) {
+        onSelect(locationText, selectedPlace, apifyBusinessResult);
+      }
+    }
+  }, [apifyBusinessResult, selectedPlace, onSelect]);
 
   // Handle search term changes
   const handleSearchTermChange = (value: string) => {

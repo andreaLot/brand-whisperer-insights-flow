@@ -1,4 +1,3 @@
-
 // This is a mock service that simulates API calls
 // In a real application, you would replace these with actual API calls
 
@@ -196,7 +195,6 @@ export const AnalysisService = {
     }
   },
   
-  // New method to fetch business data from Apify
   fetchBusinessFromApify: async (businessName: string, location: string): Promise<ApifyBusinessResult | null> => {
     console.log(`Fetching business data from Apify for: ${businessName} in ${location}`);
     
@@ -250,7 +248,6 @@ export const AnalysisService = {
     }
   },
   
-  // New method to fetch category results from Apify
   fetchCategoryFromApify: async (category: string, location: string): Promise<ApifyCategoryResult[]> => {
     console.log(`Fetching category data from Apify for: ${category} in ${location}`);
     
@@ -303,7 +300,6 @@ export const AnalysisService = {
     }
   },
   
-  // Helper method to poll the Apify run status until it's completed
   pollApifyRunStatus: async (runId: string): Promise<any> => {
     const maxAttempts = 10;
     const pollingInterval = 5000; // 5 seconds

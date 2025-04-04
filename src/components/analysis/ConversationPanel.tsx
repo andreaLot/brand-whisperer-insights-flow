@@ -8,6 +8,7 @@ import AnalyzingStep from './AnalyzingStep';
 import ResultsStep from './ResultsStep';
 import ChatbotStep from './ChatbotStep';
 import { BusinessCategory, AnalysisResult } from "@/services/AnalysisService";
+import { PlaceSelectionResult } from '@/hooks/useGooglePlaces';
 
 export type Step = 'welcome' | 'business-name' | 'category-detection' | 'analyzing' | 'chatbot' | 'results';
 
@@ -21,7 +22,7 @@ interface ConversationPanelProps {
   onStartOver: () => void;
   onAnalysisComplete: () => void;
   onChatComplete: () => void;
-  handleLocationSelect: (location: string) => void;
+  handleLocationSelect: (location: string, placeData?: PlaceSelectionResult, apifyResult?: any) => void;
   businessName: string;
 }
 

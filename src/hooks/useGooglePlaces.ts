@@ -11,6 +11,7 @@ import {
   initializeAutocomplete, 
   cleanupAutocomplete as cleanupAutocompleteUtil 
 } from '@/utils/autocompleteManager';
+import { AnalysisService } from '@/services/AnalysisService';
 
 export type { PlaceSelectionResult } from './useGooglePlaces.types';
 
@@ -23,6 +24,7 @@ export const useGooglePlaces = ({
   const [scriptLoading, setScriptLoading] = useState(false);
   const [placesFailed, setPlacesFailed] = useState(false);
   const [selectedPlace, setSelectedPlace] = useState<PlaceSelectionResult | null>(null);
+  const [apifyBusinessResult, setApifyBusinessResult] = useState(null);
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   const listenerRef = useRef<google.maps.MapsEventListener | null>(null);
 
@@ -61,6 +63,29 @@ export const useGooglePlaces = ({
       cleanupAutocomplete();
     };
   }, []);
+
+  // When a place is selected, fetch data from Apify
+  useEffect(() => {
+    async function fetchApifyDataForBusiness() {
+      if (selectedPlace?.name && selectedPlace?.address) {
+        console.log('Fetching Apify data for selected business');
+        try {
+          const result = await AnalysisService.fetchBusinessFromApify(
+            selectedPlace.name,
+            selectedPlace.address
+          );
+          console.log('Apify business result:', result);
+          setApifyBusinessResult(result);
+        } catch (error) {
+          console.error('Error fetching from Apify:', error);
+        }
+      }
+    }
+
+    if (selectedPlace) {
+      fetchApifyDataForBusiness();
+    }
+  }, [selectedPlace]);
 
   // Clean up autocomplete and listeners
   const cleanupAutocomplete = () => {
@@ -115,6 +140,7 @@ export const useGooglePlaces = ({
     initAutocomplete,
     cleanupAutocomplete,
     scriptLoading,
-    selectedPlace
+    selectedPlace,
+    apifyBusinessResult
   };
 };
