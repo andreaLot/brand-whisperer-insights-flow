@@ -1,14 +1,16 @@
-import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { AnalysisResult, BusinessCategory, ApifyBusinessResult, ApifyCategoryResult } from "@/services/AnalysisService";
-import { Step } from './ConversationPanel';
-import { PlaceSelectionResult } from '@/hooks/useGooglePlaces';
-import { cn } from "@/lib/utils";
-import SearchInput from '@/components/SearchInput';
+
+import React, { useState } from 'react';
+import ResultsStep from './ResultsStep';
 import LocationSelector from '@/components/LocationSelector';
+import { AnalysisResult, BusinessCategory, ApifyBusinessResult, ApifyCategoryResult } from "@/services/AnalysisService";
+import { PlaceSelectionResult } from '@/hooks/useGooglePlaces';
+import { Step } from './ConversationPanel';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Loader2, Globe, Star, Map, Tag } from 'lucide-react';
 
 interface InputPanelProps {
-  className?: string;
   step: Step;
   businessName: string;
   analysisResult: AnalysisResult | null;
@@ -17,13 +19,12 @@ interface InputPanelProps {
   handleBusinessNameSubmit: () => void;
   handleLocationSelect: (location: string, placeData?: PlaceSelectionResult) => void;
   handleStartOver: () => void;
-  apifyBusinessResult: ApifyBusinessResult | null;
-  apifyCategoryResults: ApifyCategoryResult[];
-  apifyLoading: boolean;
+  apifyBusinessResult?: ApifyBusinessResult | null;
+  apifyCategoryResults?: ApifyCategoryResult[];
+  apifyLoading?: boolean;
 }
 
 const InputPanel: React.FC<InputPanelProps> = ({
-  className,
   step,
   businessName,
   analysisResult,
@@ -34,58 +35,300 @@ const InputPanel: React.FC<InputPanelProps> = ({
   handleStartOver,
   apifyBusinessResult,
   apifyCategoryResults,
-  apifyLoading
+  apifyLoading = false
 }) => {
+  // Track which snippet is being shown during chatbot interaction
+  const [visibleSnippet, setVisibleSnippet] = useState<'none' | 'competitors' | 'seo' | 'content'>('none');
+  
+  // Listen for message changes in ChatbotStep
+  React.useEffect(() => {
+    const handleChatbotMessage = (event: MessageEvent) => {
+      if (event.data && event.data.type === 'chatbot-selection') {
+        if (event.data.message.includes('competitors')) {
+          setVisibleSnippet('competitors');
+        } else if (event.data.message.includes('SEO')) {
+          setVisibleSnippet('seo');
+        } else if (event.data.message.includes('Content')) {
+          setVisibleSnippet('content');
+        }
+      }
+    };
+    
+    window.addEventListener('message', handleChatbotMessage);
+    return () => {
+      window.removeEventListener('message', handleChatbotMessage);
+    };
+  }, []);
+
+  // Monitor step changes and reset snippet visibility when appropriate
+  React.useEffect(() => {
+    if (step !== 'chatbot') {
+      setVisibleSnippet('none');
+    }
+  }, [step]);
+
   return (
-    <div className={cn("bg-brand-black-light rounded-lg p-8", className)}>
-      <AnimatePresence mode="wait">
-        {(step === 'welcome' || step === 'business-name') && (
-          <motion.div
-            key="location-input"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="h-full flex flex-col"
-          >
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold text-white mb-2">Find Your Perfect Brand Position</h2>
-              <p className="text-gray-400">Enter your business location to start the analysis.</p>
+    <div className="w-full md:w-[65%]">
+      {/* Show location selector in the welcome step */}
+      {step === 'welcome' && (
+        <div className="bg-brand-gray-dark rounded-lg p-6 border border-gray-700 animate-fade-in">
+          <LocationSelector onSelect={handleLocationSelect} />
+        </div>
+      )}
+      
+      {step === 'category-detection' && (
+        <div className="bg-brand-gray-dark rounded-lg p-6 border border-gray-700 animate-fade-in">
+          {apifyLoading ? (
+            <div className="flex items-center justify-center p-8">
+              <Loader2 className="w-6 h-6 animate-spin text-brand-blue mr-2" />
+              <span>Loading business data from Google Places...</span>
             </div>
-            <div className="mt-4">
-              <LocationSelector onSelect={handleLocationSelect} />
+          ) : (
+            <>
+              <h3 className="text-lg font-medium mb-4">Detected Categories:</h3>
+              {suggestedCategories.length > 0 ? (
+                <ul className="space-y-2">
+                  {suggestedCategories.map((cat, index) => (
+                    <li key={index} className="flex items-center justify-between">
+                      <span>{cat.name}</span>
+                      <span className="text-sm text-gray-400">
+                        {Math.round(cat.confidence * 100)}% confidence
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>Detecting categories...</p>
+              )}
+            </>
+          )}
+        </div>
+      )}
+      
+      {step === 'analyzing' && (
+        <div className="space-y-4">
+          <div className="bg-brand-gray-dark rounded-lg p-6 border border-gray-700 animate-fade-in">
+            <h3 className="text-lg font-medium mb-4">AI Search Analysis</h3>
+            <p className="text-sm text-gray-300">
+              We will now run a research on Perplexity, Gemini, OpenAI, and Grok to see how visible
+              you are in AI Search for the category of the business in your location.
+            </p>
+          </div>
+          
+          {/* Display Apify business result if available */}
+          {apifyBusinessResult && (
+            <Card className="bg-gradient-to-br from-brand-gray-dark to-brand-blue-dark/30 border border-gray-700 text-white animate-fade-in">
+              <CardHeader>
+                <CardTitle className="text-lg">{apifyBusinessResult.name} - Google Places Data</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex items-center gap-2">
+                    <Tag className="text-brand-blue-light" size={16} />
+                    <span>Category: {apifyBusinessResult.category || 'Unknown'}</span>
+                  </div>
+                  
+                  {apifyBusinessResult.rating && (
+                    <div className="flex items-center gap-2">
+                      <Star className="text-yellow-400" size={16} />
+                      <span>Rating: {apifyBusinessResult.rating} ({apifyBusinessResult.reviewsCount || 0} reviews)</span>
+                    </div>
+                  )}
+                  
+                  {apifyBusinessResult.address && (
+                    <div className="flex items-center gap-2">
+                      <Map className="text-green-400" size={16} />
+                      <span>{apifyBusinessResult.address}</span>
+                    </div>
+                  )}
+                  
+                  {apifyBusinessResult.website && (
+                    <div className="flex items-center gap-2">
+                      <Globe className="text-blue-400" size={16} />
+                      <span>{apifyBusinessResult.website}</span>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+          
+          {/* Display Apify category results if available */}
+          {apifyCategoryResults && apifyCategoryResults.length > 0 && (
+            <Card className="bg-gradient-to-br from-brand-gray-dark to-brand-blue-dark/30 border border-gray-700 text-white animate-fade-in">
+              <CardHeader>
+                <CardTitle className="text-lg">Top Competitors in Your Category</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Business</TableHead>
+                      <TableHead>Rating</TableHead>
+                      <TableHead>Address</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {apifyCategoryResults.map((result, index) => (
+                      <TableRow key={index}>
+                        <TableCell className="font-medium">{result.name}</TableCell>
+                        <TableCell>
+                          {result.rating ? (
+                            <div className="flex items-center">
+                              <Star className="text-yellow-400 mr-1" size={14} /> 
+                              {result.rating} ({result.reviewsCount || 0})
+                            </div>
+                          ) : (
+                            'N/A'
+                          )}
+                        </TableCell>
+                        <TableCell className="text-sm">{result.address || 'N/A'}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      )}
+      
+      {/* Chatbot-triggered content snippets */}
+      {step === 'chatbot' && (
+        <div className="space-y-4 animate-fade-in">
+          {visibleSnippet === 'competitors' && (
+            <Card className="bg-gradient-to-br from-brand-gray-dark to-brand-blue-dark/30 border border-gray-700 text-white">
+              <CardHeader>
+                <CardTitle className="text-lg">Top Competitors</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {apifyCategoryResults && apifyCategoryResults.length > 0 ? (
+                  apifyCategoryResults.map((competitor, index) => (
+                    <div key={index} className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span>{competitor.name}</span>
+                        <span className="text-sm font-bold text-brand-blue-light">
+                          {competitor.rating ? `${competitor.rating * 20}% match` : ''}
+                        </span>
+                      </div>
+                      <Progress value={competitor.rating ? competitor.rating * 20 : 0} className="h-2" />
+                    </div>
+                  ))
+                ) : (
+                  <>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span>Competitor A</span>
+                        <span className="text-sm font-bold text-brand-blue-light">88% match</span>
+                      </div>
+                      <Progress value={88} className="h-2" />
+                    </div>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span>Competitor B</span>
+                        <span className="text-sm font-bold text-brand-blue-light">76% match</span>
+                      </div>
+                      <Progress value={76} className="h-2" />
+                    </div>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span>Competitor C</span>
+                        <span className="text-sm font-bold text-brand-blue-light">62% match</span>
+                      </div>
+                      <Progress value={62} className="h-2" />
+                    </div>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          )}
+          
+          {visibleSnippet === 'seo' && (
+            <Card className="bg-gradient-to-br from-brand-gray-dark to-brand-blue-dark/30 border border-gray-700 text-white">
+              <CardHeader>
+                <CardTitle className="text-lg">SEO Opportunities</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3">
+                  <li className="flex items-start gap-2">
+                    <div className="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
+                      <span className="text-xs text-green-500">+</span>
+                    </div>
+                    <p className="text-sm">Add more location-specific keywords to your website content</p>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <div className="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
+                      <span className="text-xs text-green-500">+</span>
+                    </div>
+                    <p className="text-sm">Create unique meta descriptions for each page</p>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <div className="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
+                      <span className="text-xs text-green-500">+</span>
+                    </div>
+                    <p className="text-sm">Focus on generating more customer reviews</p>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+          )}
+          
+          {visibleSnippet === 'content' && (
+            <Card className="bg-gradient-to-br from-brand-gray-dark to-brand-blue-dark/30 border border-gray-700 text-white">
+              <CardHeader>
+                <CardTitle className="text-lg">Content Strategy</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="p-3 bg-brand-blue-dark/30 rounded-lg">
+                    <h4 className="font-medium mb-1">Blog Topics</h4>
+                    <ul className="text-sm text-gray-300">
+                      <li>• Industry trends in {analysisResult?.category || apifyBusinessResult?.category || "your industry"}</li>
+                      <li>• Local customer success stories</li>
+                      <li>• FAQ about your products/services</li>
+                    </ul>
+                  </div>
+                  
+                  <div className="p-3 bg-brand-blue-dark/30 rounded-lg">
+                    <h4 className="font-medium mb-1">Content Types</h4>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-2 bg-brand-blue rounded-full"></div>
+                        <span>How-to guides</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-2 bg-brand-blue rounded-full"></div>
+                        <span>Video tutorials</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-2 bg-brand-blue rounded-full"></div>
+                        <span>Case studies</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-2 bg-brand-blue rounded-full"></div>
+                        <span>Testimonials</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+          
+          {visibleSnippet === 'none' && (
+            <div className="bg-brand-gray-dark rounded-lg p-6 border border-gray-700 animate-fade-in flex items-center justify-center min-h-[200px]">
+              <p className="text-gray-400 text-center">Select an option from the chatbot to see relevant insights</p>
             </div>
-          </motion.div>
-        )}
-        
-        {step !== 'welcome' && step !== 'business-name' && (
-          <motion.div
-            key="analysis-info"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-          >
-            <div className="mb-6">
-              <h3 className="text-xl font-bold text-white">{businessName}</h3>
-              <p className="text-gray-400 mt-2">
-                {location && `Location: ${location}`}
-              </p>
-            </div>
-            
-            {/* Add dynamic content based on step here */}
-            {step === 'analyzing' && (
-              <div className="bg-brand-black-dark p-4 rounded-lg my-4 border border-gray-800">
-                <p className="text-sm text-gray-400">Analyzing market position...</p>
-              </div>
-            )}
-            
-            {step === 'results' && analysisResult && (
-              <div className="space-y-4">
-                {/* Results summary could go here */}
-              </div>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+        </div>
+      )}
+      
+      {step === 'results' && analysisResult && (
+        <ResultsStep
+          analysisResult={analysisResult}
+          onStartOver={handleStartOver}
+        />
+      )}
     </div>
   );
 };
