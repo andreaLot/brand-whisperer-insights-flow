@@ -1,315 +1,85 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Input } from "@/components/ui/input";
-import { MapPin } from 'lucide-react';
-import { useToast } from "@/hooks/use-toast";
+import { useGooglePlaces } from '@/hooks/useGooglePlaces';
+import { injectGooglePlacesStyles, fixPacContainerVisibility } from '@/utils/googlePlacesStyles';
+import LocationInput from '@/components/LocationInput';
+import StatusMessage from '@/components/StatusMessage';
 
 interface LocationSelectorProps {
   onSelect: (location: string) => void;
-  countryRestrictions?: string[]; // Optional prop to restrict results to specific countries
-  types?: string[]; // Optional prop to restrict to specific place types
+  countryRestrictions?: string[];
+  types?: string[];
 }
-
-// Custom CSS for Google Places Autocomplete dropdown
-// This will be injected once when the component mounts
-const injectGooglePlacesStyles = () => {
-  // Only inject if not already present
-  if (!document.getElementById('google-places-autocomplete-styles')) {
-    const styleElement = document.createElement('style');
-    styleElement.id = 'google-places-autocomplete-styles';
-    styleElement.innerHTML = `
-      .pac-container {
-        z-index: 10000 !important;
-        position: absolute !important;
-        display: block !important;
-        background-color: #1e1e1e !important;
-        color: white !important;
-        border: 1px solid #333 !important;
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5) !important;
-        margin-top: 4px !important;
-        border-radius: 0.375rem !important;
-        font-family: inherit !important;
-        width: auto !important;
-        min-width: 300px !important;
-        overflow: visible !important;
-      }
-      
-      .pac-item {
-        padding: 8px 12px !important;
-        cursor: pointer !important;
-        color: #f3f4f6 !important;
-        border-bottom: 1px solid #333 !important;
-        display: flex !important;
-        align-items: center !important;
-      }
-      
-      .pac-item:hover {
-        background-color: #333 !important;
-      }
-      
-      .pac-icon {
-        color: white !important;
-      }
-      
-      .pac-item-query {
-        color: white !important;
-        font-size: 14px !important;
-      }
-
-      .pac-matched {
-        color: #8b5cf6 !important;
-        font-weight: bold !important;
-      }
-
-      .pac-item-selected {
-        background-color: #374151 !important;
-      }
-    `;
-    document.head.appendChild(styleElement);
-    console.log('Google Places Autocomplete styles injected');
-  }
-};
 
 const LocationSelector: React.FC<LocationSelectorProps> = ({ 
   onSelect, 
-  countryRestrictions = ['us'], // Default to US
-  types = ['establishment', 'geocode'] // Default to establishments and addresses
+  countryRestrictions = ['us'],
+  types = ['establishment', 'geocode']
 }) => {
-  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [scriptLoading, setScriptLoading] = useState(false);
-  const [placesFailed, setPlacesFailed] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
-  const listenerRef = useRef<google.maps.MapsEventListener | null>(null);
+  
+  const {
+    isLoaded,
+    placesFailed,
+    initAutocomplete,
+    cleanupAutocomplete,
+    scriptLoading
+  } = useGooglePlaces({
+    countryRestrictions,
+    types
+  });
 
   // Inject custom styles for the autocomplete dropdown
   useEffect(() => {
     injectGooglePlacesStyles();
-    return () => {
-      // Optional cleanup
-      const styleElement = document.getElementById('google-places-autocomplete-styles');
-      if (styleElement) {
-        // Don't remove the styles on unmount as they may be needed by other instances
-        // document.head.removeChild(styleElement);
-      }
-    };
   }, []);
-
-  // Load the Google Maps script
-  useEffect(() => {
-    // Prevent duplicate loading attempts
-    if (scriptLoading) return;
-    
-    // Check if the script is already loaded
-    if (window.google?.maps?.places?.Autocomplete) {
-      console.log('Google Maps already loaded, initializing directly');
-      setIsLoaded(true);
-      return;
-    }
-    
-    if (!document.getElementById('google-maps-script')) {
-      setScriptLoading(true);
-      const script = document.createElement('script');
-      script.id = 'google-maps-script';
-      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyA48zqyAgIxKc6BsZHUwV7piqagv7nQPbw&libraries=places`;
-      script.async = true;
-      script.defer = true;
-      script.onload = () => {
-        console.log('Google Maps script loaded successfully');
-        setIsLoaded(true);
-        setScriptLoading(false);
-        
-        // Check if the Places library is available
-        if (window.google?.maps?.places) {
-          console.log('Places library available:', !!window.google.maps.places);
-        } else {
-          console.error('Places library not available after script load');
-          setPlacesFailed(true);
-          toast({
-            title: "Error loading location service",
-            description: "Please try refreshing the page",
-            variant: "destructive",
-          });
-        }
-      };
-      script.onerror = (error) => {
-        console.error('Failed to load Google Maps script:', error);
-        setScriptLoading(false);
-        setPlacesFailed(true);
-        toast({
-          title: "Error loading location service",
-          description: "Please check your internet connection and try again",
-          variant: "destructive",
-        });
-      };
-      document.head.appendChild(script);
-    } else {
-      setIsLoaded(true);
-    }
-
-    // Clean up function that will run when component unmounts
-    return () => {
-      cleanupAutocomplete();
-    };
-  }, []);
-
-  // Clean up autocomplete and listeners
-  const cleanupAutocomplete = () => {
-    // Remove the place_changed listener if it exists
-    if (listenerRef.current) {
-      listenerRef.current.remove();
-      listenerRef.current = null;
-      console.log('Autocomplete listener removed');
-    }
-    
-    // Clear instance listeners on the autocomplete object
-    if (autocompleteRef.current) {
-      google.maps.event.clearInstanceListeners(autocompleteRef.current);
-      autocompleteRef.current = null;
-      console.log('Autocomplete instance cleaned up');
-    }
-  };
-
-  // Debug help function to check PAC container visibility
-  const checkPacContainers = () => {
-    const containers = document.querySelectorAll('.pac-container');
-    console.log(`Found ${containers.length} PAC containers`);
-    containers.forEach((container, i) => {
-      const style = window.getComputedStyle(container as HTMLElement);
-      console.log(`Container ${i}:`, {
-        display: style.display,
-        visibility: style.visibility,
-        zIndex: style.zIndex,
-        position: style.position,
-        width: style.width,
-        clientRect: (container as HTMLElement).getBoundingClientRect()
-      });
-    });
-  };
 
   // Initialize autocomplete when the script is loaded and the input is available
   useEffect(() => {
-    if (!isLoaded || !inputRef.current) {
-      console.log('Not initializing autocomplete yet.', { isLoaded, hasInput: !!inputRef.current });
-      return;
-    }
-
-    try {
-      console.log('Attempting to initialize autocomplete...');
+    if (isLoaded && inputRef.current) {
+      initAutocomplete(inputRef.current);
       
-      // Clean up previous autocomplete instance if it exists
+      // Fix visibility after initialization
+      fixPacContainerVisibility();
+    }
+    
+    return () => {
       cleanupAutocomplete();
-      
-      // Verify the Places library is available
-      if (!window.google?.maps?.places?.Autocomplete) {
-        console.error('Google Places API not available');
-        setPlacesFailed(true);
-        toast({
-          title: "Location search unavailable",
-          description: "Could not initialize location search",
-          variant: "destructive",
-        });
-        return;
-      }
-      
-      // Create new autocomplete instance with options
-      autocompleteRef.current = new google.maps.places.Autocomplete(inputRef.current, {
-        fields: ['address_components', 'formatted_address', 'geometry', 'name'],
-        types: types,
-        componentRestrictions: countryRestrictions.length ? { country: countryRestrictions } : undefined
-      });
+    };
+  }, [isLoaded]);
 
-      console.log('Autocomplete initialized with options:', { types, countryRestrictions });
-      
-      // Add listener for place selection and store reference to allow cleanup
-      listenerRef.current = google.maps.event.addListener(autocompleteRef.current, 'place_changed', () => {
-        const place = autocompleteRef.current?.getPlace();
-        console.log('Place selected event:', place);
-        if (place && place.formatted_address) {
-          setSearchTerm(place.formatted_address);
-          onSelect(place.formatted_address);
-          console.log('Place selected:', place.formatted_address);
-        }
-      });
-      
-      console.log('Place changed listener added');
-      
-      // Manually force the pac-container to have a higher z-index
-      // This runs after a delay to ensure the DOM elements are created
-      setTimeout(() => {
-        const containers = document.querySelectorAll('.pac-container');
-        console.log('PAC containers found:', containers.length);
-        containers.forEach(container => {
-          (container as HTMLElement).style.zIndex = '10000';
-          (container as HTMLElement).style.position = 'absolute';
-          (container as HTMLElement).style.display = 'block';
-        });
-        // Debug check of containers
-        checkPacContainers();
-      }, 500);
-      
-    } catch (error) {
-      console.error('Error initializing Google Places Autocomplete:', error);
-      setPlacesFailed(true);
-      toast({
-        title: "Error setting up location search",
-        description: "Please try again or enter location manually",
-        variant: "destructive",
-      });
+  // Handle search term changes
+  const handleSearchTermChange = (value: string) => {
+    setSearchTerm(value);
+    console.log('Input changed:', value);
+    
+    // Check if this might be a place selection (e.g., from clicking an autocomplete suggestion)
+    if (value.includes(',')) {
+      onSelect(value);
     }
-    
-  }, [isLoaded, types, countryRestrictions]);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
-    console.log('Input changed:', e.target.value);
-    
-    // Re-check pac containers visibility on every input change
-    setTimeout(() => checkPacContainers(), 100);
   };
 
-  // Add a manual focus handler to ensure autocomplete visibility
+  // Handle input focus
   const handleInputFocus = () => {
     console.log('Input focused');
-    // Re-apply z-index to ensure dropdown is visible when focused
-    setTimeout(() => {
-      const containers = document.querySelectorAll('.pac-container');
-      containers.forEach(container => {
-        (container as HTMLElement).style.zIndex = '10000';
-        (container as HTMLElement).style.position = 'absolute';
-        (container as HTMLElement).style.display = 'block';
-      });
-      // Debug check of containers
-      checkPacContainers();
-    }, 100);
+    fixPacContainerVisibility();
   };
 
   return (
     <div className="relative w-full animate-fade-in">
-      <div className="relative" id="location-input-container">
-        <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-        <Input
-          ref={inputRef}
-          type="text"
-          placeholder="Enter a location"
-          value={searchTerm}
-          onChange={handleInputChange}
-          onFocus={handleInputFocus}
-          onClickCapture={handleInputFocus}
-          className="pl-10 py-6 bg-brand-gray-dark text-white border border-gray-700 rounded-md w-full focus:ring-2 focus:ring-violet-500 transition-all"
-          autoComplete="off" // Prevent browser's default autocomplete from interfering
-        />
-      </div>
-      {!isLoaded && (
-        <div className="text-sm text-gray-500 mt-2">Loading location search...</div>
-      )}
-      {placesFailed && (
-        <div className="text-sm text-red-500 mt-2">
-          Location search isn't working. Please try refreshing the page or enter manually.
-        </div>
-      )}
+      <LocationInput
+        value={searchTerm}
+        onChange={handleSearchTermChange}
+        onFocus={handleInputFocus}
+        inputRef={inputRef}
+        isLoading={scriptLoading}
+      />
+      
+      <StatusMessage
+        isLoading={!isLoaded && scriptLoading}
+        hasError={placesFailed}
+      />
     </div>
   );
 };
