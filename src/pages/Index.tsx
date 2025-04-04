@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import ConversationBubble from "@/components/ConversationBubble";
-import RobotAvatar from "@/components/RobotAvatar";
 import SearchInput from "@/components/SearchInput";
 import LocationSelector from "@/components/LocationSelector";
 import ResultCard from "@/components/ResultCard";
@@ -137,114 +136,110 @@ const Index = () => {
       <div className="w-full max-w-5xl flex flex-col md:flex-row gap-8">
         {/* Left side - Conversation */}
         <div className="w-full md:w-1/2 flex flex-col gap-6">
-          <div className="flex items-start gap-4">
-            <RobotAvatar />
+          <ConversationBubble>
+            {step === 'welcome' && (
+              <div className="space-y-6">
+                <h2 className="text-xl font-normal">
+                  Let's get started! Simply enter your <span className="text-brand-blue-light">business name</span> and <span className="text-brand-blue-light">select a location</span> you'd like to analyze.
+                </h2>
+                <Button 
+                  onClick={() => setStep('business-name')}
+                  variant="elegant"
+                  size="xl"
+                  className="mt-4"
+                >
+                  Begin Analysis
+                </Button>
+              </div>
+            )}
             
-            <ConversationBubble>
-              {step === 'welcome' && (
-                <div className="space-y-6">
-                  <h2 className="text-2xl font-semibold">
-                    Let's get started! Simply enter your <span className="text-brand-blue-light">business name</span> and <span className="text-brand-blue-light">select a location</span> you'd like to analyze.
-                  </h2>
-                  <Button 
-                    onClick={() => setStep('business-name')}
-                    variant="elegant"
-                    size="xl"
-                    className="mt-4"
-                  >
-                    Begin Analysis
-                  </Button>
+            {step === 'business-name' && (
+              <div className="space-y-6">
+                <h2 className="text-xl font-normal">
+                  Enter your <span className="text-brand-blue-light">business name</span>
+                </h2>
+                <p className="text-gray-300 text-sm">
+                  We'll use this to find information about your brand across multiple platforms.
+                </p>
+              </div>
+            )}
+            
+            {step === 'location' && (
+              <div className="space-y-6">
+                <h2 className="text-xl font-normal">
+                  Select a <span className="text-brand-blue-light">location</span> you'd like to analyze.
+                </h2>
+                <p className="text-gray-300 text-sm">
+                  This helps us analyze your local presence and competition.
+                </p>
+              </div>
+            )}
+            
+            {step === 'category-detection' && (
+              <div className="space-y-6">
+                <h2 className="text-xl font-normal">
+                  Detecting your <span className="text-brand-blue-light">business category</span>...
+                </h2>
+                <div className="flex items-center gap-2">
+                  <Loader2 className="animate-spin" size={20} />
+                  <span className="text-sm">Analyzing your business name</span>
                 </div>
-              )}
-              
-              {step === 'business-name' && (
-                <div className="space-y-6">
-                  <h2 className="text-2xl font-semibold">
-                    Enter your <span className="text-brand-blue-light">business name</span>
-                  </h2>
-                  <p className="text-gray-300">
-                    We'll use this to find information about your brand across multiple platforms.
-                  </p>
-                </div>
-              )}
-              
-              {step === 'location' && (
-                <div className="space-y-6">
-                  <h2 className="text-2xl font-semibold">
-                    Select a <span className="text-brand-blue-light">location</span> you'd like to analyze.
-                  </h2>
-                  <p className="text-gray-300">
-                    This helps us analyze your local presence and competition.
-                  </p>
-                </div>
-              )}
-              
-              {step === 'category-detection' && (
-                <div className="space-y-6">
-                  <h2 className="text-2xl font-semibold">
-                    Detecting your <span className="text-brand-blue-light">business category</span>...
-                  </h2>
+              </div>
+            )}
+            
+            {step === 'analyzing' && (
+              <div className="space-y-6">
+                <h2 className="text-xl font-normal">
+                  Analyzing your presence across <span className="text-brand-blue-light">multiple platforms</span>...
+                </h2>
+                <div className="space-y-3">
                   <div className="flex items-center gap-2">
-                    <Loader2 className="animate-spin" size={20} />
-                    <span>Analyzing your business name</span>
+                    <Loader2 className="animate-spin" size={16} />
+                    <span className="text-sm">Checking Perplexity results</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="animate-spin" size={16} />
+                    <span className="text-sm">Checking Gemini insights</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="animate-spin" size={16} />
+                    <span className="text-sm">Analyzing Grok data</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="animate-spin" size={16} />
+                    <span className="text-sm">Gathering SearchGPT results</span>
                   </div>
                 </div>
-              )}
-              
-              {step === 'analyzing' && (
-                <div className="space-y-6">
-                  <h2 className="text-2xl font-semibold">
-                    Analyzing your presence across <span className="text-brand-blue-light">multiple platforms</span>...
-                  </h2>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2">
-                      <Loader2 className="animate-spin" size={16} />
-                      <span>Checking Perplexity results</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Loader2 className="animate-spin" size={16} />
-                      <span>Checking Gemini insights</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Loader2 className="animate-spin" size={16} />
-                      <span>Analyzing Grok data</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Loader2 className="animate-spin" size={16} />
-                      <span>Gathering SearchGPT results</span>
-                    </div>
-                  </div>
+              </div>
+            )}
+            
+            {step === 'results' && analysisResult && (
+              <div className="space-y-6">
+                <h2 className="text-xl font-normal">
+                  Analysis Complete for <span className="text-brand-blue-light">{analysisResult.businessName}</span>
+                </h2>
+                <div className="space-y-1 text-sm">
+                  <p>
+                    <span className="text-gray-400">Location:</span> {analysisResult.location}
+                  </p>
+                  <p>
+                    <span className="text-gray-400">Category:</span> {analysisResult.category}
+                  </p>
+                  <p>
+                    <span className="text-gray-400">Overall Score:</span> {analysisResult.overallScore}/100
+                  </p>
                 </div>
-              )}
-              
-              {step === 'results' && analysisResult && (
-                <div className="space-y-6">
-                  <h2 className="text-2xl font-semibold">
-                    Analysis Complete for <span className="text-brand-blue-light">{analysisResult.businessName}</span>
-                  </h2>
-                  <div className="space-y-1">
-                    <p>
-                      <span className="text-gray-400">Location:</span> {analysisResult.location}
-                    </p>
-                    <p>
-                      <span className="text-gray-400">Category:</span> {analysisResult.category}
-                    </p>
-                    <p>
-                      <span className="text-gray-400">Overall Score:</span> {analysisResult.overallScore}/100
-                    </p>
-                  </div>
-                  <Button 
-                    onClick={handleStartOver}
-                    variant="elegant"
-                    size="xl"
-                    className="mt-4"
-                  >
-                    Start New Analysis
-                  </Button>
-                </div>
-              )}
-            </ConversationBubble>
-          </div>
+                <Button 
+                  onClick={handleStartOver}
+                  variant="elegant"
+                  size="xl"
+                  className="mt-4"
+                >
+                  Start New Analysis
+                </Button>
+              </div>
+            )}
+          </ConversationBubble>
         </div>
         
         {/* Right side - Input/Results */}
