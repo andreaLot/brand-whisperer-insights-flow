@@ -14,7 +14,7 @@ const ConversationBubble: React.FC<ConversationBubbleProps> = ({
   return (
     <div 
       className={cn(
-        "px-8 py-14 rounded-xl border border-gray-700/50 shadow-xl text-white animate-fade-in w-full max-w-4xl",
+        "px-8 py-16 min-h-[450px] flex flex-col justify-between rounded-xl border border-gray-700/50 shadow-xl text-white animate-fade-in w-full max-w-4xl",
         "bg-gradient-to-br from-brand-gray-dark/90 to-brand-blue-dark/30",
         "backdrop-blur-lg",
         className
