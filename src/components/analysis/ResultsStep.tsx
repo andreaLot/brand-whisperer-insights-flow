@@ -15,12 +15,11 @@ import {
 } from "@/components/ui/carousel";
 
 interface ResultsStepProps {
-  analysisResult: AnalysisResult; // Changed from 'result' to 'analysisResult'
-  businessName: string;
+  analysisResult: AnalysisResult;
   onStartOver: () => void;
 }
 
-const ResultsStep: React.FC<ResultsStepProps> = ({ analysisResult, businessName, onStartOver }) => {
+const ResultsStep: React.FC<ResultsStepProps> = ({ analysisResult, onStartOver }) => {
   const [activeTab, setActiveTab] = useState("results");
   const [showSummary, setShowSummary] = useState(false);
   
