@@ -95,7 +95,7 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
       >
         {step === 0 ? (
           <span className="flex items-center gap-2">
-            <ProgressIndicator />
+            <ProgressIndicator currentStep={1} totalSteps={3} />
             {getButtonText()}
           </span>
         ) : (
