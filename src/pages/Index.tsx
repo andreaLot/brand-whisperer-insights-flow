@@ -143,7 +143,7 @@ const Index = () => {
                 <h2 className="text-xl font-normal">
                   Let's get started! Simply enter your <span className="text-brand-blue-light">business name</span> and <span className="text-brand-blue-light">select a location</span> you'd like to analyze.
                 </h2>
-                <div className="pt-6">
+                <div className="pt-12">
                   <Button 
                     onClick={() => setStep('business-name')}
                     variant="elegant"
