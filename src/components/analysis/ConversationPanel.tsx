@@ -6,6 +6,7 @@ import BusinessNameStep from './BusinessNameStep';
 import CategoryDetectionStep from './CategoryDetectionStep';
 import AnalyzingStep from './AnalyzingStep';
 import ResultsStep from './ResultsStep';
+import LocationStep from './LocationStep';
 import { BusinessCategory, AnalysisResult } from "@/services/AnalysisService";
 
 type Step = 'welcome' | 'business-name' | 'category-detection' | 'analyzing' | 'results';
@@ -31,7 +32,7 @@ const ConversationPanel: React.FC<ConversationPanelProps> = ({
     <div className="w-full md:w-1/2 flex flex-col gap-6">
       <ConversationBubble>
         {step === 'welcome' && (
-          <AnalysisWelcome onBeginAnalysis={onBeginAnalysis} />
+          <LocationStep />
         )}
         
         {step === 'business-name' && (
