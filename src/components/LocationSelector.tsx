@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Input } from "@/components/ui/input";
 import { MapPin } from 'lucide-react';
+import { toast } from "@/hooks/use-toast";
 
 interface LocationSelectorProps {
   onSelect: (location: string) => void;
@@ -16,25 +17,55 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoaded, setIsLoaded] = useState(false);
+  const [scriptLoading, setScriptLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   const listenerRef = useRef<google.maps.MapsEventListener | null>(null);
 
   // Load the Google Maps script
   useEffect(() => {
+    // Prevent duplicate loading attempts
+    if (scriptLoading) return;
+    
     // Check if the script is already loaded
+    if (window.google?.maps?.places?.Autocomplete) {
+      console.log('Google Maps already loaded, initializing directly');
+      setIsLoaded(true);
+      return;
+    }
+    
     if (!document.getElementById('google-maps-script')) {
+      setScriptLoading(true);
       const script = document.createElement('script');
       script.id = 'google-maps-script';
       script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyA48zqyAgIxKc6BsZHUwV7piqagv7nQPbw&libraries=places`;
       script.async = true;
       script.defer = true;
       script.onload = () => {
-        setIsLoaded(true);
         console.log('Google Maps script loaded successfully');
+        setIsLoaded(true);
+        setScriptLoading(false);
+        
+        // Check if the Places library is available
+        if (window.google?.maps?.places) {
+          console.log('Places library available:', !!window.google.maps.places);
+        } else {
+          console.error('Places library not available after script load');
+          toast({
+            title: "Error loading location service",
+            description: "Please try refreshing the page",
+            variant: "destructive",
+          });
+        }
       };
-      script.onerror = () => {
-        console.error('Failed to load Google Maps script');
+      script.onerror = (error) => {
+        console.error('Failed to load Google Maps script:', error);
+        setScriptLoading(false);
+        toast({
+          title: "Error loading location service",
+          description: "Please check your internet connection and try again",
+          variant: "destructive",
+        });
       };
       document.head.appendChild(script);
     } else {
@@ -66,39 +97,71 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
 
   // Initialize autocomplete when the script is loaded and the input is available
   useEffect(() => {
-    if (isLoaded && inputRef.current) {
+    if (!isLoaded || !inputRef.current) {
+      console.log('Not initializing autocomplete yet.', { isLoaded, hasInput: !!inputRef.current });
+      return;
+    }
+
+    try {
+      console.log('Attempting to initialize autocomplete...');
+      
       // Clean up previous autocomplete instance if it exists
       cleanupAutocomplete();
       
-      try {
-        // Create new autocomplete instance with options
-        autocompleteRef.current = new google.maps.places.Autocomplete(inputRef.current, {
-          fields: ['address_components', 'formatted_address', 'geometry', 'name'],
-          types: types,
-          componentRestrictions: countryRestrictions.length ? { country: countryRestrictions } : undefined
+      // Verify the Places library is available
+      if (!window.google?.maps?.places?.Autocomplete) {
+        console.error('Google Places API not available');
+        toast({
+          title: "Location search unavailable",
+          description: "Could not initialize location search",
+          variant: "destructive",
         });
-
-        console.log('Autocomplete initialized with options:', { types, countryRestrictions });
-        
-        // Add listener for place selection and store reference to allow cleanup
-        listenerRef.current = google.maps.event.addListener(autocompleteRef.current, 'place_changed', () => {
-          const place = autocompleteRef.current?.getPlace();
-          if (place && place.formatted_address) {
-            setSearchTerm(place.formatted_address);
-            onSelect(place.formatted_address);
-            console.log('Place selected:', place.formatted_address);
-          }
-        });
-        
-        console.log('Place changed listener added');
-      } catch (error) {
-        console.error('Error initializing Google Places Autocomplete:', error);
+        return;
       }
+      
+      // Create new autocomplete instance with options
+      autocompleteRef.current = new google.maps.places.Autocomplete(inputRef.current, {
+        fields: ['address_components', 'formatted_address', 'geometry', 'name'],
+        types: types,
+        componentRestrictions: countryRestrictions.length ? { country: countryRestrictions } : undefined
+      });
+
+      console.log('Autocomplete initialized with options:', { types, countryRestrictions });
+      
+      // Add listener for place selection and store reference to allow cleanup
+      listenerRef.current = google.maps.event.addListener(autocompleteRef.current, 'place_changed', () => {
+        const place = autocompleteRef.current?.getPlace();
+        console.log('Place selected event:', place);
+        if (place && place.formatted_address) {
+          setSearchTerm(place.formatted_address);
+          onSelect(place.formatted_address);
+          console.log('Place selected:', place.formatted_address);
+        }
+      });
+      
+      console.log('Place changed listener added');
+      
+      // Force the pac-container to have a higher z-index
+      setTimeout(() => {
+        const containers = document.querySelectorAll('.pac-container');
+        console.log('PAC containers found:', containers.length);
+        containers.forEach(container => {
+          (container as HTMLElement).style.zIndex = '10000';
+        });
+      }, 1000);
+      
+    } catch (error) {
+      console.error('Error initializing Google Places Autocomplete:', error);
+      toast({
+        title: "Error setting up location search",
+        description: "Please try again or enter location manually",
+        variant: "destructive",
+      });
     }
     
     // No dependencies on onSelect to prevent re-initialization on parent re-renders
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoaded, countryRestrictions, types]);
+  }, [isLoaded]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -116,11 +179,12 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
           value={searchTerm}
           onChange={handleInputChange}
           className="pl-10 py-6 bg-white text-black border-0 rounded-md w-full focus:ring-2 focus:ring-brand-blue transition-all"
+          autoComplete="off" // Prevent browser's default autocomplete from interfering
         />
       </div>
-      
-      {/* We're using CSS already in App.css */}
-      {/* Google Places styles are already defined in App.css */}
+      {!isLoaded && (
+        <div className="text-sm text-gray-500 mt-2">Loading location search...</div>
+      )}
     </div>
   );
 };
