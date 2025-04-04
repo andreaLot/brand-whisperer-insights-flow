@@ -34,54 +34,80 @@ const Index = () => {
       }
     }
 
-    // Start Apify API calls in parallel with category detection
-    fetchApifyData(businessName, selectedLocation);
+    // Start Apify API call for business data
+    fetchApifyBusinessData(businessName, selectedLocation);
     detectCategory();
   };
 
-  const fetchApifyData = async (business: string, locationValue: string) => {
+  const fetchApifyBusinessData = async (business: string, locationValue: string) => {
     setApifyLoading(true);
     
     try {
-      // Run both Apify calls in parallel
-      const [businessResult, categoryResult] = await Promise.allSettled([
-        AnalysisService.fetchBusinessFromApify(business, locationValue),
-        primaryCategory ? 
-          AnalysisService.fetchCategoryFromApify(primaryCategory, locationValue) :
-          Promise.resolve([])
-      ]);
+      const businessResult = await AnalysisService.fetchBusinessFromApify(business, locationValue);
       
-      // Handle business result
-      if (businessResult.status === 'fulfilled' && businessResult.value) {
-        setApifyBusinessResult(businessResult.value);
-        console.log("Apify business data received:", businessResult.value);
+      if (businessResult) {
+        setApifyBusinessResult(businessResult);
+        console.log("Apify business data received:", businessResult);
         
         // If we didn't get a category from place data, try to use the one from Apify
-        if (!primaryCategory && businessResult.value.category) {
-          setPrimaryCategory(businessResult.value.category);
-          setCategory(businessResult.value.category);
+        if (!primaryCategory && businessResult.category) {
+          setPrimaryCategory(businessResult.category);
+          setCategory(businessResult.category);
+          
+          // Now that we have a category, fetch category results
+          fetchApifyCategoryData(businessResult.category, extractCity(locationValue));
         }
-      } else {
-        console.error("Apify business data fetch failed:", businessResult);
-      }
-      
-      // Handle category results
-      if (categoryResult.status === 'fulfilled' && Array.isArray(categoryResult.value)) {
-        setApifyCategoryResults(categoryResult.value);
-        console.log("Apify category data received:", categoryResult.value);
-      } else {
-        console.error("Apify category data fetch failed:", categoryResult);
       }
     } catch (error) {
-      console.error("Error fetching data from Apify:", error);
+      console.error("Error fetching business data from Apify:", error);
       toast({
         title: "API Error",
-        description: "Failed to fetch data from Apify. Using fallback data.",
+        description: "Failed to fetch business data from Apify.",
         variant: "destructive"
       });
     } finally {
       setApifyLoading(false);
     }
+  };
+  
+  const fetchApifyCategoryData = async (categoryValue: string, city: string) => {
+    setApifyLoading(true);
+    
+    try {
+      // Format the query as "Category City" (e.g., "Data recovery service Austin")
+      const query = `${categoryValue} ${city}`;
+      console.log("Fetching category data with query:", query);
+      
+      const categoryResults = await AnalysisService.fetchCategoryFromApify(categoryValue, city);
+      
+      if (Array.isArray(categoryResults)) {
+        setApifyCategoryResults(categoryResults);
+        console.log("Apify category data received:", categoryResults);
+      }
+    } catch (error) {
+      console.error("Error fetching category data from Apify:", error);
+      toast({
+        title: "API Error",
+        description: "Failed to fetch category data from Apify.",
+        variant: "destructive"
+      });
+    } finally {
+      setApifyLoading(false);
+    }
+  };
+  
+  // Helper function to extract city from full address
+  const extractCity = (address: string): string => {
+    // Simple extraction - get the word before the state/zip
+    // This is a basic implementation and might need improvement
+    const cityMatch = address.match(/([A-Za-z\s]+),\s*[A-Z]{2}/);
+    if (cityMatch && cityMatch[1]) {
+      return cityMatch[1].trim();
+    }
+    
+    // Fallback - just use the first part of the address
+    const parts = address.split(',');
+    return parts.length > 1 ? parts[1].trim() : address;
   };
 
   const detectCategory = async () => {
@@ -90,7 +116,11 @@ const Index = () => {
       setSuggestedCategories(categories);
 
       if (categories.length > 0 && !primaryCategory) {
-        setCategory(categories[0].name);
+        const detectedCategory = categories[0].name;
+        setCategory(detectedCategory);
+        
+        // Now that we have a category from detection, fetch category results
+        fetchApifyCategoryData(detectedCategory, extractCity(location));
       }
 
       setTimeout(() => {

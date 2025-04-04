@@ -56,7 +56,9 @@ export const ApifyService = {
   },
   
   fetchCategoryFromApify: async (category: string, location: string): Promise<ApifyCategoryResult[]> => {
-    console.log(`Fetching category data from Apify for: ${category} in ${location}`);
+    // Format the query as "Category City" (e.g., "Data recovery service Austin")
+    const searchQuery = `${category} ${location}`;
+    console.log(`Fetching category data from Apify with query: ${searchQuery}`);
     
     try {
       const response = await fetch("https://api.apify.com/v2/acts/compass~crawler-google-places/runs?token=apify_api_vVFGRJajjdx3IDfdn86ww9hiyIKDGR25Jod1", {
@@ -65,7 +67,7 @@ export const ApifyService = {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          searchString: `${category} in ${location}`,
+          searchString: searchQuery,
           maxPlaces: 3,
           language: "en",
           maxCrawledPlaces: 3,
