@@ -53,6 +53,11 @@ export const injectGooglePlacesStyles = () => {
       .pac-item-selected {
         background-color: #374151 !important;
       }
+      
+      /* Hide Google attribution */
+      .pac-logo:after {
+        display: none !important;
+      }
     `;
     document.head.appendChild(styleElement);
     console.log('Google Places Autocomplete styles injected');
