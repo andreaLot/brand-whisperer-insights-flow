@@ -50,7 +50,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <div className={variant === 'dynamic' ? "relative" : ""}>
         {variant === 'dynamic' && (
-          <div className="btn-animate btn-shadow absolute inset-0 rounded-[50px]"></div>
+          <div className="absolute inset-0 rounded-[50px] btn-animate btn-shadow"></div>
         )}
         <Comp
           className={cn(
