@@ -5,13 +5,20 @@ import { MapPin } from 'lucide-react';
 
 interface LocationSelectorProps {
   onSelect: (location: string) => void;
+  countryRestrictions?: string[]; // Optional prop to restrict results to specific countries
+  types?: string[]; // Optional prop to restrict to specific place types
 }
 
-const LocationSelector: React.FC<LocationSelectorProps> = ({ onSelect }) => {
+const LocationSelector: React.FC<LocationSelectorProps> = ({ 
+  onSelect, 
+  countryRestrictions = ['us'], // Default to US
+  types = ['establishment', 'geocode'] // Default to establishments and addresses
+}) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoaded, setIsLoaded] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+  const listenerRef = useRef<google.maps.MapsEventListener | null>(null);
 
   // Load the Google Maps script
   useEffect(() => {
@@ -34,26 +41,47 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({ onSelect }) => {
       setIsLoaded(true);
     }
 
+    // Clean up function that will run when component unmounts
     return () => {
-      // Clean up on unmount
-      if (autocompleteRef.current) {
-        google.maps.event.clearInstanceListeners(autocompleteRef.current);
-      }
+      cleanupAutocomplete();
     };
   }, []);
+
+  // Clean up autocomplete and listeners
+  const cleanupAutocomplete = () => {
+    // Remove the place_changed listener if it exists
+    if (listenerRef.current) {
+      listenerRef.current.remove();
+      listenerRef.current = null;
+      console.log('Autocomplete listener removed');
+    }
+    
+    // Clear instance listeners on the autocomplete object
+    if (autocompleteRef.current) {
+      google.maps.event.clearInstanceListeners(autocompleteRef.current);
+      autocompleteRef.current = null;
+      console.log('Autocomplete instance cleaned up');
+    }
+  };
 
   // Initialize autocomplete when the script is loaded and the input is available
   useEffect(() => {
     if (isLoaded && inputRef.current) {
+      // Clean up previous autocomplete instance if it exists
+      cleanupAutocomplete();
+      
       try {
+        // Create new autocomplete instance with options
         autocompleteRef.current = new google.maps.places.Autocomplete(inputRef.current, {
-          fields: ['address_components', 'formatted_address', 'geometry', 'name']
+          fields: ['address_components', 'formatted_address', 'geometry', 'name'],
+          types: types,
+          componentRestrictions: countryRestrictions.length ? { country: countryRestrictions } : undefined
         });
 
-        console.log('Autocomplete initialized:', autocompleteRef.current);
+        console.log('Autocomplete initialized with options:', { types, countryRestrictions });
         
-        // Add listener for place selection
-        const listener = google.maps.event.addListener(autocompleteRef.current, 'place_changed', () => {
+        // Add listener for place selection and store reference to allow cleanup
+        listenerRef.current = google.maps.event.addListener(autocompleteRef.current, 'place_changed', () => {
           const place = autocompleteRef.current?.getPlace();
           if (place && place.formatted_address) {
             setSearchTerm(place.formatted_address);
@@ -61,11 +89,16 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({ onSelect }) => {
             console.log('Place selected:', place.formatted_address);
           }
         });
+        
+        console.log('Place changed listener added');
       } catch (error) {
         console.error('Error initializing Google Places Autocomplete:', error);
       }
     }
-  }, [isLoaded, onSelect]);
+    
+    // No dependencies on onSelect to prevent re-initialization on parent re-renders
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoaded, countryRestrictions, types]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
