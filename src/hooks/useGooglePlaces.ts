@@ -7,12 +7,28 @@ interface UseGooglePlacesOptions {
   types?: string[];
 }
 
+export interface PlaceSelectionResult {
+  name?: string;
+  address?: string;
+  phoneNumber?: string;
+  businessStatus?: string;
+  categories?: string[];
+  isOperational?: boolean;
+  website?: string;
+  placeId?: string;
+  geometry?: {
+    lat?: number;
+    lng?: number;
+  };
+}
+
 interface UseGooglePlacesReturn {
   isLoaded: boolean;
   placesFailed: boolean;
   initAutocomplete: (inputElement: HTMLInputElement) => void;
   cleanupAutocomplete: () => void;
   scriptLoading: boolean;
+  selectedPlace: PlaceSelectionResult | null;
 }
 
 export const useGooglePlaces = ({
@@ -23,6 +39,7 @@ export const useGooglePlaces = ({
   const [isLoaded, setIsLoaded] = useState(false);
   const [scriptLoading, setScriptLoading] = useState(false);
   const [placesFailed, setPlacesFailed] = useState(false);
+  const [selectedPlace, setSelectedPlace] = useState<PlaceSelectionResult | null>(null);
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   const listenerRef = useRef<google.maps.MapsEventListener | null>(null);
 
@@ -124,22 +141,50 @@ export const useGooglePlaces = ({
         return;
       }
       
-      // Create new autocomplete instance with options
+      // Create new autocomplete instance with expanded fields
       autocompleteRef.current = new google.maps.places.Autocomplete(inputElement, {
-        fields: ['address_components', 'formatted_address', 'geometry', 'name'],
+        fields: [
+          'address_components', 
+          'formatted_address', 
+          'geometry', 
+          'name',
+          'business_status',
+          'formatted_phone_number',
+          'types',
+          'website',
+          'place_id',
+          'opening_hours'
+        ],
         types: types,
         componentRestrictions: countryRestrictions.length ? { country: countryRestrictions } : undefined
       });
 
-      console.log('Autocomplete initialized with options:', { types, countryRestrictions });
+      console.log('Autocomplete initialized with expanded fields');
       
       // Add listener for place selection and store reference to allow cleanup
       listenerRef.current = google.maps.event.addListener(autocompleteRef.current, 'place_changed', () => {
         const place = autocompleteRef.current?.getPlace();
         console.log('Place selected event:', place);
-        if (place && place.formatted_address) {
-          // We handle this through the input's change event now
-          console.log('Place selected:', place.formatted_address);
+        
+        if (place) {
+          // Extract and structure the place data
+          const placeData: PlaceSelectionResult = {
+            name: place.name,
+            address: place.formatted_address,
+            phoneNumber: place.formatted_phone_number,
+            businessStatus: place.business_status,
+            categories: place.types,
+            isOperational: place.opening_hours?.isOpen?.() ?? undefined,
+            website: place.website,
+            placeId: place.place_id,
+            geometry: place.geometry?.location ? {
+              lat: place.geometry.location.lat(),
+              lng: place.geometry.location.lng()
+            } : undefined
+          };
+          
+          console.log('Extracted place data:', placeData);
+          setSelectedPlace(placeData);
         }
       });
       
@@ -160,6 +205,7 @@ export const useGooglePlaces = ({
     placesFailed,
     initAutocomplete,
     cleanupAutocomplete,
-    scriptLoading
+    scriptLoading,
+    selectedPlace
   };
 };

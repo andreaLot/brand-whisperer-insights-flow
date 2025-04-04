@@ -1,12 +1,12 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { useGooglePlaces } from '@/hooks/useGooglePlaces';
+import { useGooglePlaces, PlaceSelectionResult } from '@/hooks/useGooglePlaces';
 import { injectGooglePlacesStyles, fixPacContainerVisibility } from '@/utils/googlePlacesStyles';
 import LocationInput from '@/components/LocationInput';
 import StatusMessage from '@/components/StatusMessage';
 
 interface LocationSelectorProps {
-  onSelect: (location: string) => void;
+  onSelect: (location: string, placeData?: PlaceSelectionResult) => void;
   countryRestrictions?: string[];
   types?: string[];
 }
@@ -24,7 +24,8 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
     placesFailed,
     initAutocomplete,
     cleanupAutocomplete,
-    scriptLoading
+    scriptLoading,
+    selectedPlace
   } = useGooglePlaces({
     countryRestrictions,
     types
@@ -49,13 +50,24 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
     };
   }, [isLoaded]);
 
+  // Handle when selectedPlace changes
+  useEffect(() => {
+    if (selectedPlace) {
+      const locationText = selectedPlace.address || selectedPlace.name || '';
+      if (locationText) {
+        setSearchTerm(locationText);
+        onSelect(locationText, selectedPlace);
+      }
+    }
+  }, [selectedPlace, onSelect]);
+
   // Handle search term changes
   const handleSearchTermChange = (value: string) => {
     setSearchTerm(value);
     console.log('Input changed:', value);
     
-    // Check if this might be a place selection (e.g., from clicking an autocomplete suggestion)
-    if (value.includes(',')) {
+    // For manual entries (not from autocomplete)
+    if (value.includes(',') && !selectedPlace) {
       onSelect(value);
     }
   };
