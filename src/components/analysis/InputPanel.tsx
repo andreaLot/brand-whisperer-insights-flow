@@ -1,11 +1,10 @@
 
 import React from 'react';
 import SearchInput from "@/components/SearchInput";
-import LocationSelector from "@/components/LocationSelector";
 import ResultsStep from './ResultsStep';
 import { AnalysisResult, BusinessCategory } from "@/services/AnalysisService";
 
-type Step = 'welcome' | 'business-name' | 'location' | 'category-detection' | 'analyzing' | 'results';
+type Step = 'welcome' | 'business-name' | 'category-detection' | 'analyzing' | 'results';
 
 interface InputPanelProps {
   step: Step;
@@ -37,10 +36,6 @@ const InputPanel: React.FC<InputPanelProps> = ({
           onChange={setBusinessName}
           onSubmit={handleBusinessNameSubmit}
         />
-      )}
-      
-      {step === 'location' && (
-        <LocationSelector onSelect={handleLocationSelect} />
       )}
       
       {step === 'category-detection' && suggestedCategories.length > 0 && (

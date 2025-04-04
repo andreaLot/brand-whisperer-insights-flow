@@ -6,7 +6,7 @@ import ConversationPanel from '@/components/analysis/ConversationPanel';
 import InputPanel from '@/components/analysis/InputPanel';
 
 // Flow step type
-type Step = 'welcome' | 'business-name' | 'location' | 'category-detection' | 'analyzing' | 'results';
+type Step = 'welcome' | 'business-name' | 'category-detection' | 'analyzing' | 'results';
 
 const Index = () => {
   const { toast } = useToast();
@@ -28,11 +28,19 @@ const Index = () => {
       });
       return;
     }
-    setStep('location');
   };
 
   // Handle location selection
   const handleLocationSelect = (selectedLocation: string) => {
+    if (!businessName.trim()) {
+      toast({
+        title: "Business name required",
+        description: "Please enter your business name before selecting a location",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setLocation(selectedLocation);
     setIsLoading(true);
     setStep('category-detection');
@@ -112,6 +120,7 @@ const Index = () => {
           suggestedCategories={suggestedCategories}
           onBeginAnalysis={handleBeginAnalysis}
           onStartOver={handleStartOver}
+          handleLocationSelect={handleLocationSelect}
         />
         
         {/* Right side - Input/Results */}

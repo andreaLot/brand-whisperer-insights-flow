@@ -3,13 +3,12 @@ import React from 'react';
 import ConversationBubble from "@/components/ConversationBubble";
 import AnalysisWelcome from './AnalysisWelcome';
 import BusinessNameStep from './BusinessNameStep';
-import LocationStep from './LocationStep';
 import CategoryDetectionStep from './CategoryDetectionStep';
 import AnalyzingStep from './AnalyzingStep';
 import ResultsStep from './ResultsStep';
 import { BusinessCategory, AnalysisResult } from "@/services/AnalysisService";
 
-type Step = 'welcome' | 'business-name' | 'location' | 'category-detection' | 'analyzing' | 'results';
+type Step = 'welcome' | 'business-name' | 'category-detection' | 'analyzing' | 'results';
 
 interface ConversationPanelProps {
   step: Step;
@@ -17,6 +16,7 @@ interface ConversationPanelProps {
   suggestedCategories: BusinessCategory[];
   onBeginAnalysis: () => void;
   onStartOver: () => void;
+  handleLocationSelect: (location: string) => void;
 }
 
 const ConversationPanel: React.FC<ConversationPanelProps> = ({
@@ -24,7 +24,8 @@ const ConversationPanel: React.FC<ConversationPanelProps> = ({
   analysisResult,
   suggestedCategories,
   onBeginAnalysis,
-  onStartOver
+  onStartOver,
+  handleLocationSelect
 }) => {
   return (
     <div className="w-full md:w-1/2 flex flex-col gap-6">
@@ -34,11 +35,7 @@ const ConversationPanel: React.FC<ConversationPanelProps> = ({
         )}
         
         {step === 'business-name' && (
-          <BusinessNameStep />
-        )}
-        
-        {step === 'location' && (
-          <LocationStep />
+          <BusinessNameStep handleLocationSelect={handleLocationSelect} />
         )}
         
         {step === 'category-detection' && (
