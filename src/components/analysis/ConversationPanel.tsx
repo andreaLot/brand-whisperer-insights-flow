@@ -118,6 +118,8 @@ const ConversationPanel: React.FC<ConversationPanelProps> = ({
             >
               <AnalyzingStep 
                 businessName={businessName}
+                primaryCategory={primaryCategory}
+                location={location}
                 onAnalysisComplete={onAnalysisComplete}
               />
             </motion.div>
@@ -148,7 +150,7 @@ const ConversationPanel: React.FC<ConversationPanelProps> = ({
               className="h-full overflow-y-auto"
             >
               <ResultsStep 
-                result={analysisResult}
+                analysisResult={analysisResult}
                 businessName={businessName}
                 onStartOver={onStartOver}
               />

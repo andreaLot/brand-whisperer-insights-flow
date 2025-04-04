@@ -5,10 +5,11 @@ import { BusinessCategory } from "@/services/AnalysisService";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface CategoryDetectionStepProps {
+  businessName: string; // Added this prop
   suggestedCategories: BusinessCategory[];
 }
 
-const CategoryDetectionStep: React.FC<CategoryDetectionStepProps> = ({ suggestedCategories }) => {
+const CategoryDetectionStep: React.FC<CategoryDetectionStepProps> = ({ businessName, suggestedCategories }) => {
   return (
     <motion.div 
       className="space-y-6"
@@ -22,7 +23,7 @@ const CategoryDetectionStep: React.FC<CategoryDetectionStepProps> = ({ suggested
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
       >
-        Detecting your <span className="text-brand-blue-light">business category</span>
+        Detecting <span className="text-brand-blue-light">{businessName}'s</span> business category
       </motion.h2>
       
       <motion.div 

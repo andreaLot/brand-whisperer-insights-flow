@@ -5,12 +5,14 @@ import { Progress } from "@/components/ui/progress";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface AnalyzingStepProps {
+  businessName: string; // Added this prop
   primaryCategory?: string;
   location?: string;
   onAnalysisComplete?: () => void;
 }
 
 const AnalyzingStep: React.FC<AnalyzingStepProps> = ({ 
+  businessName,
   primaryCategory, 
   location,
   onAnalysisComplete
@@ -75,7 +77,7 @@ const AnalyzingStep: React.FC<AnalyzingStepProps> = ({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
         >
-          <span className="text-brand-blue-light">Analyzing</span> {categoryText}{locationText}
+          <span className="text-brand-blue-light">Analyzing</span> {businessName}'s {categoryText}{locationText}
         </motion.h2>
         <motion.p 
           className="text-sm text-gray-400"
