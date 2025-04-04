@@ -19,7 +19,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({ onSelect }) => {
     if (!document.getElementById('google-maps-script')) {
       const script = document.createElement('script');
       script.id = 'google-maps-script';
-      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg&libraries=places`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyA48zqyAgIxKc6BsZHUwV7piqagv7nQPbw&libraries=places`;
       script.async = true;
       script.defer = true;
       script.onload = () => setIsLoaded(true);
