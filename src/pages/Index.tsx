@@ -139,16 +139,16 @@ const Index = () => {
         <div className="w-full md:w-1/2 flex flex-col gap-6">
           <ConversationBubble>
             {step === 'welcome' && (
-              <div className="space-y-10">
+              <div className="h-full flex flex-col justify-between">
                 <h2 className="text-xl font-normal">
                   Let's get started! Simply enter your <span className="text-brand-blue-light">business name</span> and <span className="text-brand-blue-light">select a location</span> you'd like to analyze<span className="typewriter-cursor"></span>
                 </h2>
-                <div className="pt-12">
+                <div className="mt-auto">
                   <Button 
                     onClick={() => setStep('business-name')}
                     variant="dynamic"
                     size="xl"
-                    className="mt-4"
+                    className="w-full md:w-auto"
                   >
                     Begin Analysis
                   </Button>
