@@ -47,15 +47,50 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, children, ...props }, ref) => {
     const Comp = asChild ? Slot : "button"
     
+    React.useEffect(() => {
+      // Inject the animation CSS if it doesn't exist
+      if (!document.getElementById('button-animations')) {
+        const style = document.createElement('style');
+        style.id = 'button-animations';
+        style.textContent = `
+          @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+          }
+          
+          .btn-animate {
+            background: linear-gradient(-45deg, #FFA63D, #FF3D77, #338AFF, #3CF0C5);
+            background-size: 300% 300%;
+            animation: gradientMove 6s ease infinite;
+          }
+          
+          .btn-shadow {
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            filter: blur(15px);
+            opacity: 0.7;
+            background: linear-gradient(-45deg, rgba(255, 166, 61, 0.7), rgba(255, 61, 119, 0.7), rgba(51, 138, 255, 0.7), rgba(60, 240, 197, 0.7));
+            background-size: 300% 300%;
+            animation: gradientMove 6s ease infinite;
+            transform: translateY(5px) scale(0.95);
+            z-index: -1;
+          }
+        `;
+        document.head.appendChild(style);
+      }
+    }, []);
+    
     return (
-      <div className={variant === 'dynamic' ? "relative" : ""}>
+      <div className={variant === 'dynamic' ? "relative group" : ""}>
         {variant === 'dynamic' && (
-          <div className="absolute inset-0 rounded-[50px] btn-animate btn-shadow"></div>
+          <div className="absolute inset-0 btn-shadow rounded-md opacity-70 group-hover:opacity-100 transition-opacity duration-300"></div>
         )}
         <Comp
           className={cn(
             buttonVariants({ variant, size, className }), 
-            variant === 'dynamic' && "btn-animate text-white/90 rounded-[50px] relative z-10"
+            variant === 'dynamic' && "btn-animate text-white/90 relative z-10"
           )}
           ref={ref}
           {...props}
