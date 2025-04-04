@@ -22,7 +22,13 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({ onSelect }) => {
       script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyA48zqyAgIxKc6BsZHUwV7piqagv7nQPbw&libraries=places`;
       script.async = true;
       script.defer = true;
-      script.onload = () => setIsLoaded(true);
+      script.onload = () => {
+        setIsLoaded(true);
+        console.log('Google Maps script loaded successfully');
+      };
+      script.onerror = () => {
+        console.error('Failed to load Google Maps script');
+      };
       document.head.appendChild(script);
     } else {
       setIsLoaded(true);
@@ -41,16 +47,18 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({ onSelect }) => {
     if (isLoaded && inputRef.current) {
       try {
         autocompleteRef.current = new google.maps.places.Autocomplete(inputRef.current, {
-          types: ['(cities)'],
           fields: ['address_components', 'formatted_address', 'geometry', 'name']
         });
 
+        console.log('Autocomplete initialized:', autocompleteRef.current);
+        
         // Add listener for place selection
         const listener = google.maps.event.addListener(autocompleteRef.current, 'place_changed', () => {
           const place = autocompleteRef.current?.getPlace();
           if (place && place.formatted_address) {
             setSearchTerm(place.formatted_address);
             onSelect(place.formatted_address);
+            console.log('Place selected:', place.formatted_address);
           }
         });
       } catch (error) {
@@ -58,6 +66,11 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({ onSelect }) => {
       }
     }
   }, [isLoaded, onSelect]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    console.log('Input changed:', e.target.value);
+  };
 
   return (
     <div className="relative w-full animate-fade-in">
@@ -68,12 +81,20 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({ onSelect }) => {
           type="text"
           placeholder="Enter a location"
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={handleInputChange}
           className="pl-10 py-6 bg-white text-black border-0 rounded-md w-full focus:ring-2 focus:ring-brand-blue transition-all"
         />
       </div>
-
-      {/* Google Places will display its own dropdown automatically */}
+      
+      {/* Add custom styling to ensure Google Places dropdown is visible */}
+      <style jsx>{`
+        .pac-container {
+          z-index: 10000;
+          background-color: white;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+          border-radius: 0.375rem;
+        }
+      `}</style>
     </div>
   );
 };
