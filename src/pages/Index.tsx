@@ -16,6 +16,7 @@ const Index = () => {
   const [suggestedCategories, setSuggestedCategories] = useState<BusinessCategory[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+  const [webhookSent, setWebhookSent] = useState(false);
 
   const handleLocationSelect = (selectedLocation: string, placeData?: PlaceSelectionResult) => {
     setLocation(selectedLocation);
@@ -62,6 +63,23 @@ const Index = () => {
 
   const handleChatComplete = async () => {
     try {
+      // Send data to webhook if not already sent
+      if (!webhookSent) {
+        const categoryToUse = primaryCategory || category;
+        const webhookSuccess = await AnalysisService.sendWebhookData({
+          businessName,
+          location,
+          category: categoryToUse
+        });
+        
+        if (webhookSuccess) {
+          console.log("Webhook data sent successfully");
+          setWebhookSent(true);
+        } else {
+          console.warn("Failed to send webhook data");
+        }
+      }
+      
       const result = await AnalysisService.analyzeBrand(businessName, location, category);
       setAnalysisResult(result);
       setIsLoading(false);
@@ -88,6 +106,7 @@ const Index = () => {
     setPrimaryCategory(undefined);
     setSuggestedCategories([]);
     setAnalysisResult(null);
+    setWebhookSent(false);
   };
 
   const handleBeginAnalysis = () => {
@@ -103,6 +122,7 @@ const Index = () => {
           suggestedCategories={suggestedCategories}
           primaryCategory={primaryCategory}
           location={location}
+          businessName={businessName}
           onBeginAnalysis={handleBeginAnalysis}
           onStartOver={handleStartOver}
           onAnalysisComplete={handleAnalysisComplete}

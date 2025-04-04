@@ -22,6 +22,7 @@ interface ConversationPanelProps {
   onAnalysisComplete: () => void;
   onChatComplete: () => void;
   handleLocationSelect: (location: string) => void;
+  businessName: string;
 }
 
 const ConversationPanel: React.FC<ConversationPanelProps> = ({
@@ -34,7 +35,8 @@ const ConversationPanel: React.FC<ConversationPanelProps> = ({
   onStartOver,
   onAnalysisComplete,
   onChatComplete,
-  handleLocationSelect
+  handleLocationSelect,
+  businessName
 }) => {
   return (
     <div className="w-full md:w-[35%] flex flex-col gap-6">
@@ -65,6 +67,7 @@ const ConversationPanel: React.FC<ConversationPanelProps> = ({
           <ChatbotStep 
             primaryCategory={primaryCategory}
             location={location}
+            businessName={businessName}
             onChatComplete={onChatComplete}
           />
         )}
