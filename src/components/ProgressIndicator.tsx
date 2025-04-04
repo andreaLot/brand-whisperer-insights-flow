@@ -23,7 +23,7 @@ const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({ currentStep, tota
           animate={{ 
             opacity: 1, 
             scaleX: 1,
-            transition: { delay: index * 0.1, duration: 0.4 }
+            transition: { delay: 0.1 + index * 0.1, duration: 0.4, ease: "easeOut" }
           }}
         >
           <motion.div 
@@ -40,13 +40,17 @@ const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({ currentStep, tota
             } : {}}
             transition={index === currentStep ? {
               repeat: Infinity,
-              duration: 1.5
+              duration: 1.5,
+              ease: "easeInOut"
             } : {}}
           />
           {index === currentStep && (
             <motion.div 
               className="w-1.5 h-1.5 bg-brand-blue-light rounded-full mt-1"
-              animate={{ scale: [1, 1.5, 1] }}
+              animate={{ 
+                scale: [1, 1.5, 1],
+                opacity: [0.7, 1, 0.7]
+              }}
               transition={{ 
                 repeat: Infinity, 
                 duration: 1.5,
