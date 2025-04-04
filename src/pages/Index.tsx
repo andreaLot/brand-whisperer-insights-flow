@@ -11,36 +11,15 @@ type Step = 'welcome' | 'business-name' | 'category-detection' | 'analyzing' | '
 const Index = () => {
   const { toast } = useToast();
   const [step, setStep] = useState<Step>('welcome');
-  const [businessName, setBusinessName] = useState('');
+  const [businessName, setBusinessName] = useState('Default Business'); // Default business name
   const [location, setLocation] = useState('');
   const [category, setCategory] = useState('');
   const [suggestedCategories, setSuggestedCategories] = useState<BusinessCategory[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
 
-  // Handle business name submission
-  const handleBusinessNameSubmit = async () => {
-    if (!businessName.trim()) {
-      toast({
-        title: "Business name required",
-        description: "Please enter your business name to continue",
-        variant: "destructive"
-      });
-      return;
-    }
-  };
-
   // Handle location selection
   const handleLocationSelect = (selectedLocation: string) => {
-    if (!businessName.trim()) {
-      toast({
-        title: "Business name required",
-        description: "Please enter your business name before selecting a location",
-        variant: "destructive"
-      });
-      return;
-    }
-
     setLocation(selectedLocation);
     setIsLoading(true);
     setStep('category-detection');
@@ -98,7 +77,6 @@ const Index = () => {
   // Start over from beginning
   const handleStartOver = () => {
     setStep('welcome');
-    setBusinessName('');
     setLocation('');
     setCategory('');
     setSuggestedCategories([]);
@@ -130,7 +108,7 @@ const Index = () => {
           analysisResult={analysisResult}
           suggestedCategories={suggestedCategories}
           setBusinessName={setBusinessName}
-          handleBusinessNameSubmit={handleBusinessNameSubmit}
+          handleBusinessNameSubmit={() => {}}
           handleLocationSelect={handleLocationSelect}
           handleStartOver={handleStartOver}
         />
