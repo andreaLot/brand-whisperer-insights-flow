@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import ResultsStep from './ResultsStep';
 import LocationSelector from '@/components/LocationSelector';
@@ -60,7 +59,7 @@ const InputPanel: React.FC<InputPanelProps> = ({
   }, [step]);
 
   return (
-    <div className="w-full md:w-1/2">
+    <div className="w-full md:w-[65%]">
       {/* Show location selector in the welcome step */}
       {step === 'welcome' && (
         <div className="bg-brand-gray-dark rounded-lg p-6 border border-gray-700 animate-fade-in">

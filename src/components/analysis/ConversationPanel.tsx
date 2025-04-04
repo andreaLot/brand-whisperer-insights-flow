@@ -37,7 +37,7 @@ const ConversationPanel: React.FC<ConversationPanelProps> = ({
   handleLocationSelect
 }) => {
   return (
-    <div className="w-full md:w-1/2 flex flex-col gap-6">
+    <div className="w-full md:w-[35%] flex flex-col gap-6">
       <ConversationBubble>
         {step === 'welcome' && (
           <AnalysisWelcome onBeginAnalysis={onBeginAnalysis} />

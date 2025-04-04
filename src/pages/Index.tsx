@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { AnalysisService, AnalysisResult, BusinessCategory } from "@/services/AnalysisService";
@@ -95,7 +96,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-brand-black p-4 text-white">
-      <div className="w-full max-w-5xl flex flex-col md:flex-row gap-8">
+      <div className="w-full max-w-7xl flex flex-col md:flex-row gap-8">
         <ConversationPanel
           step={step}
           analysisResult={analysisResult}
