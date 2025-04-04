@@ -19,7 +19,9 @@ const injectGooglePlacesStyles = () => {
     styleElement.id = 'google-places-autocomplete-styles';
     styleElement.innerHTML = `
       .pac-container {
-        z-index: 9999 !important;
+        z-index: 10000 !important;
+        position: absolute !important;
+        display: block !important;
         background-color: #1e1e1e !important;
         color: white !important;
         border: 1px solid #333 !important;
@@ -27,6 +29,9 @@ const injectGooglePlacesStyles = () => {
         margin-top: 4px !important;
         border-radius: 0.375rem !important;
         font-family: inherit !important;
+        width: auto !important;
+        min-width: 300px !important;
+        overflow: visible !important;
       }
       
       .pac-item {
@@ -34,6 +39,8 @@ const injectGooglePlacesStyles = () => {
         cursor: pointer !important;
         color: #f3f4f6 !important;
         border-bottom: 1px solid #333 !important;
+        display: flex !important;
+        align-items: center !important;
       }
       
       .pac-item:hover {
@@ -72,6 +79,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoaded, setIsLoaded] = useState(false);
   const [scriptLoading, setScriptLoading] = useState(false);
+  const [placesFailed, setPlacesFailed] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   const listenerRef = useRef<google.maps.MapsEventListener | null>(null);
@@ -118,6 +126,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
           console.log('Places library available:', !!window.google.maps.places);
         } else {
           console.error('Places library not available after script load');
+          setPlacesFailed(true);
           toast({
             title: "Error loading location service",
             description: "Please try refreshing the page",
@@ -128,6 +137,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
       script.onerror = (error) => {
         console.error('Failed to load Google Maps script:', error);
         setScriptLoading(false);
+        setPlacesFailed(true);
         toast({
           title: "Error loading location service",
           description: "Please check your internet connection and try again",
@@ -162,6 +172,23 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
     }
   };
 
+  // Debug help function to check PAC container visibility
+  const checkPacContainers = () => {
+    const containers = document.querySelectorAll('.pac-container');
+    console.log(`Found ${containers.length} PAC containers`);
+    containers.forEach((container, i) => {
+      const style = window.getComputedStyle(container as HTMLElement);
+      console.log(`Container ${i}:`, {
+        display: style.display,
+        visibility: style.visibility,
+        zIndex: style.zIndex,
+        position: style.position,
+        width: style.width,
+        clientRect: (container as HTMLElement).getBoundingClientRect()
+      });
+    });
+  };
+
   // Initialize autocomplete when the script is loaded and the input is available
   useEffect(() => {
     if (!isLoaded || !inputRef.current) {
@@ -178,6 +205,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
       // Verify the Places library is available
       if (!window.google?.maps?.places?.Autocomplete) {
         console.error('Google Places API not available');
+        setPlacesFailed(true);
         toast({
           title: "Location search unavailable",
           description: "Could not initialize location search",
@@ -218,10 +246,13 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
           (container as HTMLElement).style.position = 'absolute';
           (container as HTMLElement).style.display = 'block';
         });
+        // Debug check of containers
+        checkPacContainers();
       }, 500);
       
     } catch (error) {
       console.error('Error initializing Google Places Autocomplete:', error);
+      setPlacesFailed(true);
       toast({
         title: "Error setting up location search",
         description: "Please try again or enter location manually",
@@ -234,6 +265,9 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
     console.log('Input changed:', e.target.value);
+    
+    // Re-check pac containers visibility on every input change
+    setTimeout(() => checkPacContainers(), 100);
   };
 
   // Add a manual focus handler to ensure autocomplete visibility
@@ -244,13 +278,17 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
       const containers = document.querySelectorAll('.pac-container');
       containers.forEach(container => {
         (container as HTMLElement).style.zIndex = '10000';
+        (container as HTMLElement).style.position = 'absolute';
+        (container as HTMLElement).style.display = 'block';
       });
+      // Debug check of containers
+      checkPacContainers();
     }, 100);
   };
 
   return (
     <div className="relative w-full animate-fade-in">
-      <div className="relative">
+      <div className="relative" id="location-input-container">
         <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
         <Input
           ref={inputRef}
@@ -259,12 +297,18 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
           value={searchTerm}
           onChange={handleInputChange}
           onFocus={handleInputFocus}
+          onClickCapture={handleInputFocus}
           className="pl-10 py-6 bg-brand-gray-dark text-white border border-gray-700 rounded-md w-full focus:ring-2 focus:ring-violet-500 transition-all"
           autoComplete="off" // Prevent browser's default autocomplete from interfering
         />
       </div>
       {!isLoaded && (
         <div className="text-sm text-gray-500 mt-2">Loading location search...</div>
+      )}
+      {placesFailed && (
+        <div className="text-sm text-red-500 mt-2">
+          Location search isn't working. Please try refreshing the page or enter manually.
+        </div>
       )}
     </div>
   );
