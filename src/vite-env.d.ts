@@ -15,6 +15,13 @@ declare namespace google {
       extend(point: LatLng): LatLngBounds;
     }
 
+    // Add the event namespace
+    namespace event {
+      function clearInstanceListeners(instance: object): void;
+      function addDomListener(instance: object, eventName: string, handler: Function, capture?: boolean): MapsEventListener;
+      function addListener(instance: object, eventName: string, handler: Function): MapsEventListener;
+    }
+
     namespace places {
       class Autocomplete {
         constructor(
@@ -78,6 +85,14 @@ declare namespace google {
         compound_code: string;
         global_code: string;
       }
+    }
+
+    // Add LatLngBoundsLiteral interface
+    interface LatLngBoundsLiteral {
+      east: number;
+      north: number;
+      south: number;
+      west: number;
     }
 
     interface MapsEventListener {

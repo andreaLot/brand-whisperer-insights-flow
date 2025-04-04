@@ -46,7 +46,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({ onSelect }) => {
         });
 
         // Add listener for place selection
-        autocompleteRef.current.addListener('place_changed', () => {
+        const listener = google.maps.event.addListener(autocompleteRef.current, 'place_changed', () => {
           const place = autocompleteRef.current?.getPlace();
           if (place && place.formatted_address) {
             setSearchTerm(place.formatted_address);
