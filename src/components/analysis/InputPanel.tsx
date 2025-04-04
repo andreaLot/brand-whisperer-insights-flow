@@ -32,7 +32,6 @@ const InputPanel: React.FC<InputPanelProps> = ({
       {/* Show location selector in the welcome step */}
       {step === 'welcome' && (
         <div className="bg-brand-gray-dark rounded-lg p-6 border border-gray-700 animate-fade-in">
-          <h3 className="text-lg font-medium mb-4">Enter a location to analyze:</h3>
           <LocationSelector onSelect={handleLocationSelect} />
         </div>
       )}
