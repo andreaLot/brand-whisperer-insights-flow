@@ -1,16 +1,18 @@
+
 import { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { Step } from '@/components/analysis/ConversationPanel';
 import { 
   AnalysisService, 
   AnalysisResult, 
-  BusinessCategory, 
-  ApifyBusinessResult, 
-  ApifyCategoryResult 
+  BusinessCategory,
 } from "@/services/AnalysisService";
 import { PlaceSelectionResult } from '@/hooks/useGooglePlaces';
+import { useApifyData } from './analysis/useApifyData';
+import { extractCity } from './analysis/analysisUtils';
+import { UseAnalysisStateResult } from './analysis/types';
 
-export const useAnalysisState = () => {
+export const useAnalysisState = (): UseAnalysisStateResult => {
   const { toast } = useToast();
   const [step, setStep] = useState<Step>('welcome');
   const [businessName, setBusinessName] = useState('Default Business');
@@ -21,9 +23,14 @@ export const useAnalysisState = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [webhookSent, setWebhookSent] = useState(false);
-  const [apifyBusinessResult, setApifyBusinessResult] = useState<ApifyBusinessResult | null>(null);
-  const [apifyCategoryResults, setApifyCategoryResults] = useState<ApifyCategoryResult[]>([]);
-  const [apifyLoading, setApifyLoading] = useState(false);
+
+  const {
+    apifyBusinessResult,
+    apifyCategoryResults,
+    apifyLoading,
+    fetchApifyBusinessData,
+    fetchApifyCategoryData
+  } = useApifyData();
 
   const handleLocationSelect = async (selectedLocation: string, placeData?: PlaceSelectionResult) => {
     setLocation(selectedLocation);
@@ -39,72 +46,16 @@ export const useAnalysisState = () => {
       }
     }
 
-    fetchApifyBusinessData(businessName, selectedLocation);
+    const businessResult = await fetchApifyBusinessData(businessName, selectedLocation);
+    
+    if (businessResult && !primaryCategory && businessResult.category) {
+      setPrimaryCategory(businessResult.category);
+      setCategory(businessResult.category);
+      
+      fetchApifyCategoryData(businessResult.category, extractCity(selectedLocation));
+    }
+    
     detectCategory();
-  };
-
-  const fetchApifyBusinessData = async (business: string, locationValue: string) => {
-    setApifyLoading(true);
-    
-    try {
-      const businessResult = await AnalysisService.fetchBusinessFromApify(business, locationValue);
-      
-      if (businessResult) {
-        setApifyBusinessResult(businessResult);
-        console.log("Apify business data received:", businessResult);
-        
-        if (!primaryCategory && businessResult.category) {
-          setPrimaryCategory(businessResult.category);
-          setCategory(businessResult.category);
-          
-          fetchApifyCategoryData(businessResult.category, extractCity(locationValue));
-        }
-      }
-    } catch (error) {
-      console.error("Error fetching business data from Apify:", error);
-      toast({
-        title: "API Error",
-        description: "Failed to fetch business data from Apify.",
-        variant: "destructive"
-      });
-    } finally {
-      setApifyLoading(false);
-    }
-  };
-  
-  const fetchApifyCategoryData = async (categoryValue: string, city: string) => {
-    setApifyLoading(true);
-    
-    try {
-      const query = `${categoryValue} ${city}`;
-      console.log("Fetching category data with query:", query);
-      
-      const categoryResults = await AnalysisService.fetchCategoryFromApify(categoryValue, city);
-      
-      if (Array.isArray(categoryResults)) {
-        setApifyCategoryResults(categoryResults);
-        console.log("Apify category data received:", categoryResults);
-      }
-    } catch (error) {
-      console.error("Error fetching category data from Apify:", error);
-      toast({
-        title: "API Error",
-        description: "Failed to fetch category data from Apify.",
-        variant: "destructive"
-      });
-    } finally {
-      setApifyLoading(false);
-    }
-  };
-  
-  const extractCity = (address: string): string => {
-    const cityMatch = address.match(/([A-Za-z\s]+),\s*[A-Z]{2}/);
-    if (cityMatch && cityMatch[1]) {
-      return cityMatch[1].trim();
-    }
-    
-    const parts = address.split(',');
-    return parts.length > 1 ? parts[1].trim() : address;
   };
 
   const detectCategory = async () => {
@@ -175,8 +126,6 @@ export const useAnalysisState = () => {
     setSuggestedCategories([]);
     setAnalysisResult(null);
     setWebhookSent(false);
-    setApifyBusinessResult(null);
-    setApifyCategoryResults([]);
   };
 
   const handleBeginAnalysis = () => {
@@ -195,6 +144,7 @@ export const useAnalysisState = () => {
     apifyBusinessResult,
     apifyCategoryResults,
     apifyLoading,
+    webhookSent,
     setBusinessName,
     handleLocationSelect,
     handleBeginAnalysis,
