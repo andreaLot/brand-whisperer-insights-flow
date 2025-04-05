@@ -1,8 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
+import PlatformRotator from './components/PlatformRotator';
+import CompletionButton from './components/CompletionButton';
+import useProgressTracker from './hooks/useProgressTracker';
 
 interface AnalyzingStepProps {
   primaryCategory?: string;
@@ -25,66 +26,19 @@ const AnalyzingStep: React.FC<AnalyzingStepProps> = ({
     { name: "Grok", color: "#ea384c" }         // Red
   ];
   
-  const [currentPlatformIndex, setCurrentPlatformIndex] = useState(0);
-  const [isVisible, setIsVisible] = useState(true);
-  const [progress, setProgress] = useState(0);
-  const [isComplete, setIsComplete] = useState(false);
   const [textOpacity, setTextOpacity] = useState(0);
+  const [isComplete, setIsComplete] = useState(false);
+
+  // Use the ProgressTracker hook
+  const { progress, isComplete: progressComplete } = useProgressTracker({
+    onComplete: () => setIsComplete(true)
+  });
 
   // Modified the component to remove typewriter effect and display as a fade-in text block
   useEffect(() => {
     // Fade in the text container
     setTextOpacity(1);
   }, []);
-
-  // Handle platform rotation with fade effect
-  useEffect(() => {
-    // If analysis is complete, don't start the platform rotation
-    if (isComplete) return;
-
-    const fadeInterval = setInterval(() => {
-      setIsVisible(false);
-      
-      // Wait for fade out, then change platform and fade in
-      setTimeout(() => {
-        setCurrentPlatformIndex(prevIndex => (prevIndex + 1) % platforms.length);
-        setIsVisible(true);
-      }, 600);
-    }, 2000); // Change platform every 2 seconds
-
-    return () => clearInterval(fadeInterval);
-  }, [platforms.length, isComplete]);
-  
-  // Handle progress and completion
-  useEffect(() => {
-    const progressInterval = setInterval(() => {
-      setProgress(prevProgress => {
-        const newProgress = prevProgress + 0.5;
-        
-        if (newProgress >= 100) {
-          clearInterval(progressInterval);
-          setIsComplete(true);
-          return 100;
-        }
-        
-        return newProgress;
-      });
-    }, 150); // Slower progress to give time for the animation
-    
-    return () => clearInterval(progressInterval);
-  }, []);
-  
-  // Handle completion
-  useEffect(() => {
-    if (isComplete && onAnalysisComplete) {
-      // Wait a moment before triggering completion for smoother transition
-      const timeout = setTimeout(() => {
-        onAnalysisComplete();
-      }, 2000);
-      
-      return () => clearTimeout(timeout);
-    }
-  }, [isComplete, onAnalysisComplete]);
 
   return (
     <motion.div 
@@ -107,44 +61,11 @@ const AnalyzingStep: React.FC<AnalyzingStepProps> = ({
           {' '}in your area
         </motion.h2>
         
-        <AnimatePresence mode="wait">
-          <motion.p 
-            key={platforms[currentPlatformIndex].name}
-            className="text-3xl text-center font-medium mt-6"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 5 }}
-            exit={{ opacity: 0, y: -5 }}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <span 
-              style={{ 
-                color: platforms[currentPlatformIndex].color,
-                textShadow: `0 0 15px ${platforms[currentPlatformIndex].color}40`
-              }} 
-              className="font-bold text-4xl"
-            >
-              {platforms[currentPlatformIndex].name}
-            </span>
-          </motion.p>
-        </AnimatePresence>
+        <PlatformRotator platforms={platforms} isComplete={isComplete} />
       </motion.div>
       
       {isComplete && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.3 }}
-          className="mt-8"
-        >
-          <Button 
-            onClick={onAnalysisComplete}
-            variant="elegant"
-            size="lg"
-            className="w-full mt-4"
-          >
-            View Results <ArrowRight size={16} />
-          </Button>
-        </motion.div>
+        <CompletionButton onAnalysisComplete={onAnalysisComplete!} />
       )}
     </motion.div>
   );
