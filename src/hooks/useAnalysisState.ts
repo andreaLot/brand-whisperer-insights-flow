@@ -38,19 +38,35 @@ export const useAnalysisState = (): UseAnalysisStateResult => {
     if (placeData) {
       setBusinessName(placeData.name || 'Default Business');
       
+      // Use Google Places API categories if available
       if (placeData.categories && placeData.categories.length > 0) {
+        console.log("Setting category from Google Places:", placeData.categories[0]);
         setPrimaryCategory(placeData.categories[0]);
+        setCategory(placeData.categories[0]);
+        
+        // Convert Google Places categories to our BusinessCategory format
+        const googleCategories: BusinessCategory[] = placeData.categories.map((cat, index) => ({
+          name: cat,
+          confidence: 1 - (index * 0.1) // Assign decreasing confidence based on order
+        }));
+        
+        setSuggestedCategories(googleCategories);
       }
     }
 
     const businessResult = await fetchApifyBusinessData(businessName, selectedLocation);
     
+    // Fallback to Apify category if Google Places didn't provide one
     if (businessResult && !primaryCategory && businessResult.category) {
+      console.log("Setting category from Apify:", businessResult.category);
       setPrimaryCategory(businessResult.category);
       setCategory(businessResult.category);
     }
     
-    detectCategory();
+    // Only run detectCategory as a last resort if we don't have categories yet
+    if (!primaryCategory) {
+      detectCategory();
+    }
   };
 
   const detectCategory = async () => {

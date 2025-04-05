@@ -48,13 +48,27 @@ export const initializeAutocomplete = (
       console.log('Place selected event:', place);
       
       if (place) {
+        // Process categories: clean up Google Places types to be more user-friendly
+        const rawTypes = place.types || [];
+        const cleanedCategories = rawTypes
+          .filter(type => !['point_of_interest', 'establishment'].includes(type))
+          .map(type => {
+            // Convert snake_case to Title Case
+            return type
+              .split('_')
+              .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(' ');
+          });
+        
+        console.log("Extracted categories from Google Places:", cleanedCategories);
+        
         // Extract and structure the place data
         const placeData: PlaceSelectionResult = {
           name: place.name,
           address: place.formatted_address,
           phoneNumber: place.formatted_phone_number,
           businessStatus: place.business_status,
-          categories: place.types,
+          categories: cleanedCategories.length > 0 ? cleanedCategories : place.types,
           isOperational: place.opening_hours?.isOpen?.() ?? undefined,
           website: place.website,
           placeId: place.place_id,
@@ -64,7 +78,7 @@ export const initializeAutocomplete = (
           } : undefined
         };
         
-        console.log('Extracted place data:', placeData);
+        console.log('Extracted place data with categories:', placeData);
         onPlaceSelected(placeData);
       }
     });

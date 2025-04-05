@@ -107,6 +107,7 @@ export const useGooglePlaces = ({
       inputElement, 
       { countryRestrictions, types },
       (placeData) => {
+        console.log("Place data from Google Places:", placeData);
         setSelectedPlace(placeData);
       }
     );

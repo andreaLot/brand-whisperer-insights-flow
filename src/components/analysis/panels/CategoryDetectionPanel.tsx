@@ -17,18 +17,24 @@ const CategoryDetectionPanel: React.FC<CategoryDetectionPanelProps> = ({
       {apifyLoading ? (
         <div className="flex items-center justify-center p-8">
           <Loader2 className="w-6 h-6 animate-spin text-brand-blue mr-2" />
-          <span>Loading business data from Google Places...</span>
+          <span>Loading business data...</span>
         </div>
       ) : (
         <>
-          <h3 className="text-lg font-medium mb-4">Detected Categories:</h3>
+          <h3 className="text-lg font-medium mb-4">
+            {suggestedCategories.length > 0 && suggestedCategories[0].confidence === 1 
+              ? 'Categories from Google Places:' 
+              : 'Detected Categories:'}
+          </h3>
           {suggestedCategories.length > 0 ? (
             <ul className="space-y-2">
               {suggestedCategories.map((cat, index) => (
                 <li key={index} className="flex items-center justify-between">
                   <span>{cat.name}</span>
                   <span className="text-sm text-gray-400">
-                    {Math.round(cat.confidence * 100)}% confidence
+                    {cat.confidence === 1 
+                      ? 'Google Places API' 
+                      : `${Math.round(cat.confidence * 100)}% confidence`}
                   </span>
                 </li>
               ))}

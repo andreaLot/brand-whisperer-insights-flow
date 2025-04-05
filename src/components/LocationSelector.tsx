@@ -54,6 +54,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
   // Handle when selectedPlace changes
   useEffect(() => {
     if (selectedPlace) {
+      console.log("Selected Place with categories:", selectedPlace);
       const locationText = selectedPlace.address || selectedPlace.name || '';
       if (locationText) {
         setSearchTerm(locationText);
