@@ -28,38 +28,29 @@ const AnalyzingVideoPanel: React.FC = () => {
           ease: [0.34, 1.56, 0.64, 1], // Custom spring-like easing
           staggerChildren: 0.1 // Stagger child animations
         }}
-        style={{ 
-          position: 'relative', 
-          overflow: 'hidden', 
-          width: '100%', 
-          borderRadius: '0.75rem', // Slightly more rounded corners
+        className="aspect-video relative w-full rounded-xl overflow-hidden"
+        style={{
           zIndex: 10,
           boxShadow: isVisible ? '0 25px 50px -12px rgba(0, 0, 0, 0.25)' : 'none'
-        }} 
-        className="aspect-video"
+        }}
       >
-        {/* Removed the black overlay div that was causing issues */}
-        
-        <iframe 
-          src="https://share.synthesia.io/embeds/videos/9081a83c-bb4a-4314-ae81-f3e227152744" 
-          loading="lazy" 
-          title="Synthesia video player - Boost Your AI Search Visibility: The Power of Updated Directories" 
-          allowFullScreen 
-          allow="encrypted-media; fullscreen;" 
-          style={{ 
-            position: 'absolute', 
-            width: '100%', 
-            height: '100%', 
-            top: 0, 
-            left: 0, 
-            border: 'none', 
-            padding: 0, 
-            margin: 0, 
-            overflow: 'hidden',
-            zIndex: 10,
-            borderRadius: '0.75rem' // Match the parent's border radius
-          }}
-        />
+        {/* Only render iframe when it's ready to be visible */}
+        {isVisible && (
+          <iframe 
+            src="https://share.synthesia.io/embeds/videos/9081a83c-bb4a-4314-ae81-f3e227152744" 
+            loading="eager" 
+            title="Synthesia video player - Boost Your AI Search Visibility: The Power of Updated Directories" 
+            allowFullScreen 
+            allow="encrypted-media; fullscreen;" 
+            className="absolute inset-0 w-full h-full border-0 rounded-xl"
+            style={{ 
+              padding: 0, 
+              margin: 0, 
+              overflow: 'hidden',
+              zIndex: 10
+            }}
+          />
+        )}
       </motion.div>
     </div>
   );
