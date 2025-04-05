@@ -1,7 +1,7 @@
 
 export const WebhookService = {
   sendWebhookData: async (businessData: { businessName: string; location: string; category: string }): Promise<boolean> => {
-    const webhookUrl = "https://uberall.app.n8n.cloud/webhook-test/90433a9c-3123-494e-a533-b6a3a0b84da1";
+    const webhookUrl = "https://uberall.app.n8n.cloud/webhook-test/119e2c76-8983-4009-8438-ef722061a28d";
     
     try {
       console.log(`Sending data to webhook: ${JSON.stringify(businessData)}`);
