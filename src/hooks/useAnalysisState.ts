@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { Step } from '@/components/analysis/ConversationPanel';
@@ -31,48 +30,33 @@ export const useAnalysisState = (): UseAnalysisStateResult => {
     fetchApifyBusinessData
   } = useApifyData();
 
-  // Robust webhook sending function with retries
-  const sendWebhookData = async (name: string, loc: string, cat: string) => {
-    if (!webhookSent && name && loc && cat) {
-      console.log("Sending webhook data immediately");
+  const sendWebhookData = async (name: string, loc: string, cat: string, placeData?: PlaceSelectionResult) => {
+    if (!webhookSent && name && loc) {
+      console.log("Sending webhook data immediately with all place details");
       setWebhookAttempts(prev => prev + 1);
       
-      const webhookSuccess = await WebhookService.sendWebhookData({
+      const webhookData = {
         businessName: name,
         location: loc,
-        category: cat
-      });
+        category: cat,
+        ...(placeData || {})
+      };
+      
+      const webhookSuccess = await WebhookService.sendWebhookData(webhookData);
       
       if (webhookSuccess) {
         console.log("Webhook data sent successfully");
         setWebhookSent(true);
-        
-        // Show success toast to confirm webhook sent
-        toast({
-          title: "Data sent successfully",
-          description: "Business information has been transmitted to the external system.",
-          variant: "default"
-        });
       } else {
         console.warn("Failed to send webhook data");
-        
-        // Show error toast if multiple attempts have failed
-        if (webhookAttempts > 2) {
-          toast({
-            title: "Warning",
-            description: "Having trouble sending data to external system. Will retry later.",
-            variant: "destructive"
-          });
-        }
       }
     }
   };
 
-  // Periodically retry sending webhook data if it failed initially
   useEffect(() => {
     let retryTimer: NodeJS.Timeout | null = null;
     
-    if (!webhookSent && businessName && location && category && webhookAttempts > 0 && webhookAttempts < 5) {
+    if (!webhookSent && businessName && location && webhookAttempts > 0 && webhookAttempts < 5) {
       retryTimer = setTimeout(() => {
         console.log(`Retry attempt ${webhookAttempts + 1} to send webhook data`);
         sendWebhookData(businessName, location, category);
@@ -93,38 +77,34 @@ export const useAnalysisState = (): UseAnalysisStateResult => {
     if (placeData) {
       setBusinessName(placeData.name || 'Default Business');
       
-      // Use Google Places API categories if available
       if (placeData.categories && placeData.categories.length > 0) {
         console.log("Setting category from Google Places:", placeData.categories[0]);
         setPrimaryCategory(placeData.categories[0]);
         setCategory(placeData.categories[0]);
         
-        // Convert Google Places categories to our BusinessCategory format
         const googleCategories: BusinessCategory[] = placeData.categories.map((cat, index) => ({
           name: cat,
-          confidence: 1 - (index * 0.1) // Assign decreasing confidence based on order
+          confidence: 1 - (index * 0.1)
         }));
         
         setSuggestedCategories(googleCategories);
         
-        // Send webhook data as soon as we have business name, location and category
         await sendWebhookData(
           placeData.name || 'Default Business',
           selectedLocation,
-          placeData.categories[0]
+          placeData.categories[0],
+          placeData
         );
       }
     }
 
     const businessResult = await fetchApifyBusinessData(businessName, selectedLocation);
     
-    // Fallback to Apify category if Google Places didn't provide one
     if (businessResult && !primaryCategory && businessResult.category) {
       console.log("Setting category from Apify:", businessResult.category);
       setPrimaryCategory(businessResult.category);
       setCategory(businessResult.category);
       
-      // Try sending webhook data again if we didn't have categories before
       if (!webhookSent) {
         await sendWebhookData(
           businessName,
@@ -134,11 +114,9 @@ export const useAnalysisState = (): UseAnalysisStateResult => {
       }
     }
     
-    // Only run detectCategory as a last resort if we don't have categories yet
     if (!primaryCategory) {
       await detectCategory();
       
-      // After detection, try one more time to send webhook if we have a category now
       if (!webhookSent && category) {
         await sendWebhookData(businessName, selectedLocation, category);
       }
@@ -171,7 +149,6 @@ export const useAnalysisState = (): UseAnalysisStateResult => {
 
   const handleChatComplete = async () => {
     try {
-      // One last attempt to send webhook data if it wasn't successful earlier
       if (!webhookSent && businessName && location && category) {
         await sendWebhookData(businessName, location, category);
       }

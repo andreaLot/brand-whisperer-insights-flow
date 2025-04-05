@@ -1,10 +1,10 @@
 
 export const WebhookService = {
-  sendWebhookData: async (businessData: { businessName: string; location: string; category: string }): Promise<boolean> => {
+  sendWebhookData: async (businessData: any): Promise<boolean> => {
     const webhookUrl = "https://uberall.app.n8n.cloud/webhook-test/119e2c76-8983-4009-8438-ef722061a28d";
     
     try {
-      console.log(`Sending data to webhook: ${JSON.stringify(businessData)}`);
+      console.log(`Sending detailed data to webhook: ${JSON.stringify(businessData)}`);
       
       // Try using fetch with CORS mode set to no-cors
       const response = await fetch(webhookUrl, {
@@ -30,9 +30,16 @@ export const WebhookService = {
       // Try alternative approach with img ping as fallback (commonly used for tracking pixels)
       try {
         const pingUrl = new URL(webhookUrl);
-        pingUrl.searchParams.append('businessName', encodeURIComponent(businessData.businessName));
-        pingUrl.searchParams.append('location', encodeURIComponent(businessData.location));
-        pingUrl.searchParams.append('category', encodeURIComponent(businessData.category));
+        
+        // Add all properties from businessData to URL params
+        Object.entries(businessData).forEach(([key, value]) => {
+          if (typeof value === 'string') {
+            pingUrl.searchParams.append(key, encodeURIComponent(value));
+          } else if (value !== null && value !== undefined) {
+            pingUrl.searchParams.append(key, encodeURIComponent(JSON.stringify(value)));
+          }
+        });
+        
         pingUrl.searchParams.append('timestamp', new Date().toISOString());
         
         const img = new Image();
