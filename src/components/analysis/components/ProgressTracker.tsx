@@ -5,6 +5,8 @@ interface ProgressTrackerProps {
   onComplete: () => void;
 }
 
+// This was incorrectly returning an object instead of JSX
+// Let's convert it to a proper React component that renders progress
 const ProgressTracker: React.FC<ProgressTrackerProps> = ({ onComplete }) => {
   const [progress, setProgress] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
@@ -30,7 +32,7 @@ const ProgressTracker: React.FC<ProgressTrackerProps> = ({ onComplete }) => {
   
   // Handle completion
   useEffect(() => {
-    if (isComplete && onComplete) {
+    if (isComplete) {
       // Wait a moment before triggering completion for smoother transition
       const timeout = setTimeout(() => {
         onComplete();
@@ -40,7 +42,15 @@ const ProgressTracker: React.FC<ProgressTrackerProps> = ({ onComplete }) => {
     }
   }, [isComplete, onComplete]);
 
-  return { progress, isComplete };
+  // Return JSX instead of an object
+  return (
+    <div className="w-full bg-gray-800 rounded-full h-2.5 mb-4 overflow-hidden">
+      <div 
+        className="bg-brand-blue h-2.5 rounded-full transition-all duration-300 ease-out"
+        style={{ width: `${progress}%` }}
+      />
+    </div>
+  );
 };
 
 export default ProgressTracker;
