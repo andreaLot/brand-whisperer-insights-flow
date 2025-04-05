@@ -29,36 +29,18 @@ const AnalyzingStep: React.FC<AnalyzingStepProps> = ({
   const [isVisible, setIsVisible] = useState(true);
   const [progress, setProgress] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
-  const [displayedText, setDisplayedText] = useState("");
-  const [isTypingComplete, setIsTypingComplete] = useState(false);
   const [textOpacity, setTextOpacity] = useState(0);
 
-  const fullText = `We are looking how you perform in ${categoryText} in your area`;
-
-  // Typewriter effect with elegant fade-in for the intro text
+  // Modified the component to remove typewriter effect and display as a fade-in text block
   useEffect(() => {
-    let index = 0;
-    
-    // First fade in the container
+    // Fade in the text container
     setTextOpacity(1);
-    
-    const typingInterval = setInterval(() => {
-      if (index <= fullText.length) {
-        setDisplayedText(fullText.slice(0, index));
-        index++;
-      } else {
-        clearInterval(typingInterval);
-        setIsTypingComplete(true);
-      }
-    }, 50); // Adjust speed as needed
+  }, []);
 
-    return () => clearInterval(typingInterval);
-  }, [fullText]);
-
-  // Handle platform rotation with fade effect - only start after typing is complete
+  // Handle platform rotation with fade effect
   useEffect(() => {
-    // If analysis is complete or typing isn't complete, don't start the platform rotation
-    if (isComplete || !isTypingComplete) return;
+    // If analysis is complete, don't start the platform rotation
+    if (isComplete) return;
 
     const fadeInterval = setInterval(() => {
       setIsVisible(false);
@@ -71,13 +53,10 @@ const AnalyzingStep: React.FC<AnalyzingStepProps> = ({
     }, 2000); // Change platform every 2 seconds
 
     return () => clearInterval(fadeInterval);
-  }, [platforms.length, isComplete, isTypingComplete]);
+  }, [platforms.length, isComplete]);
   
   // Handle progress and completion
   useEffect(() => {
-    // Start progress tracking only after typing is complete
-    if (!isTypingComplete) return;
-
     const progressInterval = setInterval(() => {
       setProgress(prevProgress => {
         const newProgress = prevProgress + 0.5;
@@ -93,7 +72,7 @@ const AnalyzingStep: React.FC<AnalyzingStepProps> = ({
     }, 150); // Slower progress to give time for the animation
     
     return () => clearInterval(progressInterval);
-  }, [isTypingComplete]);
+  }, []);
   
   // Handle completion
   useEffect(() => {
@@ -121,37 +100,33 @@ const AnalyzingStep: React.FC<AnalyzingStepProps> = ({
         transition={{ duration: 1.2 }}
       >
         <motion.h2 
-          className="text-3xl font-medium mb-8 tracking-tight leading-relaxed bg-clip-text text-transparent bg-gradient-to-r from-white via-blue-100 to-white"
-          style={{ textShadow: "0 0 10px rgba(76, 154, 255, 0.3)" }}
+          className="text-3xl font-medium mb-8 tracking-tight leading-relaxed"
         >
-          {displayedText}
-          {displayedText.length < fullText.length && (
-            <span className="typewriter-cursor"></span>
-          )}
+          We are looking how you perform in{' '}
+          <span className="text-brand-blue-light font-semibold">{categoryText}</span>
+          {' '}in your area
         </motion.h2>
         
-        {isTypingComplete && (
-          <AnimatePresence mode="wait">
-            <motion.p 
-              key={platforms[currentPlatformIndex].name}
-              className="text-3xl text-center font-medium mt-6"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 5 }}
-              exit={{ opacity: 0, y: -5 }}
-              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+        <AnimatePresence mode="wait">
+          <motion.p 
+            key={platforms[currentPlatformIndex].name}
+            className="text-3xl text-center font-medium mt-6"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 5 }}
+            exit={{ opacity: 0, y: -5 }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <span 
+              style={{ 
+                color: platforms[currentPlatformIndex].color,
+                textShadow: `0 0 15px ${platforms[currentPlatformIndex].color}40`
+              }} 
+              className="font-bold text-4xl"
             >
-              <span 
-                style={{ 
-                  color: platforms[currentPlatformIndex].color,
-                  textShadow: `0 0 15px ${platforms[currentPlatformIndex].color}40`
-                }} 
-                className="font-bold text-4xl"
-              >
-                {platforms[currentPlatformIndex].name}
-              </span>
-            </motion.p>
-          </AnimatePresence>
-        )}
+              {platforms[currentPlatformIndex].name}
+            </span>
+          </motion.p>
+        </AnimatePresence>
       </motion.div>
       
       {isComplete && (

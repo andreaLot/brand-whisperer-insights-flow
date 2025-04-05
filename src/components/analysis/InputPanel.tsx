@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import ResultsStep from './ResultsStep';
 import LocationSelector from '@/components/LocationSelector';
@@ -105,91 +104,10 @@ const InputPanel: React.FC<InputPanelProps> = ({
         </div>
       )}
       
+      {/* Hide all content during analyzing step as requested */}
       {step === 'analyzing' && (
-        <div className="space-y-4">
-          <div className="bg-brand-gray-dark rounded-lg p-6 border border-gray-700 animate-fade-in">
-            <h3 className="text-lg font-medium mb-4">AI Search Analysis</h3>
-            <p className="text-sm text-gray-300">
-              We will now run a research on Perplexity, Gemini, OpenAI, and Grok to see how visible
-              you are in AI Search for the category of the business in your location.
-            </p>
-          </div>
-          
-          {/* Display Apify business result if available */}
-          {apifyBusinessResult && (
-            <Card className="bg-gradient-to-br from-brand-gray-dark to-brand-blue-dark/30 border border-gray-700 text-white animate-fade-in">
-              <CardHeader>
-                <CardTitle className="text-lg">{apifyBusinessResult.name} - Google Places Data</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="flex items-center gap-2">
-                    <Tag className="text-brand-blue-light" size={16} />
-                    <span>Category: {apifyBusinessResult.category || 'Unknown'}</span>
-                  </div>
-                  
-                  {apifyBusinessResult.rating && (
-                    <div className="flex items-center gap-2">
-                      <Star className="text-yellow-400" size={16} />
-                      <span>Rating: {apifyBusinessResult.rating} ({apifyBusinessResult.reviewsCount || 0} reviews)</span>
-                    </div>
-                  )}
-                  
-                  {apifyBusinessResult.address && (
-                    <div className="flex items-center gap-2">
-                      <Map className="text-green-400" size={16} />
-                      <span>{apifyBusinessResult.address}</span>
-                    </div>
-                  )}
-                  
-                  {apifyBusinessResult.website && (
-                    <div className="flex items-center gap-2">
-                      <Globe className="text-blue-400" size={16} />
-                      <span>{apifyBusinessResult.website}</span>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-          
-          {/* Display Apify category results if available */}
-          {apifyCategoryResults && apifyCategoryResults.length > 0 && (
-            <Card className="bg-gradient-to-br from-brand-gray-dark to-brand-blue-dark/30 border border-gray-700 text-white animate-fade-in">
-              <CardHeader>
-                <CardTitle className="text-lg">Top Competitors in Your Category</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Business</TableHead>
-                      <TableHead>Rating</TableHead>
-                      <TableHead>Address</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {apifyCategoryResults.map((result, index) => (
-                      <TableRow key={index}>
-                        <TableCell className="font-medium">{result.name}</TableCell>
-                        <TableCell>
-                          {result.rating ? (
-                            <div className="flex items-center">
-                              <Star className="text-yellow-400 mr-1" size={14} /> 
-                              {result.rating} ({result.reviewsCount || 0})
-                            </div>
-                          ) : (
-                            'N/A'
-                          )}
-                        </TableCell>
-                        <TableCell className="text-sm">{result.address || 'N/A'}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          )}
+        <div className="flex items-center justify-center h-full">
+          {/* Intentionally left empty as per requirement */}
         </div>
       )}
       
