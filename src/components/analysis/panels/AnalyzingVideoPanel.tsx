@@ -28,7 +28,7 @@ const AnalyzingVideoPanel: React.FC = () => {
           ease: [0.34, 1.56, 0.64, 1], // Custom spring-like easing
           staggerChildren: 0.1 // Stagger child animations
         }}
-        className="aspect-video relative w-full rounded-xl overflow-hidden"
+        className="aspect-video relative w-full h-full rounded-xl overflow-hidden"
         style={{
           zIndex: 10, // Higher z-index to appear above the dropdown
           boxShadow: isVisible ? '0 25px 50px -12px rgba(0, 0, 0, 0.25)' : 'none'
