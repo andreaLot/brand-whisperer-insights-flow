@@ -29,11 +29,31 @@ const AnalyzingStep: React.FC<AnalyzingStepProps> = ({
   const [isVisible, setIsVisible] = useState(true);
   const [progress, setProgress] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
+  const [displayedText, setDisplayedText] = useState("");
+  const [isTypingComplete, setIsTypingComplete] = useState(false);
 
-  // Handle platform rotation with fade effect
+  const fullText = `We are looking how you perform in ${categoryText} in your area`;
+
+  // Typewriter effect for the intro text
   useEffect(() => {
-    // If analysis is complete, don't continue the animation
-    if (isComplete) return;
+    let index = 0;
+    const typingInterval = setInterval(() => {
+      if (index <= fullText.length) {
+        setDisplayedText(fullText.slice(0, index));
+        index++;
+      } else {
+        clearInterval(typingInterval);
+        setIsTypingComplete(true);
+      }
+    }, 50); // Adjust speed as needed
+
+    return () => clearInterval(typingInterval);
+  }, [fullText]);
+
+  // Handle platform rotation with fade effect - only start after typing is complete
+  useEffect(() => {
+    // If analysis is complete or typing isn't complete, don't start the platform rotation
+    if (isComplete || !isTypingComplete) return;
 
     const fadeInterval = setInterval(() => {
       setIsVisible(false);
@@ -46,10 +66,13 @@ const AnalyzingStep: React.FC<AnalyzingStepProps> = ({
     }, 2000); // Change platform every 2 seconds
 
     return () => clearInterval(fadeInterval);
-  }, [platforms.length, isComplete]);
+  }, [platforms.length, isComplete, isTypingComplete]);
   
   // Handle progress and completion
   useEffect(() => {
+    // Start progress tracking only after typing is complete
+    if (!isTypingComplete) return;
+
     const progressInterval = setInterval(() => {
       setProgress(prevProgress => {
         const newProgress = prevProgress + 0.5;
@@ -65,7 +88,7 @@ const AnalyzingStep: React.FC<AnalyzingStepProps> = ({
     }, 150); // Slower progress to give time for the animation
     
     return () => clearInterval(progressInterval);
-  }, []);
+  }, [isTypingComplete]);
   
   // Handle completion
   useEffect(() => {
@@ -86,31 +109,35 @@ const AnalyzingStep: React.FC<AnalyzingStepProps> = ({
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
     >
-      <div className="mb-8">
+      <div className="mb-8 text-center">
         <motion.h2 
-          className="text-2xl font-medium mb-4 text-center"
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
+          className="text-2xl font-medium mb-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4, delay: 0.5 }}
         >
-          <span className="text-brand-blue-light">Checking</span> your visibility for {categoryText}
+          {displayedText}
+          {displayedText.length < fullText.length && (
+            <span className="typewriter-cursor"></span>
+          )}
         </motion.h2>
         
-        <AnimatePresence mode="wait">
-          <motion.p 
-            key={platforms[currentPlatformIndex].name}
-            className="text-xl text-center font-medium"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: isVisible ? 1 : 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            Currently checking on{" "}
-            <span style={{ color: platforms[currentPlatformIndex].color }} className="font-bold">
-              {platforms[currentPlatformIndex].name}
-            </span>
-          </motion.p>
-        </AnimatePresence>
+        {isTypingComplete && (
+          <AnimatePresence mode="wait">
+            <motion.p 
+              key={platforms[currentPlatformIndex].name}
+              className="text-2xl text-center font-medium"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: isVisible ? 1 : 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              <span style={{ color: platforms[currentPlatformIndex].color }} className="font-bold text-3xl">
+                {platforms[currentPlatformIndex].name}
+              </span>
+            </motion.p>
+          </AnimatePresence>
+        )}
       </div>
       
       {isComplete && (
