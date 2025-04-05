@@ -22,6 +22,13 @@ export interface AnalysisResult {
   recommendations: string[];
 }
 
+export interface ApifyReview {
+  text: string;
+  stars: number;
+  publishedAtDate?: string;
+  userName?: string;
+}
+
 export interface ApifyBusinessResult {
   name: string;
   rating?: number;
@@ -29,6 +36,8 @@ export interface ApifyBusinessResult {
   address?: string;
   category?: string;
   website?: string;
+  reviews?: ApifyReview[];
+  images?: string[];
 }
 
 export interface ApifyCategoryResult {
@@ -38,4 +47,6 @@ export interface ApifyCategoryResult {
   address?: string;
   category?: string;
   website?: string;
+  reviews?: ApifyReview[];
+  images?: string[];
 }

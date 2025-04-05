@@ -16,8 +16,8 @@ export const ApifyService = {
           maxPlaces: 1,
           language: "en",
           maxCrawledPlaces: 1,
-          includeReviews: false,
-          includeImages: false,
+          includeReviews: true,
+          includeImages: true,
           includePopularTimes: false,
           exportPlaceUrls: false,
         }),
@@ -44,7 +44,9 @@ export const ApifyService = {
           reviewsCount: place.reviewsCount,
           address: place.address,
           category: place.category,
-          website: place.website
+          website: place.website,
+          reviews: place.reviews || [],
+          images: place.imageUrls || []
         };
       }
       
@@ -71,8 +73,8 @@ export const ApifyService = {
           maxPlaces: 3,
           language: "en",
           maxCrawledPlaces: 3,
-          includeReviews: false,
-          includeImages: false,
+          includeReviews: true,
+          includeImages: true,
           includePopularTimes: false,
           exportPlaceUrls: false,
         }),
@@ -98,7 +100,9 @@ export const ApifyService = {
           reviewsCount: place.reviewsCount,
           address: place.address,
           category: place.category,
-          website: place.website
+          website: place.website,
+          reviews: place.reviews || [],
+          images: place.imageUrls || []
         }));
       }
       
