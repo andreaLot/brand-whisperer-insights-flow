@@ -74,6 +74,7 @@ export default {
 			},
 			fontFamily: {
 				'ibm': ['IBM Plex Sans', 'sans-serif'],
+				'tiempos': ['Tiempos Headline', 'serif'],
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

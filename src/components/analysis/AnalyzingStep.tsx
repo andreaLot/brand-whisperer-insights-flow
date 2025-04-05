@@ -54,7 +54,7 @@ const AnalyzingStep: React.FC<AnalyzingStepProps> = ({
         transition={{ duration: 1.2 }}
       >
         <motion.h2 
-          className="text-3xl font-medium mb-8 tracking-tight leading-relaxed"
+          className="text-3xl font-tiempos mb-8 tracking-tight leading-relaxed"
         >
           We are looking how you perform in{' '}
           <span className="text-brand-blue-light font-semibold">{categoryText}</span>
