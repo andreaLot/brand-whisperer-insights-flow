@@ -9,7 +9,6 @@ import {
 } from "@/services/AnalysisService";
 import { PlaceSelectionResult } from '@/hooks/useGooglePlaces';
 import { useApifyData } from './analysis/useApifyData';
-import { extractCity } from './analysis/analysisUtils';
 import { UseAnalysisStateResult } from './analysis/types';
 
 export const useAnalysisState = (): UseAnalysisStateResult => {
@@ -26,10 +25,8 @@ export const useAnalysisState = (): UseAnalysisStateResult => {
 
   const {
     apifyBusinessResult,
-    apifyCategoryResults,
     apifyLoading,
-    fetchApifyBusinessData,
-    fetchApifyCategoryData
+    fetchApifyBusinessData
   } = useApifyData();
 
   const handleLocationSelect = async (selectedLocation: string, placeData?: PlaceSelectionResult) => {
@@ -51,8 +48,6 @@ export const useAnalysisState = (): UseAnalysisStateResult => {
     if (businessResult && !primaryCategory && businessResult.category) {
       setPrimaryCategory(businessResult.category);
       setCategory(businessResult.category);
-      
-      fetchApifyCategoryData(businessResult.category, extractCity(selectedLocation));
     }
     
     detectCategory();
@@ -66,8 +61,6 @@ export const useAnalysisState = (): UseAnalysisStateResult => {
       if (categories.length > 0 && !primaryCategory) {
         const detectedCategory = categories[0].name;
         setCategory(detectedCategory);
-        
-        fetchApifyCategoryData(detectedCategory, extractCity(location));
       }
     } catch (error) {
       console.error('Error detecting category:', error);
@@ -142,7 +135,6 @@ export const useAnalysisState = (): UseAnalysisStateResult => {
     isLoading,
     analysisResult,
     apifyBusinessResult,
-    apifyCategoryResults,
     apifyLoading,
     webhookSent,
     setBusinessName,

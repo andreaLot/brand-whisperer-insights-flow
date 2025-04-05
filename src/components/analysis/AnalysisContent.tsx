@@ -5,8 +5,7 @@ import InputPanel from '@/components/analysis/InputPanel';
 import { 
   AnalysisResult, 
   BusinessCategory, 
-  ApifyBusinessResult, 
-  ApifyCategoryResult 
+  ApifyBusinessResult
 } from "@/services/AnalysisService";
 import { PlaceSelectionResult } from '@/hooks/useGooglePlaces';
 import { Step } from '@/components/analysis/ConversationPanel';
@@ -19,7 +18,6 @@ interface AnalysisContentProps {
   primaryCategory?: string;
   location: string;
   apifyBusinessResult: ApifyBusinessResult | null;
-  apifyCategoryResults: ApifyCategoryResult[];
   apifyLoading: boolean;
   setBusinessName: (name: string) => void;
   handleLocationSelect: (location: string, placeData?: PlaceSelectionResult) => void;
@@ -37,7 +35,6 @@ const AnalysisContent: React.FC<AnalysisContentProps> = ({
   primaryCategory,
   location,
   apifyBusinessResult,
-  apifyCategoryResults,
   apifyLoading,
   setBusinessName,
   handleLocationSelect,
@@ -72,7 +69,7 @@ const AnalysisContent: React.FC<AnalysisContentProps> = ({
         handleLocationSelect={handleLocationSelect}
         handleStartOver={handleStartOver}
         apifyBusinessResult={apifyBusinessResult}
-        apifyCategoryResults={apifyCategoryResults}
+        apifyCategoryResults={[]}
         apifyLoading={apifyLoading}
       />
     </div>
