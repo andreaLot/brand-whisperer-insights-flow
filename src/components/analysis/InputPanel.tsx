@@ -33,7 +33,7 @@ const InputPanel: React.FC<InputPanelProps> = ({
   handleLocationSelect,
   handleStartOver,
   apifyBusinessResult,
-  apifyCategoryResults,
+  apifyCategoryResults = [],
   apifyLoading = false
 }) => {
   // Track which snippet is being shown during chatbot interaction

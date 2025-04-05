@@ -69,7 +69,6 @@ const AnalysisContent: React.FC<AnalysisContentProps> = ({
         handleLocationSelect={handleLocationSelect}
         handleStartOver={handleStartOver}
         apifyBusinessResult={apifyBusinessResult}
-        apifyCategoryResults={[]}
         apifyLoading={apifyLoading}
       />
     </div>

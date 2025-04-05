@@ -17,7 +17,6 @@ const Index = () => {
         primaryCategory={analysisState.primaryCategory}
         location={analysisState.location}
         apifyBusinessResult={analysisState.apifyBusinessResult}
-        apifyCategoryResults={analysisState.apifyCategoryResults}
         apifyLoading={analysisState.apifyLoading}
         setBusinessName={analysisState.setBusinessName}
         handleLocationSelect={analysisState.handleLocationSelect}

@@ -3,8 +3,7 @@ import { Step } from '@/components/analysis/ConversationPanel';
 import { 
   AnalysisResult, 
   BusinessCategory, 
-  ApifyBusinessResult, 
-  ApifyCategoryResult 
+  ApifyBusinessResult
 } from "@/services/AnalysisService";
 import { PlaceSelectionResult } from '@/hooks/useGooglePlaces';
 
@@ -19,13 +18,12 @@ export interface AnalysisState {
   analysisResult: AnalysisResult | null;
   webhookSent: boolean;
   apifyBusinessResult: ApifyBusinessResult | null;
-  apifyCategoryResults: ApifyCategoryResult[];
   apifyLoading: boolean;
 }
 
 export interface AnalysisActions {
   setBusinessName: (name: string) => void;
-  handleLocationSelect: (location: string, placeData?: PlaceSelectionResult, apifyResult?: any) => void;
+  handleLocationSelect: (location: string, placeData?: PlaceSelectionResult) => void;
   handleBeginAnalysis: () => void;
   handleAnalysisComplete: () => void;
   handleChatComplete: () => void;
