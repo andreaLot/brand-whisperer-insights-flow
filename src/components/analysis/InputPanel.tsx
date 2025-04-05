@@ -80,8 +80,12 @@ const InputPanel: React.FC<InputPanelProps> = ({
         />
       )}
       
-      {/* Show video during analyzing step */}
-      {step === 'analyzing' && <AnalyzingVideoPanel />}
+      {/* Show video during analyzing step with higher z-index */}
+      {step === 'analyzing' && (
+        <div className="relative z-10">
+          <AnalyzingVideoPanel />
+        </div>
+      )}
       
       {/* Chatbot-triggered content snippets */}
       {step === 'chatbot' && (

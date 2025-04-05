@@ -91,7 +91,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
   };
 
   return (
-    <div className="relative w-full animate-fade-in">
+    <div className="relative w-full animate-fade-in z-1">
       <LocationInput
         value={searchTerm}
         onChange={handleSearchTermChange}
