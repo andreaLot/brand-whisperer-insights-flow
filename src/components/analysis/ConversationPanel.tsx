@@ -1,3 +1,4 @@
+
 import React from 'react';
 import ConversationBubble from "@/components/ConversationBubble";
 import AnalysisWelcome from './AnalysisWelcome';
@@ -8,6 +9,7 @@ import ResultsStep from './ResultsStep';
 import ChatbotStep from './ChatbotStep';
 import { BusinessCategory, AnalysisResult } from "@/services/AnalysisService";
 import { PlaceSelectionResult } from '@/hooks/useGooglePlaces';
+import { AnimatePresence } from 'framer-motion';
 
 export type Step = 'welcome' | 'business-name' | 'category-detection' | 'analyzing' | 'chatbot' | 'results';
 
