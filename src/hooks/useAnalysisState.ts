@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { Step } from '@/components/analysis/ConversationPanel';
@@ -29,7 +28,8 @@ export const useAnalysisState = () => {
   const handleLocationSelect = async (selectedLocation: string, placeData?: PlaceSelectionResult) => {
     setLocation(selectedLocation);
     setIsLoading(true);
-    setStep('category-detection');
+    
+    setStep('analyzing');
     
     if (placeData) {
       setBusinessName(placeData.name || 'Default Business');
@@ -39,7 +39,6 @@ export const useAnalysisState = () => {
       }
     }
 
-    // Start Apify API call for business data
     fetchApifyBusinessData(businessName, selectedLocation);
     detectCategory();
   };
@@ -54,12 +53,10 @@ export const useAnalysisState = () => {
         setApifyBusinessResult(businessResult);
         console.log("Apify business data received:", businessResult);
         
-        // If we didn't get a category from place data, try to use the one from Apify
         if (!primaryCategory && businessResult.category) {
           setPrimaryCategory(businessResult.category);
           setCategory(businessResult.category);
           
-          // Now that we have a category, fetch category results
           fetchApifyCategoryData(businessResult.category, extractCity(locationValue));
         }
       }
@@ -79,7 +76,6 @@ export const useAnalysisState = () => {
     setApifyLoading(true);
     
     try {
-      // Format the query as "Category City" (e.g., "Data recovery service Austin")
       const query = `${categoryValue} ${city}`;
       console.log("Fetching category data with query:", query);
       
@@ -101,16 +97,12 @@ export const useAnalysisState = () => {
     }
   };
   
-  // Helper function to extract city from full address
   const extractCity = (address: string): string => {
-    // Simple extraction - get the word before the state/zip
-    // This is a basic implementation and might need improvement
     const cityMatch = address.match(/([A-Za-z\s]+),\s*[A-Z]{2}/);
     if (cityMatch && cityMatch[1]) {
       return cityMatch[1].trim();
     }
     
-    // Fallback - just use the first part of the address
     const parts = address.split(',');
     return parts.length > 1 ? parts[1].trim() : address;
   };
@@ -124,13 +116,8 @@ export const useAnalysisState = () => {
         const detectedCategory = categories[0].name;
         setCategory(detectedCategory);
         
-        // Now that we have a category from detection, fetch category results
         fetchApifyCategoryData(detectedCategory, extractCity(location));
       }
-
-      setTimeout(() => {
-        setStep('analyzing');
-      }, 2000);
     } catch (error) {
       console.error('Error detecting category:', error);
       toast({
@@ -148,7 +135,6 @@ export const useAnalysisState = () => {
 
   const handleChatComplete = async () => {
     try {
-      // Send data to webhook if not already sent
       if (!webhookSent) {
         const categoryToUse = primaryCategory || category;
         const webhookSuccess = await AnalysisService.sendWebhookData({

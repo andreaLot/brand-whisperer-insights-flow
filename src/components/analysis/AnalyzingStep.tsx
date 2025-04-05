@@ -31,12 +31,17 @@ const AnalyzingStep: React.FC<AnalyzingStepProps> = ({
   const [isComplete, setIsComplete] = useState(false);
   const [displayedText, setDisplayedText] = useState("");
   const [isTypingComplete, setIsTypingComplete] = useState(false);
+  const [textOpacity, setTextOpacity] = useState(0);
 
   const fullText = `We are looking how you perform in ${categoryText} in your area`;
 
-  // Typewriter effect for the intro text
+  // Typewriter effect with elegant fade-in for the intro text
   useEffect(() => {
     let index = 0;
+    
+    // First fade in the container
+    setTextOpacity(1);
+    
     const typingInterval = setInterval(() => {
       if (index <= fullText.length) {
         setDisplayedText(fullText.slice(0, index));
@@ -93,7 +98,7 @@ const AnalyzingStep: React.FC<AnalyzingStepProps> = ({
   // Handle completion
   useEffect(() => {
     if (isComplete && onAnalysisComplete) {
-      // Wait a moment before triggering completion
+      // Wait a moment before triggering completion for smoother transition
       const timeout = setTimeout(() => {
         onAnalysisComplete();
       }, 2000);
@@ -104,17 +109,20 @@ const AnalyzingStep: React.FC<AnalyzingStepProps> = ({
 
   return (
     <motion.div 
-      className="space-y-6"
+      className="space-y-6 flex flex-col items-center justify-center"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
+      transition={{ duration: 0.7, ease: "easeInOut" }}
     >
-      <div className="mb-8 text-center">
+      <motion.div 
+        className="mb-12 text-center max-w-3xl"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: textOpacity }}
+        transition={{ duration: 1.2 }}
+      >
         <motion.h2 
-          className="text-2xl font-medium mb-6"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.4, delay: 0.5 }}
+          className="text-3xl font-medium mb-8 tracking-tight leading-relaxed bg-clip-text text-transparent bg-gradient-to-r from-white via-blue-100 to-white"
+          style={{ textShadow: "0 0 10px rgba(76, 154, 255, 0.3)" }}
         >
           {displayedText}
           {displayedText.length < fullText.length && (
@@ -126,25 +134,31 @@ const AnalyzingStep: React.FC<AnalyzingStepProps> = ({
           <AnimatePresence mode="wait">
             <motion.p 
               key={platforms[currentPlatformIndex].name}
-              className="text-2xl text-center font-medium"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: isVisible ? 1 : 0 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.6 }}
+              className="text-3xl text-center font-medium mt-6"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 5 }}
+              exit={{ opacity: 0, y: -5 }}
+              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             >
-              <span style={{ color: platforms[currentPlatformIndex].color }} className="font-bold text-3xl">
+              <span 
+                style={{ 
+                  color: platforms[currentPlatformIndex].color,
+                  textShadow: `0 0 15px ${platforms[currentPlatformIndex].color}40`
+                }} 
+                className="font-bold text-4xl"
+              >
                 {platforms[currentPlatformIndex].name}
               </span>
             </motion.p>
           </AnimatePresence>
         )}
-      </div>
+      </motion.div>
       
       {isComplete && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.7, delay: 0.3 }}
           className="mt-8"
         >
           <Button 
