@@ -16,7 +16,13 @@ const AnalyzingStep: React.FC<AnalyzingStepProps> = ({
   location,
   onAnalysisComplete
 }) => {
-  const categoryText = primaryCategory || "your business category";
+  // Simplify category text to only show first part before underscore or space
+  const simplifyCategory = (category: string): string => {
+    // Split by underscore or space and take first part
+    return category?.split(/[_\s]/)[0] || "business";
+  };
+  
+  const categoryText = primaryCategory ? simplifyCategory(primaryCategory) : "your business";
   
   // Define platforms with their specific colors
   const platforms = [

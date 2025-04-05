@@ -29,7 +29,7 @@ const PlatformRotator: React.FC<PlatformRotatorProps> = ({ platforms, isComplete
         setCurrentPlatformIndex(prevIndex => (prevIndex + 1) % platforms.length);
         setIsVisible(true);
       }, 600);
-    }, 2000); // Change platform every 2 seconds
+    }, 3500); // Increased rotation time from 2000ms to 3500ms to slow down the interchange
 
     return () => clearInterval(fadeInterval);
   }, [platforms.length, isComplete]);
