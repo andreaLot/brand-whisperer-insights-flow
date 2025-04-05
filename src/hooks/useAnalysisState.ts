@@ -10,6 +10,7 @@ import {
 import { PlaceSelectionResult } from '@/hooks/useGooglePlaces';
 import { useApifyData } from './analysis/useApifyData';
 import { UseAnalysisStateResult } from './analysis/types';
+import { WebhookService } from '@/services/WebhookService';
 
 export const useAnalysisState = (): UseAnalysisStateResult => {
   const { toast } = useToast();
@@ -28,6 +29,24 @@ export const useAnalysisState = (): UseAnalysisStateResult => {
     apifyLoading,
     fetchApifyBusinessData
   } = useApifyData();
+
+  const sendWebhookData = async (name: string, loc: string, cat: string) => {
+    if (!webhookSent && name && loc && cat) {
+      console.log("Sending webhook data immediately");
+      const webhookSuccess = await WebhookService.sendWebhookData({
+        businessName: name,
+        location: loc,
+        category: cat
+      });
+      
+      if (webhookSuccess) {
+        console.log("Webhook data sent successfully");
+        setWebhookSent(true);
+      } else {
+        console.warn("Failed to send webhook data");
+      }
+    }
+  };
 
   const handleLocationSelect = async (selectedLocation: string, placeData?: PlaceSelectionResult) => {
     setLocation(selectedLocation);
@@ -51,6 +70,13 @@ export const useAnalysisState = (): UseAnalysisStateResult => {
         }));
         
         setSuggestedCategories(googleCategories);
+        
+        // Send webhook data as soon as we have business name, location and category
+        await sendWebhookData(
+          placeData.name || 'Default Business',
+          selectedLocation,
+          placeData.categories[0]
+        );
       }
     }
 
@@ -61,11 +87,25 @@ export const useAnalysisState = (): UseAnalysisStateResult => {
       console.log("Setting category from Apify:", businessResult.category);
       setPrimaryCategory(businessResult.category);
       setCategory(businessResult.category);
+      
+      // Try sending webhook data again if we didn't have categories before
+      if (!webhookSent) {
+        await sendWebhookData(
+          businessName,
+          selectedLocation,
+          businessResult.category
+        );
+      }
     }
     
     // Only run detectCategory as a last resort if we don't have categories yet
     if (!primaryCategory) {
-      detectCategory();
+      await detectCategory();
+      
+      // After detection, try one more time to send webhook if we have a category now
+      if (!webhookSent && category) {
+        await sendWebhookData(businessName, selectedLocation, category);
+      }
     }
   };
 
@@ -95,21 +135,7 @@ export const useAnalysisState = (): UseAnalysisStateResult => {
 
   const handleChatComplete = async () => {
     try {
-      if (!webhookSent) {
-        const categoryToUse = primaryCategory || category;
-        const webhookSuccess = await AnalysisService.sendWebhookData({
-          businessName,
-          location,
-          category: categoryToUse
-        });
-        
-        if (webhookSuccess) {
-          console.log("Webhook data sent successfully");
-          setWebhookSent(true);
-        } else {
-          console.warn("Failed to send webhook data");
-        }
-      }
+      // We don't need to send webhook data here anymore as it's sent earlier
       
       const result = await AnalysisService.analyzeBrand(businessName, location, category);
       setAnalysisResult(result);
