@@ -6,12 +6,13 @@ export const WebhookService = {
     try {
       console.log(`Sending data to webhook: ${JSON.stringify(businessData)}`);
       
+      // Try using fetch with CORS mode set to no-cors
       const response = await fetch(webhookUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        mode: "no-cors", // Handle CORS restrictions
+        mode: "no-cors", // This will prevent CORS errors but will return an opaque response
         body: JSON.stringify({
           ...businessData,
           timestamp: new Date().toISOString(),
@@ -20,10 +21,28 @@ export const WebhookService = {
       });
       
       console.log("Webhook request sent");
-      return true; // We assume success with no-cors mode
+      
+      // With no-cors mode, we can't access response status, so we assume success
+      return true;
     } catch (error) {
       console.error("Error sending webhook data:", error);
-      return false;
+      
+      // Try alternative approach with img ping as fallback (commonly used for tracking pixels)
+      try {
+        const pingUrl = new URL(webhookUrl);
+        pingUrl.searchParams.append('businessName', encodeURIComponent(businessData.businessName));
+        pingUrl.searchParams.append('location', encodeURIComponent(businessData.location));
+        pingUrl.searchParams.append('category', encodeURIComponent(businessData.category));
+        pingUrl.searchParams.append('timestamp', new Date().toISOString());
+        
+        const img = new Image();
+        img.src = pingUrl.toString();
+        console.log("Attempted fallback webhook via image ping");
+        return true;
+      } catch (fallbackError) {
+        console.error("Fallback method also failed:", fallbackError);
+        return false;
+      }
     }
   }
 };

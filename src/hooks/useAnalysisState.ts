@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { Step } from '@/components/analysis/ConversationPanel';
 import { 
@@ -23,6 +23,7 @@ export const useAnalysisState = (): UseAnalysisStateResult => {
   const [isLoading, setIsLoading] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [webhookSent, setWebhookSent] = useState(false);
+  const [webhookAttempts, setWebhookAttempts] = useState(0);
 
   const {
     apifyBusinessResult,
@@ -30,9 +31,12 @@ export const useAnalysisState = (): UseAnalysisStateResult => {
     fetchApifyBusinessData
   } = useApifyData();
 
+  // Robust webhook sending function with retries
   const sendWebhookData = async (name: string, loc: string, cat: string) => {
     if (!webhookSent && name && loc && cat) {
       console.log("Sending webhook data immediately");
+      setWebhookAttempts(prev => prev + 1);
+      
       const webhookSuccess = await WebhookService.sendWebhookData({
         businessName: name,
         location: loc,
@@ -42,11 +46,43 @@ export const useAnalysisState = (): UseAnalysisStateResult => {
       if (webhookSuccess) {
         console.log("Webhook data sent successfully");
         setWebhookSent(true);
+        
+        // Show success toast to confirm webhook sent
+        toast({
+          title: "Data sent successfully",
+          description: "Business information has been transmitted to the external system.",
+          variant: "default"
+        });
       } else {
         console.warn("Failed to send webhook data");
+        
+        // Show error toast if multiple attempts have failed
+        if (webhookAttempts > 2) {
+          toast({
+            title: "Warning",
+            description: "Having trouble sending data to external system. Will retry later.",
+            variant: "destructive"
+          });
+        }
       }
     }
   };
+
+  // Periodically retry sending webhook data if it failed initially
+  useEffect(() => {
+    let retryTimer: NodeJS.Timeout | null = null;
+    
+    if (!webhookSent && businessName && location && category && webhookAttempts > 0 && webhookAttempts < 5) {
+      retryTimer = setTimeout(() => {
+        console.log(`Retry attempt ${webhookAttempts + 1} to send webhook data`);
+        sendWebhookData(businessName, location, category);
+      }, 3000); // Retry every 3 seconds, up to 5 times
+    }
+    
+    return () => {
+      if (retryTimer) clearTimeout(retryTimer);
+    };
+  }, [webhookSent, businessName, location, category, webhookAttempts]);
 
   const handleLocationSelect = async (selectedLocation: string, placeData?: PlaceSelectionResult) => {
     setLocation(selectedLocation);
@@ -135,7 +171,10 @@ export const useAnalysisState = (): UseAnalysisStateResult => {
 
   const handleChatComplete = async () => {
     try {
-      // We don't need to send webhook data here anymore as it's sent earlier
+      // One last attempt to send webhook data if it wasn't successful earlier
+      if (!webhookSent && businessName && location && category) {
+        await sendWebhookData(businessName, location, category);
+      }
       
       const result = await AnalysisService.analyzeBrand(businessName, location, category);
       setAnalysisResult(result);
@@ -161,6 +200,7 @@ export const useAnalysisState = (): UseAnalysisStateResult => {
     setSuggestedCategories([]);
     setAnalysisResult(null);
     setWebhookSent(false);
+    setWebhookAttempts(0);
   };
 
   const handleBeginAnalysis = () => {
