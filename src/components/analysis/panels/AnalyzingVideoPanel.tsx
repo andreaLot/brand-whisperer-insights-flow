@@ -34,6 +34,15 @@ const AnalyzingVideoPanel: React.FC = () => {
           boxShadow: isVisible ? '0 25px 50px -12px rgba(0, 0, 0, 0.25)' : 'none'
         }}
       >
+        {/* White overlay to cover the line at the top */}
+        <div 
+          className="absolute top-0 left-0 w-full z-20" 
+          style={{ 
+            height: '20px', 
+            background: '#fff'
+          }}
+        />
+        
         {/* Only render iframe when it's ready to be visible */}
         {isVisible && (
           <iframe 
