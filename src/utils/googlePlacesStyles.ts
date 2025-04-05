@@ -8,7 +8,7 @@ export const injectGooglePlacesStyles = () => {
     styleElement.id = 'google-places-autocomplete-styles';
     styleElement.innerHTML = `
       .pac-container {
-        z-index: 10000 !important;
+        z-index: 5 !important; /* Reduced z-index to go below the video */
         position: absolute !important;
         display: block !important;
         background-color: #1e1e1e !important;
@@ -87,7 +87,7 @@ export const fixPacContainerVisibility = () => {
     const containers = document.querySelectorAll('.pac-container');
     console.log('PAC containers found:', containers.length);
     containers.forEach(container => {
-      (container as HTMLElement).style.zIndex = '10000';
+      (container as HTMLElement).style.zIndex = '5'; // Lower z-index
       (container as HTMLElement).style.position = 'absolute';
       (container as HTMLElement).style.display = 'block';
     });

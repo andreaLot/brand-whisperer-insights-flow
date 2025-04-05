@@ -30,7 +30,7 @@ const AnalyzingVideoPanel: React.FC = () => {
         }}
         className="aspect-video relative w-full rounded-xl overflow-hidden"
         style={{
-          zIndex: 10,
+          zIndex: 10, // Higher z-index to appear above the dropdown
           boxShadow: isVisible ? '0 25px 50px -12px rgba(0, 0, 0, 0.25)' : 'none'
         }}
       >

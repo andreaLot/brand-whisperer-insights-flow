@@ -1,4 +1,3 @@
-
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -167,7 +166,7 @@ button.glossy:hover {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   margin-top: 5px;
   font-family: 'IBM Plex Sans', sans-serif;
-  z-index: 1000 !important;
+  z-index: 5 !important;
 }
 
 .pac-item {
