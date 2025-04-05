@@ -5,11 +5,11 @@ import { motion } from 'framer-motion';
 const AnalyzingVideoPanel: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
   
-  // Delay the appearance of the video for a smoother transition
+  // Delay the appearance of the video for a more dynamic transition
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsVisible(true);
-    }, 800); // Wait 800ms before starting to show the video
+    }, 1200); // Increased delay to 1.2s for a more dramatic entrance
     
     return () => clearTimeout(timer);
   }, []);
@@ -17,32 +17,28 @@ const AnalyzingVideoPanel: React.FC = () => {
   return (
     <div className="flex items-center justify-center h-full">
       <motion.div 
-        initial={{ opacity: 0, scale: 0.95 }}
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ 
           opacity: isVisible ? 1 : 0, 
-          scale: isVisible ? 1 : 0.95 
+          scale: isVisible ? 1 : 0.9,
+          y: isVisible ? 0 : 20
         }}
         transition={{ 
-          duration: 1.2, 
-          ease: [0.22, 1, 0.36, 1] // Custom easing for smooth motion
+          duration: 1.8, // Longer animation duration
+          ease: [0.34, 1.56, 0.64, 1], // Custom spring-like easing
+          staggerChildren: 0.1 // Stagger child animations
         }}
         style={{ 
           position: 'relative', 
           overflow: 'hidden', 
           width: '100%', 
-          borderRadius: '0.5rem',
-          zIndex: 10 // Ensure video is above other elements
+          borderRadius: '0.75rem', // Slightly more rounded corners
+          zIndex: 10,
+          boxShadow: isVisible ? '0 25px 50px -12px rgba(0, 0, 0, 0.25)' : 'none'
         }} 
-        className="aspect-video shadow-xl"
+        className="aspect-video"
       >
-        {/* Overlay that fades out */}
-        <motion.div 
-          className="absolute inset-0 bg-brand-black"
-          initial={{ opacity: 1 }}
-          animate={{ opacity: isVisible ? 0 : 1 }}
-          transition={{ duration: 1.5 }}
-          style={{ zIndex: 5 }}
-        />
+        {/* Removed the black overlay div that was causing issues */}
         
         <iframe 
           src="https://share.synthesia.io/embeds/videos/9081a83c-bb4a-4314-ae81-f3e227152744" 
@@ -60,7 +56,8 @@ const AnalyzingVideoPanel: React.FC = () => {
             padding: 0, 
             margin: 0, 
             overflow: 'hidden',
-            zIndex: 10 // Ensure iframe content is above any potential interfering elements
+            zIndex: 10,
+            borderRadius: '0.75rem' // Match the parent's border radius
           }}
         />
       </motion.div>
