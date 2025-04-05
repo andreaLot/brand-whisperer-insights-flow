@@ -34,11 +34,11 @@ const AnalyzingVideoPanel: React.FC = () => {
           boxShadow: isVisible ? '0 25px 50px -12px rgba(0, 0, 0, 0.25)' : 'none'
         }}
       >
-        {/* White overlay to cover the line at the top */}
+        {/* Extended white overlay to cover any lines at the top - full width */}
         <div 
           className="absolute top-0 left-0 w-full z-20" 
           style={{ 
-            height: '20px', 
+            height: '22px', // Slightly increased height to ensure full coverage
             background: '#fff'
           }}
         />
