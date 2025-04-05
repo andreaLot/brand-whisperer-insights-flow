@@ -22,11 +22,11 @@ const CompletionButton: React.FC<CompletionButtonProps> = ({ onAnalysisComplete 
     >
       <Button 
         onClick={onAnalysisComplete}
-        variant="elegant"
-        size="lg"
-        className="w-full mt-4 relative z-20" // Increased z-index to ensure button is clickable
+        variant="dynamic" 
+        size="xl" 
+        className="w-full md:w-auto relative z-20" // Increased z-index to ensure button is clickable
       >
-        View Results <ArrowRight size={16} className="ml-1" />
+        View Results
       </Button>
     </motion.div>
   );
