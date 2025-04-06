@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import ResultsStep from './ResultsStep';
 import { AnalysisResult, BusinessCategory, ApifyBusinessResult } from "@/services/AnalysisService";
 import { PlaceSelectionResult } from '@/hooks/useGooglePlaces';
@@ -64,45 +65,106 @@ const InputPanel: React.FC<InputPanelProps> = ({
     }
   }, [step]);
 
+  // Animation variants
+  const panelVariants = {
+    hidden: { opacity: 0, x: 20 },
+    visible: { 
+      opacity: 1, 
+      x: 0,
+      transition: { duration: 0.6, ease: [0.19, 1.0, 0.22, 1.0] }
+    },
+    exit: { 
+      opacity: 0, 
+      x: 20, 
+      transition: { duration: 0.3 }
+    }
+  };
+
   return (
-    <div className="w-full md:w-[65%]">
+    <motion.div
+      className="w-full"
+      variants={panelVariants}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+    >
       {/* Show location selector in the welcome step */}
-      {step === 'welcome' && (
-        <LocationPanel handleLocationSelect={handleLocationSelect} />
-      )}
-      
-      {step === 'category-detection' && (
-        <CategoryDetectionPanel 
-          suggestedCategories={suggestedCategories}
-          apifyLoading={apifyLoading}
-        />
-      )}
-      
-      {/* Show video during analyzing step with higher z-index */}
-      {step === 'analyzing' && (
-        <div className="relative z-10">
-          <AnalyzingVideoPanel />
-        </div>
-      )}
-      
-      {/* Chatbot-triggered content snippets */}
-      {step === 'chatbot' && (
-        <div className="space-y-4 animate-fade-in">
-          <ChatbotContent 
-            visibleSnippet={visibleSnippet}
-            analysisResult={analysisResult}
-            apifyBusinessResult={apifyBusinessResult}
-          />
-        </div>
-      )}
-      
-      {step === 'results' && analysisResult && (
-        <ResultsStep
-          analysisResult={analysisResult}
-          onStartOver={handleStartOver}
-        />
-      )}
-    </div>
+      <AnimatePresence mode="wait">
+        {step === 'welcome' && (
+          <motion.div
+            key="welcome"
+            variants={panelVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+          >
+            <LocationPanel handleLocationSelect={handleLocationSelect} />
+          </motion.div>
+        )}
+        
+        {step === 'category-detection' && (
+          <motion.div
+            key="category"
+            variants={panelVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+          >
+            <CategoryDetectionPanel 
+              suggestedCategories={suggestedCategories}
+              apifyLoading={apifyLoading}
+            />
+          </motion.div>
+        )}
+        
+        {/* Show video during analyzing step with higher z-index */}
+        {step === 'analyzing' && (
+          <motion.div
+            key="analyzing"
+            variants={panelVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className="relative z-10"
+          >
+            <AnalyzingVideoPanel />
+          </motion.div>
+        )}
+        
+        {/* Chatbot-triggered content snippets */}
+        {step === 'chatbot' && (
+          <motion.div
+            key="chatbot"
+            variants={panelVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className="space-y-4"
+          >
+            <ChatbotContent 
+              visibleSnippet={visibleSnippet}
+              analysisResult={analysisResult}
+              apifyBusinessResult={apifyBusinessResult}
+            />
+          </motion.div>
+        )}
+        
+        {step === 'results' && analysisResult && (
+          <motion.div
+            key="results"
+            variants={panelVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+          >
+            <ResultsStep
+              analysisResult={analysisResult}
+              onStartOver={handleStartOver}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 };
 

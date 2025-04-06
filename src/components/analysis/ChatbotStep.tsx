@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Send, ArrowRightCircle } from "lucide-react";
 import CompletionButton from './components/CompletionButton';
@@ -23,6 +23,7 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
   const [showOptions, setShowOptions] = useState(true);
   const [isTyping, setIsTyping] = useState(false);
   const [isFinalPhase, setIsFinalPhase] = useState(false);
+  const [isPanelVisible, setIsPanelVisible] = useState(false);
   
   const chatOptions = [
     "Tell me about my competitors",
@@ -48,6 +49,9 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
     setMessage('');
     setShowOptions(false);
     setIsTyping(true);
+    
+    // Show the side panel
+    setIsPanelVisible(true);
     
     // Simulate bot response after a short delay
     setTimeout(() => {
@@ -170,6 +174,9 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
       {isFinalPhase && (
         <CompletionButton onAnalysisComplete={onChatComplete} />
       )}
+      
+      {/* Export panel visibility state so it can be accessed by parent components */}
+      <input type="hidden" data-panel-visible={isPanelVisible} />
     </div>
   );
 };

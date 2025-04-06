@@ -1,5 +1,6 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import SeoPanel from './SeoPanel';
 import ContentPanel from './ContentPanel';
 import { ApifyBusinessResult } from "@/services/AnalysisService";
@@ -15,10 +16,34 @@ const ChatbotContent: React.FC<ChatbotContentProps> = ({
   analysisResult,
   apifyBusinessResult
 }) => {
-  // For competitors snippet, we'll show a message to focus on business details first
+  // Animation variants for content transition
+  const contentVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { 
+        duration: 0.5,
+        ease: [0.19, 1.0, 0.22, 1.0]
+      }
+    },
+    exit: { 
+      opacity: 0, 
+      y: -20,
+      transition: { duration: 0.3 }
+    }
+  };
+
+  // For competitors snippet, we'll show business details
   if (visibleSnippet === 'competitors') {
     return (
-      <div className="bg-brand-gray-dark rounded-lg p-6 border border-gray-700 animate-fade-in">
+      <motion.div 
+        className="bg-brand-gray-dark rounded-lg p-6 border border-gray-700"
+        initial="hidden"
+        animate="visible"
+        exit="exit"
+        variants={contentVariants}
+      >
         <h3 className="text-lg font-medium mb-4">Business Details</h3>
         {apifyBusinessResult ? (
           <div className="space-y-4">
@@ -54,24 +79,59 @@ const ChatbotContent: React.FC<ChatbotContentProps> = ({
             </div>
           </div>
         ) : (
-          <p>Loading business details...</p>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            className="flex items-center justify-center py-8"
+          >
+            <div className="animate-pulse flex space-x-2">
+              <div className="h-2 w-2 bg-brand-blue-light rounded-full"></div>
+              <div className="h-2 w-2 bg-brand-blue-light rounded-full"></div>
+              <div className="h-2 w-2 bg-brand-blue-light rounded-full"></div>
+            </div>
+          </motion.div>
         )}
-      </div>
+      </motion.div>
     );
   }
 
   if (visibleSnippet === 'seo') {
-    return <SeoPanel />;
+    return (
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        exit="exit"
+        variants={contentVariants}
+      >
+        <SeoPanel />
+      </motion.div>
+    );
   }
 
   if (visibleSnippet === 'content') {
-    return <ContentPanel category={analysisResult?.category || apifyBusinessResult?.category} />;
+    return (
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        exit="exit"
+        variants={contentVariants}
+      >
+        <ContentPanel category={analysisResult?.category || apifyBusinessResult?.category} />
+      </motion.div>
+    );
   }
 
   return (
-    <div className="bg-brand-gray-dark rounded-lg p-6 border border-gray-700 animate-fade-in flex items-center justify-center min-h-[200px]">
+    <motion.div 
+      className="bg-brand-gray-dark rounded-lg p-6 border border-gray-700 flex items-center justify-center min-h-[200px]"
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+      variants={contentVariants}
+    >
       <p className="text-gray-400 text-center">Select an option from the chatbot to see relevant insights</p>
-    </div>
+    </motion.div>
   );
 };
 
