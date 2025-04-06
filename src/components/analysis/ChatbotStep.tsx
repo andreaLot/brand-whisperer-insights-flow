@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Send, ArrowRightCircle } from "lucide-react";
@@ -19,28 +19,35 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
   onChatComplete
 }) => {
   const [message, setMessage] = useState('');
-  const [chatHistory, setChatHistory] = useState<Array<{ sender: 'user' | 'bot', text: string }>>([]);
+  const [chatHistory, setChatHistory] = useState<Array<{ sender: 'user' | 'bot', text: string, id: string }>>([]);
   const [showOptions, setShowOptions] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [isFinalPhase, setIsFinalPhase] = useState(false);
   const [isPanelVisible, setIsPanelVisible] = useState(false);
   const [introComplete, setIntroComplete] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   
   const introBubbles = [
     `Hello! I've just finished analyzing "${businessName}", I can help you understand how your business appears across different AI platforms.`,
     "Would you like to see your current ratings from top AI assistants?",
   ];
   
-  // Add intro bubbles in sequence - but only once
+  // Add intro bubbles in sequence with proper timing and no duplicates
   useEffect(() => {
     if (chatHistory.length === 0 && !introComplete) {
       let delay = 0;
+      const messageDelay = 1000; // 1 second between messages
       
       introBubbles.forEach((bubble, index) => {
-        delay += 1500 + (index * 300);
+        const messageId = `intro-${index}-${Date.now()}`;
+        delay += messageDelay;
         
         setTimeout(() => {
-          setChatHistory(prev => [...prev, { sender: 'bot', text: bubble }]);
+          setChatHistory(prev => {
+            // Check if this message already exists to prevent duplicates
+            if (prev.some(msg => msg.text === bubble)) return prev;
+            return [...prev, { sender: 'bot', text: bubble, id: messageId }];
+          });
           
           // After the last message is shown, show options and mark intro as complete
           if (index === introBubbles.length - 1) {
@@ -52,11 +59,11 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
         }, delay);
       });
       
-      // Set typing indicators between messages
+      // Set typing indicators between messages with proper timing
       introBubbles.forEach((_, index) => {
         if (index < introBubbles.length) {
-          const typingStartTime = index === 0 ? 0 : 1500 + ((index - 1) * 300);
-          const typingEndTime = 1500 + (index * 300);
+          const typingStartTime = index === 0 ? 0 : messageDelay * index;
+          const typingEndTime = messageDelay * (index + 0.8);
           
           setTimeout(() => setIsTyping(true), typingStartTime);
           setTimeout(() => setIsTyping(false), typingEndTime);
@@ -65,9 +72,15 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
     }
   }, [chatHistory.length, introBubbles, businessName, introComplete]);
   
+  // Auto-scroll to bottom when new messages appear
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatHistory]);
+  
   const sendMessage = (text: string) => {
-    // Add user message to chat
-    setChatHistory(prev => [...prev, { sender: 'user', text }]);
+    // Add user message to chat with unique ID
+    const userMessageId = `user-${Date.now()}`;
+    setChatHistory(prev => [...prev, { sender: 'user', text, id: userMessageId }]);
     
     // Clear input and show typing indicator
     setMessage('');
@@ -80,6 +93,7 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
     // Simulate bot response after a short delay
     setTimeout(() => {
       let responseText = '';
+      const botMessageId = `bot-${Date.now()}`;
       
       // Show ratings panel
       if (text.toLowerCase().includes('ratings') || text.toLowerCase().includes('see ratings')) {
@@ -94,7 +108,7 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
       }
       
       // Add bot response to chat
-      setChatHistory(prev => [...prev, { sender: 'bot', text: responseText }]);
+      setChatHistory(prev => [...prev, { sender: 'bot', text: responseText, id: botMessageId }]);
       setIsTyping(false);
     }, 1500); // 1.5 second typing delay
   };
@@ -106,14 +120,14 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
     }
   };
 
-  // Render chat messages
+  // Render chat messages with animations
   const renderChatMessages = () => {
-    return chatHistory.map((msg, index) => (
+    return chatHistory.map((msg) => (
       <motion.div
-        key={index}
-        initial={{ opacity: 0, y: 10 }}
+        key={msg.id}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
+        transition={{ duration: 0.5, ease: [0.19, 1.0, 0.22, 1.0] }}
         className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'} mb-4`}
       >
         <div
@@ -130,7 +144,7 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
   };
 
   return (
-    <div className="flex flex-col space-y-4">
+    <div className="flex flex-col space-y-4 w-full">
       <h2 className="text-xl font-normal">
         AI Platform <span className="text-brand-blue-light">Analysis</span>
       </h2>
@@ -139,32 +153,51 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
         {renderChatMessages()}
         
         {/* Typing indicator */}
-        {isTyping && (
-          <div className="flex justify-start mb-4">
-            <div className="bg-gray-700 text-white rounded-xl rounded-tl-none px-4 py-2">
-              <span className="flex space-x-1">
-                <span className="typing-dot"></span>
-                <span className="typing-dot animation-delay-200"></span>
-                <span className="typing-dot animation-delay-400"></span>
-              </span>
-            </div>
-          </div>
-        )}
+        <AnimatePresence>
+          {isTyping && (
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="flex justify-start mb-4"
+            >
+              <div className="bg-gray-700 text-white rounded-xl rounded-tl-none px-4 py-2">
+                <span className="flex space-x-1">
+                  <span className="typing-dot"></span>
+                  <span className="typing-dot animation-delay-200"></span>
+                  <span className="typing-dot animation-delay-400"></span>
+                </span>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+        
+        {/* Invisible div for auto-scrolling */}
+        <div ref={messagesEndRef} />
       </div>
       
       {/* Quick option buttons */}
-      {showOptions && !isFinalPhase && (
-        <div className="flex flex-wrap gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="text-xs bg-violet-500/20 border-violet-400 text-violet-100 hover:bg-violet-500/30"
-            onClick={() => sendMessage("Show my ratings across AI platforms")}
+      <AnimatePresence>
+        {showOptions && !isFinalPhase && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.4 }}
+            className="flex flex-wrap gap-2"
           >
-            See my ratings
-          </Button>
-        </div>
-      )}
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-xs bg-violet-500/20 border-violet-400 text-violet-100 hover:bg-violet-500/30"
+              onClick={() => sendMessage("Show my ratings across AI platforms")}
+            >
+              See my ratings
+            </Button>
+          </motion.div>
+        )}
+      </AnimatePresence>
       
       {/* Message input form */}
       <form onSubmit={handleSubmit} className="flex items-center space-x-2">
@@ -181,9 +214,17 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
       </form>
       
       {/* Show complete button after sufficient interaction */}
-      {isFinalPhase && (
-        <CompletionButton onAnalysisComplete={onChatComplete} />
-      )}
+      <AnimatePresence>
+        {isFinalPhase && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <CompletionButton onAnalysisComplete={onChatComplete} />
+          </motion.div>
+        )}
+      </AnimatePresence>
       
       {/* Export panel visibility state so it can be accessed by parent components */}
       <input type="hidden" data-panel-visible={isPanelVisible} />
