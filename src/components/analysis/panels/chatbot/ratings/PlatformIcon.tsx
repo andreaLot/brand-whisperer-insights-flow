@@ -39,7 +39,7 @@ const PlatformIcon: React.FC<PlatformIconProps> = ({ platform }) => {
     return (
       <div className="flex items-center justify-center">
         <img 
-          src="/lovable-uploads/d6112be3-b5d9-4a6d-a4bf-dcb97db204d1.png" 
+          src="/lovable-uploads/cfffc8fd-b215-46a8-b074-ce20ae6bfe0e.png" 
           alt="Perplexity Logo" 
           width={20} 
           height={20} 
