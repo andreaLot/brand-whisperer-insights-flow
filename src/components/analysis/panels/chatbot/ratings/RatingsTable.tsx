@@ -31,6 +31,16 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
   // Important: Make sure we have an array, even if empty
   const results = Array.isArray(platformResults) ? platformResults : [];
   
+  // If there are no real results, provide demo data
+  const hasResults = results.length > 0;
+  const displayResults = hasResults ? results : [
+    { platform: 'Gemini', score: 87, rank: 3 },
+    { platform: 'GPT-4o', score: 92, rank: 1 },
+    { platform: 'Perplexity', score: 89, rank: 2 },
+    { platform: 'DeepSeek', score: 83, rank: 4 },
+    { platform: 'Mistral', score: 81, rank: 5 },
+  ];
+  
   useEffect(() => {
     console.log("🎯 [RatingsTable] Received platformResults:", JSON.stringify(results, null, 2));
     console.log(`🎯 [RatingsTable] Number of platform results: ${results.length}`);
@@ -44,7 +54,7 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
     
     // Start animations on next tick
     setTimeout(() => {
-      startAnimations(results);
+      startAnimations(displayResults);
     }, 100);
     
     // Mark as no longer loading after 3 seconds or if we have results
@@ -85,7 +95,7 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
   };
 
   // Sort results properly by rank
-  const sortedResults = [...results].sort((a, b) => {
+  const sortedResults = [...displayResults].sort((a, b) => {
     if (a.rank !== undefined && b.rank !== undefined) {
       return a.rank - b.rank;
     }
@@ -125,6 +135,11 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
                         </motion.div>
                       )}
                     </CardTitle>
+                    {!hasResults && !isLoading && (
+                      <div className="text-xs text-amber-400 mt-1">
+                        Demo data shown - see explanation below
+                      </div>
+                    )}
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -133,7 +148,7 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
               <div className="relative rounded-xl overflow-hidden border border-violet-500/20">
                 <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-fuchsia-500/10 pointer-events-none" />
                 
-                {sortedResults.length > 0 ? (
+                {displayResults.length > 0 ? (
                   <Table>
                     <TableHeader className="bg-gray-900/50">
                       <TableRow>
@@ -191,7 +206,7 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
               
               {/* Score legend */}
               <AnimatePresence>
-                {legendVisible && sortedResults.length > 0 && <ScoreLegend />}
+                {legendVisible && displayResults.length > 0 && <ScoreLegend />}
               </AnimatePresence>
             </CardContent>
           </Card>
@@ -200,10 +215,21 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
             {footerVisible && (
               <TableFooter 
                 businessName={businessName} 
-                platformCount={sortedResults.length}
+                platformCount={hasResults ? sortedResults.length : 0}
               />
             )}
           </AnimatePresence>
+          
+          {!hasResults && !isLoading && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1, transition: { delay: 1.5 } }}
+              className="text-center text-sm text-amber-400 mt-4 p-3 border border-amber-600/20 rounded-md bg-amber-600/10"
+            >
+              <p>We're showing demo data while we wait for actual AI platform results.</p>
+              <p className="mt-1">For real data, try searching for a business name like "Tesla" or "Apple".</p>
+            </motion.div>
+          )}
         </motion.div>
       )}
     </AnimatePresence>

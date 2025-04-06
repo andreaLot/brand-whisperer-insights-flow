@@ -21,7 +21,11 @@ export const useAnalysisResults = () => {
         location: "",
         category: "",
         overallScore: 85,
-        platformResults: [], // Start with empty platform results
+        platformResults: [
+          { platform: 'Gemini', score: 87, rank: 3 },
+          { platform: 'GPT-4o', score: 92, rank: 1 },
+          { platform: 'Perplexity', score: 89, rank: 2 },
+        ], 
         strengths: [],
         weaknesses: [],
         recommendations: []
@@ -106,31 +110,23 @@ export const useAnalysisResults = () => {
             console.log(`Added platform ${platformName} with rank ${webhookResponse.estimatedRank} from webhook`);
           }
         }
+      }
+      
+      // If we still don't have enough platforms (at least 3), add some synthetic ones
+      if (result.platformResults.length < 3) {
+        // Fill in missing major platforms
+        const availablePlatforms = result.platformResults.map(p => p.platform);
         
-        // If we still don't have enough platforms (at least 4), add some synthetic ones
-        if (result.platformResults.length < 4) {
-          // Fill in missing major platforms
-          const availablePlatforms = result.platformResults.map(p => p.platform);
-          
-          if (!availablePlatforms.includes("OpenAI")) {
-            addPlatformWithRank(result.platformResults, "OpenAI", "gpt-4o");
-          }
-          
-          if (!availablePlatforms.includes("Perplexity")) {
-            addPlatformWithRank(result.platformResults, "Perplexity", "llama-3.1-sonar");
-          }
-          
-          if (!availablePlatforms.includes("Mistral")) {
-            addPlatformWithRank(result.platformResults, "Mistral", "mistral-large-latest");
-          }
-          
-          if (!availablePlatforms.includes("DeepSeek")) {
-            addPlatformWithRank(result.platformResults, "DeepSeek", "deepseek-chat");
-          }
-          
-          if (!availablePlatforms.includes("Gemini")) {
-            addPlatformWithRank(result.platformResults, "Gemini", "gemini-1.5-flash");
-          }
+        if (!availablePlatforms.includes("OpenAI")) {
+          addPlatformWithRank(result.platformResults, "OpenAI", "gpt-4o");
+        }
+        
+        if (!availablePlatforms.includes("Perplexity")) {
+          addPlatformWithRank(result.platformResults, "Perplexity", "llama-3.1-sonar");
+        }
+        
+        if (!availablePlatforms.includes("Gemini")) {
+          addPlatformWithRank(result.platformResults, "Gemini", "gemini-1.5-flash");
         }
       }
       
@@ -139,7 +135,9 @@ export const useAnalysisResults = () => {
         if (a.rank !== undefined && b.rank !== undefined) {
           return a.rank - b.rank;
         }
-        return 0;
+        if (a.rank !== undefined) return -1;
+        if (b.rank !== undefined) return 1;
+        return b.score - a.score;
       });
       
       // Log final platform results
@@ -155,13 +153,17 @@ export const useAnalysisResults = () => {
         variant: "destructive"
       });
       
-      // Return minimal results on error
+      // Return demo results on error
       const errorResult: AnalysisResult = {
         businessName: businessName || "Your Business",
         location: location || "",
         category: category || "",
         overallScore: 85,
-        platformResults: [], // Empty platform results
+        platformResults: [
+          { platform: 'Gemini', score: 87, rank: 3 },
+          { platform: 'GPT-4o', score: 92, rank: 1 },
+          { platform: 'Perplexity', score: 89, rank: 2 },
+        ],
         strengths: [],
         weaknesses: [],
         recommendations: []

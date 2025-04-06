@@ -19,12 +19,22 @@ const ChatbotContent: React.FC<ChatbotContentProps> = ({
   apifyBusinessResult
 }) => {
   console.log("ChatbotContent received analysisResult:", analysisResult);
-  console.log("Rendering snippet:", visibleSnippet);
+  console.log("ChatbotContent visibleSnippet:", visibleSnippet);
   
-  if (!analysisResult) {
-    console.log("No analysis result available for ChatbotContent");
-    return null;
-  }
+  // Create a safe default if analysisResult is null
+  const safeResult: AnalysisResult = analysisResult || {
+    businessName: "Your Business",
+    location: "",
+    category: "",
+    overallScore: 85,
+    platformResults: [],
+    strengths: [],
+    weaknesses: [],
+    recommendations: []
+  };
+  
+  // Log platform results specifically for debugging
+  console.log("Platform results:", safeResult.platformResults);
 
   return (
     <AnimatePresence mode="wait">
@@ -38,8 +48,8 @@ const ChatbotContent: React.FC<ChatbotContentProps> = ({
           className="space-y-4"
         >
           <RatingsTable 
-            businessName={analysisResult.businessName} 
-            platformResults={analysisResult.platformResults || []} 
+            businessName={safeResult.businessName} 
+            platformResults={safeResult.platformResults || []} 
           />
         </motion.div>
       )}
@@ -53,7 +63,7 @@ const ChatbotContent: React.FC<ChatbotContentProps> = ({
           transition={{ duration: 0.4 }}
         >
           <CompetitorsPanel 
-            analysisResult={analysisResult} 
+            analysisResult={safeResult} 
             apifyBusinessResult={apifyBusinessResult} 
           />
         </motion.div>
@@ -68,7 +78,7 @@ const ChatbotContent: React.FC<ChatbotContentProps> = ({
           transition={{ duration: 0.4 }}
         >
           <SeoPanel 
-            analysisResult={analysisResult} 
+            analysisResult={safeResult} 
           />
         </motion.div>
       )}
@@ -82,7 +92,7 @@ const ChatbotContent: React.FC<ChatbotContentProps> = ({
           transition={{ duration: 0.4 }}
         >
           <ContentPanel 
-            analysisResult={analysisResult} 
+            analysisResult={safeResult} 
           />
         </motion.div>
       )}

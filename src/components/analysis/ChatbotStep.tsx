@@ -78,6 +78,12 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
       
       // Post a message to trigger the ratings panel
       window.postMessage({ type: 'chatbot-selection', message: 'ratings' }, '*');
+      
+      // Explicitly call onChatComplete to trigger any parent component logic
+      setTimeout(() => {
+        console.log("ChatbotStep: Calling onChatComplete");
+        onChatComplete();
+      }, 500);
     }, 800);
   };
   
@@ -85,9 +91,27 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
   useEffect(() => {
     if (isFinalPhase) {
       // Explicitly trigger the ratings panel to appear
+      console.log("ChatbotStep: Triggering ratings panel (isFinalPhase effect)");
       window.postMessage({ type: 'chatbot-selection', message: 'ratings' }, '*');
     }
   }, [isFinalPhase]);
+
+  // Force the ratings panel to appear on initial load
+  useEffect(() => {
+    console.log("ChatbotStep: Initial render, forcing ratings panel to appear");
+    
+    // Small delay to ensure listeners are set up
+    const timer = setTimeout(() => {
+      window.postMessage({ type: 'chatbot-selection', message: 'ratings' }, '*');
+      
+      // If we're not in the intro sequence yet, mark the panel as visible
+      if (!introComplete) {
+        setIsPanelVisible(true);
+      }
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div className="flex flex-col space-y-4 w-full">
