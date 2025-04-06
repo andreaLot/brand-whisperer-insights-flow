@@ -5,10 +5,11 @@ import RatingsTable from './ratings/RatingsTable';
 import CompetitorsPanel from './CompetitorsPanel';
 import SeoPanel from './SeoPanel';
 import ContentPanel from './ContentPanel';
+import ProfileCompleteness from './ProfileCompleteness';
 import { AnalysisResult, ApifyBusinessResult } from '@/services/types';
 
 interface ChatbotContentProps {
-  visibleSnippet: 'none' | 'competitors' | 'seo' | 'content' | 'ratings';
+  visibleSnippet: 'none' | 'competitors' | 'seo' | 'content' | 'ratings' | 'google-basics';
   analysisResult: AnalysisResult | null;
   apifyBusinessResult?: ApifyBusinessResult | null;
 }
@@ -50,6 +51,21 @@ const ChatbotContent: React.FC<ChatbotContentProps> = ({
           <RatingsTable 
             businessName={safeResult.businessName} 
             platformResults={safeResult.platformResults || []} 
+          />
+        </motion.div>
+      )}
+      
+      {visibleSnippet === 'google-basics' && (
+        <motion.div
+          key="google-basics"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.4 }}
+          className="space-y-4"
+        >
+          <ProfileCompleteness 
+            apifyBusinessResult={apifyBusinessResult} 
           />
         </motion.div>
       )}

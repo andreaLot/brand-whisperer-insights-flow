@@ -79,11 +79,23 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
       // Post a message to trigger the ratings panel
       window.postMessage({ type: 'chatbot-selection', message: 'ratings' }, '*');
       
+      // Add a reminder about Google basics after a delay
+      setTimeout(() => {
+        const googleReminderMessageId = `bot-google-${Date.now()}`;
+        const googleReminderText = `Don't forget the basics! While AI platforms are important, your Google Business Profile is still essential. Let me show you the completeness of your profile:`;
+        
+        // Add Google reminder to chat
+        setChatHistory(prev => [...prev, { sender: 'bot', text: googleReminderText, id: googleReminderMessageId }]);
+        
+        // Post a message to trigger the Google basics panel
+        window.postMessage({ type: 'chatbot-selection', message: 'google-basics' }, '*');
+      }, 3000);
+      
       // Explicitly call onChatComplete to trigger any parent component logic
       setTimeout(() => {
         console.log("ChatbotStep: Calling onChatComplete");
         onChatComplete();
-      }, 500);
+      }, 4000);
     }, 800);
   };
   
@@ -93,6 +105,12 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
       // Explicitly trigger the ratings panel to appear
       console.log("ChatbotStep: Triggering ratings panel (isFinalPhase effect)");
       window.postMessage({ type: 'chatbot-selection', message: 'ratings' }, '*');
+      
+      // After a delay, show Google basics
+      setTimeout(() => {
+        console.log("ChatbotStep: Triggering Google basics panel");
+        window.postMessage({ type: 'chatbot-selection', message: 'google-basics' }, '*');
+      }, 3000);
     }
   }, [isFinalPhase]);
 

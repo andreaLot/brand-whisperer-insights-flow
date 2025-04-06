@@ -35,7 +35,7 @@ const InputPanel: React.FC<InputPanelProps> = ({
   apifyLoading = false
 }) => {
   // Default to 'none' in chatbot step instead of 'ratings'
-  const [visibleSnippet, setVisibleSnippet] = useState<'none' | 'competitors' | 'seo' | 'content' | 'ratings'>('none');
+  const [visibleSnippet, setVisibleSnippet] = useState<'none' | 'competitors' | 'seo' | 'content' | 'ratings' | 'google-basics'>('none');
   
   // Listen for message changes in ChatbotStep
   useEffect(() => {
@@ -45,6 +45,9 @@ const InputPanel: React.FC<InputPanelProps> = ({
         if (event.data.message.includes('ratings')) {
           console.log("Setting visible snippet to ratings");
           setVisibleSnippet('ratings');
+        } else if (event.data.message.includes('google-basics')) {
+          console.log("Setting visible snippet to google-basics");
+          setVisibleSnippet('google-basics');
         } else if (event.data.message.includes('competitors')) {
           setVisibleSnippet('competitors');
         } else if (event.data.message.includes('SEO')) {
