@@ -7,7 +7,6 @@ import { simulatePlatformResponses } from './simulationService';
 
 export const WebhookService = {
   normalizeModelToPlatform,
-  lastReceivedResponse: null as any,
   
   sendWebhookData: async (businessData: any): Promise<WebhookResponse | null> => {
     const webhookUrl = "https://uberall.app.n8n.cloud/webhook-test/analyze-business-ranking";
@@ -36,10 +35,6 @@ export const WebhookService = {
           const rawResponseData = await response.json();
           console.log("🔍 [WebhookService] Raw webhook response received:", 
                       JSON.stringify(rawResponseData, null, 2));
-          
-          // Save the last received response for debugging
-          WebhookService.lastReceivedResponse = rawResponseData;
-          console.log("💾 [WebhookService] Saved raw response for debugging access");
           
           // Log response to console in formatted way
           console.log("📊 [WebhookService] N8N Response Summary:");
@@ -146,10 +141,5 @@ export const WebhookService = {
       // Try alternative approaches
       return await sendWithNoCors(businessData, webhookUrl);
     }
-  },
-  
-  // Method to retrieve the last received response
-  getLastReceivedResponse: () => {
-    return WebhookService.lastReceivedResponse;
   }
 };
