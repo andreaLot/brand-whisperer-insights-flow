@@ -1,15 +1,13 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
-
 interface AnalysisWelcomeProps {
   onBeginAnalysis: () => void;
 }
-
-const AnalysisWelcome: React.FC<AnalysisWelcomeProps> = ({ onBeginAnalysis }) => {
-  return (
-    <div className="h-full flex flex-col justify-between">
-      <h2 className="text-xl font-normal font-tiempos">
+const AnalysisWelcome: React.FC<AnalysisWelcomeProps> = ({
+  onBeginAnalysis
+}) => {
+  return <div className="h-full flex flex-col justify-between">
+      <h2 className="font-IBM-plex-sans text-3xl font-light">
         Let's get started!
         <br />
         <br />
@@ -20,8 +18,6 @@ const AnalysisWelcome: React.FC<AnalysisWelcomeProps> = ({ onBeginAnalysis }) =>
           Begin Analysis
         </Button>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default AnalysisWelcome;
