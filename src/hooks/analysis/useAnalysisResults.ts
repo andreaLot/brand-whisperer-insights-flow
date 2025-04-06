@@ -61,10 +61,14 @@ export const useAnalysisResults = () => {
               model: webhookResponse.model
             });
           }
-          
-          // Sort platforms by rank after update
-          result.platformResults.sort((a, b) => (a.rank || 999) - (b.rank || 999));
         }
+        
+        // Sort platforms by rank after update 
+        // But also make sure we assign ranks to ALL platforms based on their score if they don't have a rank
+        result.platformResults = assignRanksBasedOnScore(result.platformResults);
+      } else {
+        // If no webhook data, ensure all platforms have ranks based on scores
+        result.platformResults = assignRanksBasedOnScore(result.platformResults);
       }
       
       // Ensure we have at least some platform results for a better demo experience
@@ -83,6 +87,41 @@ export const useAnalysisResults = () => {
       });
       return null;
     }
+  };
+  
+  // Helper function to assign ranks based on scores for platforms that don't have ranks yet
+  const assignRanksBasedOnScore = (platforms: PlatformResult[]): PlatformResult[] => {
+    // First, sort by score (descending)
+    const sortedByScore = [...platforms].sort((a, b) => b.score - a.score);
+    
+    // Map of platforms that already have ranks
+    const platformsWithRanks = new Map<number, string>();
+    
+    // Collect existing ranks
+    sortedByScore.forEach(platform => {
+      if (platform.rank !== undefined) {
+        platformsWithRanks.set(platform.rank, platform.platform || '');
+      }
+    });
+    
+    // Find next available rank
+    let nextRank = 1;
+    const getNextAvailableRank = () => {
+      while (platformsWithRanks.has(nextRank)) {
+        nextRank++;
+      }
+      return nextRank;
+    };
+    
+    // Assign ranks where missing
+    return sortedByScore.map(platform => {
+      if (platform.rank === undefined) {
+        const rank = getNextAvailableRank();
+        platformsWithRanks.set(rank, platform.platform || '');
+        return { ...platform, rank };
+      }
+      return platform;
+    });
   };
   
   // Generate default platform results if no real data available

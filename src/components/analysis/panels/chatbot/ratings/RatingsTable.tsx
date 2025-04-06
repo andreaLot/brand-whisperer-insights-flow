@@ -61,6 +61,19 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
     setTimeout(() => setFooterVisible(true), 1200 + (results.length * 600) + 800);
   }, [results.length]);
 
+  // Sort results properly by rank
+  const sortedResults = [...results].sort((a, b) => {
+    // If both have ranks, sort by rank
+    if (a.rank !== undefined && b.rank !== undefined) {
+      return a.rank - b.rank;
+    }
+    // If only one has a rank, prioritize the one with rank
+    if (a.rank !== undefined) return -1;
+    if (b.rank !== undefined) return 1;
+    // If neither has a rank, sort by score
+    return b.score - a.score;
+  });
+
   return (
     <AnimatePresence>
       {cardVisible && (
@@ -101,16 +114,14 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {results
-                      .sort((a, b) => (a.rank || 999) - (b.rank || 999))
-                      .map((result, index) => (
-                        <PlatformTableRow 
-                          key={index}
-                          result={result}
-                          index={index}
-                          isVisible={visibleRows.includes(index)}
-                        />
-                      ))}
+                    {sortedResults.map((result, index) => (
+                      <PlatformTableRow 
+                        key={index}
+                        result={result}
+                        index={index}
+                        isVisible={visibleRows.includes(index)}
+                      />
+                    ))}
                   </TableBody>
                 </Table>
               </div>
