@@ -9,7 +9,7 @@ import {
 import { PlaceSelectionResult } from '@/hooks/useGooglePlaces';
 import { useApifyData } from './analysis/useApifyData';
 import { UseAnalysisStateResult } from './analysis/types';
-import { WebhookService } from '@/services/WebhookService';
+import { WebhookService, WebhookResponse } from '@/services/WebhookService';
 
 export const useAnalysisState = (): UseAnalysisStateResult => {
   const { toast } = useToast();
@@ -23,6 +23,7 @@ export const useAnalysisState = (): UseAnalysisStateResult => {
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [webhookSent, setWebhookSent] = useState(false);
   const [webhookAttempts, setWebhookAttempts] = useState(0);
+  const [webhookResponse, setWebhookResponse] = useState<WebhookResponse | null>(null);
 
   const {
     apifyBusinessResult,
@@ -31,8 +32,8 @@ export const useAnalysisState = (): UseAnalysisStateResult => {
   } = useApifyData();
 
   const sendWebhookData = async (name: string, loc: string, cat: string, placeData?: PlaceSelectionResult) => {
-    if (!webhookSent && name && loc) {
-      console.log("Sending webhook data immediately with all place details");
+    if (name && loc) {
+      console.log("Sending webhook data with all place details");
       setWebhookAttempts(prev => prev + 1);
       
       const webhookData = {
@@ -42,13 +43,22 @@ export const useAnalysisState = (): UseAnalysisStateResult => {
         ...(placeData || {})
       };
       
-      const webhookSuccess = await WebhookService.sendWebhookData(webhookData);
+      const response = await WebhookService.sendWebhookData(webhookData);
       
-      if (webhookSuccess) {
-        console.log("Webhook data sent successfully");
+      if (response) {
+        console.log("Webhook data sent and response received:", response);
         setWebhookSent(true);
+        setWebhookResponse(response);
+        
+        // Show a toast notification if we got estimated rank data
+        if (response.estimatedRank) {
+          toast({
+            title: "Rank Estimate Received",
+            description: `Your business has an estimated rank of #${response.estimatedRank} in its category`,
+          });
+        }
       } else {
-        console.warn("Failed to send webhook data");
+        console.warn("Failed to send webhook data or receive response");
       }
     }
   };
@@ -153,7 +163,25 @@ export const useAnalysisState = (): UseAnalysisStateResult => {
         await sendWebhookData(businessName, location, category);
       }
       
-      const result = await AnalysisService.analyzeBrand(businessName, location, category);
+      let result = await AnalysisService.analyzeBrand(businessName, location, category);
+      
+      if (webhookResponse && webhookResponse.estimatedRank) {
+        const enhancedPlatformResults = result.platformResults.map((platform, index) => {
+          if (index === 0 && !platform.rank && webhookResponse.estimatedRank) {
+            return {
+              ...platform,
+              rank: webhookResponse.estimatedRank
+            };
+          }
+          return platform;
+        });
+        
+        result = {
+          ...result,
+          platformResults: enhancedPlatformResults
+        };
+      }
+      
       setAnalysisResult(result);
       setIsLoading(false);
       setStep('results');
@@ -178,6 +206,7 @@ export const useAnalysisState = (): UseAnalysisStateResult => {
     setAnalysisResult(null);
     setWebhookSent(false);
     setWebhookAttempts(0);
+    setWebhookResponse(null);
   };
 
   const handleBeginAnalysis = () => {
@@ -196,6 +225,7 @@ export const useAnalysisState = (): UseAnalysisStateResult => {
     apifyBusinessResult,
     apifyLoading,
     webhookSent,
+    webhookResponse,
     setBusinessName,
     handleLocationSelect,
     handleBeginAnalysis,

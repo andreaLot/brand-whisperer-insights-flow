@@ -13,6 +13,8 @@ export type {
   ApifyCategoryResult
 } from './types';
 
+export type { WebhookResponse } from './WebhookService';
+
 // Combine all services into the main AnalysisService
 export const AnalysisService = {
   detectCategory: CategoryService.detectCategory,

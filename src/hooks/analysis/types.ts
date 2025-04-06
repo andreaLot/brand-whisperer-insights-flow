@@ -6,6 +6,7 @@ import {
   ApifyBusinessResult
 } from "@/services/AnalysisService";
 import { PlaceSelectionResult } from '@/hooks/useGooglePlaces';
+import { WebhookResponse } from '@/services/WebhookService';
 
 export interface AnalysisState {
   step: Step;
@@ -17,6 +18,7 @@ export interface AnalysisState {
   isLoading: boolean;
   analysisResult: AnalysisResult | null;
   webhookSent: boolean;
+  webhookResponse: WebhookResponse | null;
   apifyBusinessResult: ApifyBusinessResult | null;
   apifyLoading: boolean;
 }
