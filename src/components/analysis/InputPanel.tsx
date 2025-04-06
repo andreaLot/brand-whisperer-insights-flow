@@ -34,10 +34,8 @@ const InputPanel: React.FC<InputPanelProps> = ({
   apifyBusinessResult,
   apifyLoading = false
 }) => {
-  // Default to ratings in chatbot step
-  const [visibleSnippet, setVisibleSnippet] = useState<'none' | 'competitors' | 'seo' | 'content' | 'ratings'>(
-    step === 'chatbot' ? 'ratings' : 'none'
-  );
+  // Default to 'none' in chatbot step instead of 'ratings'
+  const [visibleSnippet, setVisibleSnippet] = useState<'none' | 'competitors' | 'seo' | 'content' | 'ratings'>('none');
   
   // Listen for message changes in ChatbotStep
   useEffect(() => {
@@ -51,7 +49,7 @@ const InputPanel: React.FC<InputPanelProps> = ({
           setVisibleSnippet('competitors');
         } else if (event.data.message.includes('SEO')) {
           setVisibleSnippet('seo');
-        } else if (event.data.message.includes('Content')) {
+        } else if (event.data.message.includes('content')) {
           setVisibleSnippet('content');
         }
       }
@@ -63,12 +61,9 @@ const InputPanel: React.FC<InputPanelProps> = ({
     };
   }, []);
 
-  // Monitor step changes and reset snippet visibility when appropriate
+  // Monitor step changes but don't automatically set ratings as visible
   useEffect(() => {
-    if (step === 'chatbot') {
-      // Default to showing ratings in chatbot step
-      setVisibleSnippet('ratings');
-    } else {
+    if (step !== 'chatbot') {
       setVisibleSnippet('none');
     }
   }, [step]);

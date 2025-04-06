@@ -31,15 +31,9 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
   // Important: Make sure we have an array, even if empty
   const results = Array.isArray(platformResults) ? platformResults : [];
   
-  // If there are no real results, provide demo data
+  // If there are no real results, don't use demo data
   const hasResults = results.length > 0;
-  const displayResults = hasResults ? results : [
-    { platform: 'Gemini', score: 87, rank: 3 },
-    { platform: 'GPT-4o', score: 92, rank: 1 },
-    { platform: 'Perplexity', score: 89, rank: 2 },
-    { platform: 'DeepSeek', score: 83, rank: 4 },
-    { platform: 'Mistral', score: 81, rank: 5 },
-  ];
+  const displayResults = hasResults ? results : [];
   
   useEffect(() => {
     console.log("🎯 [RatingsTable] Received platformResults:", JSON.stringify(results, null, 2));

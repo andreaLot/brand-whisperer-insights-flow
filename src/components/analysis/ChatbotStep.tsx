@@ -96,21 +96,14 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
     }
   }, [isFinalPhase]);
 
-  // Force the ratings panel to appear on initial load
+  // Don't force the ratings panel to appear on initial load anymore
   useEffect(() => {
-    console.log("ChatbotStep: Initial render, forcing ratings panel to appear");
+    console.log("ChatbotStep: Initial render");
     
-    // Small delay to ensure listeners are set up
-    const timer = setTimeout(() => {
-      window.postMessage({ type: 'chatbot-selection', message: 'ratings' }, '*');
-      
-      // If we're not in the intro sequence yet, mark the panel as visible
-      if (!introComplete) {
-        setIsPanelVisible(true);
-      }
-    }, 500);
-    
-    return () => clearTimeout(timer);
+    // If we're not in the intro sequence yet, mark the panel as visible
+    if (!introComplete) {
+      setIsPanelVisible(true);
+    }
   }, []);
 
   return (

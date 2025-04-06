@@ -22,21 +22,13 @@ export const usePanelCollapse = ({ step, initialCollapsed = false }: PanelCollap
       setIsPanelCollapsed(false);
     }
     
-    // Auto-collapse panel when in chatbot step to show ratings
-    if (step === 'chatbot') {
-      // Short delay before auto-collapsing to ensure smooth transition
-      const timer = setTimeout(() => {
-        setIsPanelCollapsed(true);
-      }, 500);
-      
-      return () => clearTimeout(timer);
-    }
+    // Don't auto-collapse panel when in chatbot step anymore
   }, [step]);
 
   // Function to animate panel collapse
   const animatePanelTransition = () => {
     if (step === 'chatbot') {
-      // Set collapsed to true immediately to show the ratings panel
+      // Only set collapsed to true when explicitly called
       setIsPanelCollapsed(true);
     }
   };

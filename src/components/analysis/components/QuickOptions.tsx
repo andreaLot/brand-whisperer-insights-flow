@@ -17,6 +17,7 @@ const QuickOptions: React.FC<QuickOptionsProps> = ({
   onOptionClick,
   forceShow = false
 }) => {
+  // Always show in chatbot step unless in final phase
   if ((!showOptions && !forceShow) || isFinalPhase) return null;
 
   const handleRatingsClick = () => {
