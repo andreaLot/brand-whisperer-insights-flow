@@ -9,7 +9,7 @@ import { useAnalysisResults } from './analysis/useAnalysisResults';
 import { UseAnalysisStateResult } from './analysis/types';
 
 export const useAnalysisState = (): UseAnalysisStateResult => {
-  const [businessName, setBusinessName] = useState('Default Business');
+  const [businessName, setBusinessName] = useState('');
   const [location, setLocation] = useState('');
 
   // Import refactored hooks
@@ -45,7 +45,7 @@ export const useAnalysisState = (): UseAnalysisStateResult => {
     setStep('analyzing');
     
     if (placeData) {
-      setBusinessName(placeData.name || 'Default Business');
+      setBusinessName(placeData.name || '');
       
       if (placeData.categories && placeData.categories.length > 0) {
         console.log("Setting category from Google Places:", placeData.categories[0]);
@@ -60,7 +60,7 @@ export const useAnalysisState = (): UseAnalysisStateResult => {
         setSuggestedCategories(googleCategories);
         
         await sendWebhookData(
-          placeData.name || 'Default Business',
+          placeData.name || '',
           selectedLocation,
           placeData.categories[0],
           placeData
@@ -68,20 +68,24 @@ export const useAnalysisState = (): UseAnalysisStateResult => {
       }
     }
 
-    // Fetch business data from Apify (which now also gets competitor data)
-    const businessResult = await fetchApifyBusinessData(businessName, selectedLocation);
-    
-    if (businessResult && !primaryCategory && businessResult.category) {
-      console.log("Setting category from Apify:", businessResult.category);
-      setPrimaryCategory(businessResult.category);
-      setCategory(businessResult.category);
+    // Only fetch from Apify when we have a business name to search for
+    if (businessName || (placeData && placeData.name)) {
+      const nameToUse = businessName || (placeData && placeData.name) || '';
+      // Fetch business data from Apify (which now also gets competitor data)
+      const businessResult = await fetchApifyBusinessData(nameToUse, selectedLocation);
       
-      if (!webhookSent) {
-        await sendWebhookData(
-          businessName,
-          selectedLocation,
-          businessResult.category
-        );
+      if (businessResult && !primaryCategory && businessResult.category) {
+        console.log("Setting category from Apify:", businessResult.category);
+        setPrimaryCategory(businessResult.category);
+        setCategory(businessResult.category);
+        
+        if (!webhookSent) {
+          await sendWebhookData(
+            nameToUse,
+            selectedLocation,
+            businessResult.category
+          );
+        }
       }
     }
     
@@ -114,6 +118,7 @@ export const useAnalysisState = (): UseAnalysisStateResult => {
   const handleStartOver = () => {
     baseHandleStartOver();
     setLocation('');
+    setBusinessName('');
     setCategory('');
     setPrimaryCategory(undefined);
     setSuggestedCategories([]);

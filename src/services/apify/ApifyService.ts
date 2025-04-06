@@ -1,4 +1,3 @@
-
 import { ApifyClient } from './ApifyClient';
 import { ApifyDataProcessor } from './ApifyDataProcessor';
 import { ApifyConfig } from './types';
@@ -33,11 +32,24 @@ export class ApifyService {
         language: "en",
         maxCrawledPlaces: 1,
         includeReviews: true,
-        includeImages: true,
+        includeImages: false, // Changed to false as requested
         includePopularTimes: false,
         exportPlaceUrls: false,
+        searchMatching: "all",
+        placeMinimumStars: "",
+        website: "allPlaces",
+        skipClosedPlaces: false,
+        scrapePlaceDetailPage: false,
+        scrapeTableReservationProvider: false,
+        includeWebResults: false,
+        scrapeDirectories: false,
+        scrapeContacts: false,
         reviewsSort: "newest", // Using "newest" instead of "newest_first" to match API requirements
-        reviewsFilterDateFrom: "2025-01-01", // Only collect reviews from 2025 onwards
+        reviewsFilterString: "",
+        reviewsOrigin: "all",
+        scrapeReviewsPersonalData: true,
+        scrapeImageAuthors: false,
+        allPlacesNoSearchAction: ""
       };
       
       // Start the Apify run

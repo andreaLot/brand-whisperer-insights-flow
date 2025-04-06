@@ -12,6 +12,21 @@ export interface ApifyConfig {
   exportPlaceUrls: boolean;
   reviewsSort?: string;
   reviewsFilterDateFrom?: string;
+  // Additional fields from the payload
+  searchMatching?: string;
+  placeMinimumStars?: string;
+  website?: string;
+  skipClosedPlaces?: boolean;
+  scrapePlaceDetailPage?: boolean;
+  scrapeTableReservationProvider?: boolean;
+  includeWebResults?: boolean;
+  scrapeDirectories?: boolean;
+  scrapeContacts?: boolean;
+  reviewsFilterString?: string;
+  reviewsOrigin?: string;
+  scrapeReviewsPersonalData?: boolean;
+  scrapeImageAuthors?: boolean;
+  allPlacesNoSearchAction?: string;
 }
 
 export interface ApifyRawResult {

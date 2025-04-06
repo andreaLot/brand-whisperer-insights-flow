@@ -1,4 +1,3 @@
-
 import { ApifyBusinessResult } from './types';
 
 export const ApifyService = {
@@ -17,11 +16,24 @@ export const ApifyService = {
           language: "en",
           maxCrawledPlaces: 1,
           includeReviews: true,
-          includeImages: true,
+          includeImages: false, // Changed to false as requested
           includePopularTimes: false,
           exportPlaceUrls: false,
+          searchMatching: "all",
+          placeMinimumStars: "",
+          website: "allPlaces",
+          skipClosedPlaces: false,
+          scrapePlaceDetailPage: false,
+          scrapeTableReservationProvider: false,
+          includeWebResults: false,
+          scrapeDirectories: false,
+          scrapeContacts: false,
           reviewsSort: "newest_first", // Sort by newest first to help with filtering
-          reviewsFilterDateFrom: "2025-01-01", // Only collect reviews from 2025 onwards
+          reviewsFilterString: "",
+          reviewsOrigin: "all",
+          scrapeReviewsPersonalData: true,
+          scrapeImageAuthors: false,
+          allPlacesNoSearchAction: ""
         }),
       });
       

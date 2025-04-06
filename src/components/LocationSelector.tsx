@@ -25,8 +25,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
     initAutocomplete,
     cleanupAutocomplete,
     scriptLoading,
-    selectedPlace,
-    apifyBusinessResult
+    selectedPlace
   } = useGooglePlaces({
     countryRestrictions,
     types
@@ -59,23 +58,11 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
       if (locationText) {
         setSearchTerm(locationText);
         
-        // When we have a selected place, pass it to the parent but don't pass apifyResult yet
-        // This will trigger the location selection without waiting for Apify results
-        onSelect(locationText, selectedPlace, null);
+        // When we have a selected place, pass it to the parent
+        onSelect(locationText, selectedPlace);
       }
     }
   }, [selectedPlace, onSelect]);
-
-  // Handle when apifyBusinessResult changes
-  useEffect(() => {
-    if (selectedPlace && apifyBusinessResult) {
-      const locationText = selectedPlace.address || selectedPlace.name || '';
-      if (locationText) {
-        // When Apify results are available, pass them along with the selected place
-        onSelect(locationText, selectedPlace, apifyBusinessResult);
-      }
-    }
-  }, [apifyBusinessResult, selectedPlace, onSelect]);
 
   // Handle search term changes
   const handleSearchTermChange = (value: string) => {
