@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { hideAutocompleteDropdown } from '@/utils/googlePlacesStyles';
 
 const AnalyzingVideoPanel: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -8,6 +9,9 @@ const AnalyzingVideoPanel: React.FC = () => {
   
   // Delay the appearance of the video for a more dynamic transition
   useEffect(() => {
+    // Hide any existing Google Places autocomplete dropdown
+    hideAutocompleteDropdown();
+    
     // First make the container visible
     const containerTimer = setTimeout(() => {
       setIsVisible(true);
