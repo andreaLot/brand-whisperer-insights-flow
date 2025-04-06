@@ -80,13 +80,13 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
       // Automatically complete the chat process
       setTimeout(() => {
         onChatComplete();
-      }, 1000);
+      }, 2500); // Give user more time to see the ratings before completing
     }, 1500); // 1.5 second typing delay
   };
 
   return (
     <div className="flex flex-col space-y-4 w-full">
-      <h2 className="text-2xl font-bold">
+      <h2 className="text-3xl font-bold">
         AI Platform <span className="text-brand-blue-light">Analysis</span>
       </h2>
       

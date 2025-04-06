@@ -2,6 +2,7 @@
 import React from 'react';
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { BarChart2 } from "lucide-react";
 
 interface QuickOptionsProps {
   showOptions: boolean;
@@ -24,15 +25,16 @@ const QuickOptions: React.FC<QuickOptionsProps> = ({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
       transition={{ duration: 0.4 }}
-      className="flex flex-wrap gap-2"
+      className="flex flex-wrap gap-2 justify-center"
     >
       <Button
         variant="outline"
-        size="sm"
-        className="text-xs bg-violet-500/20 border-violet-400 text-violet-100 hover:bg-violet-500/30"
+        size="lg"
+        className="text-base bg-violet-500/30 border-violet-400 text-violet-100 hover:bg-violet-500/40 px-6 py-2 flex items-center gap-2"
         onClick={() => onOptionClick("Show my ratings across AI platforms")}
       >
-        See my ratings
+        <BarChart2 size={18} className="text-violet-300" />
+        Show AI Search Rankings
       </Button>
     </motion.div>
   );
