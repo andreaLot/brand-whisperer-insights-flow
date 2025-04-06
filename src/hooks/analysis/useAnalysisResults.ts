@@ -53,40 +53,84 @@ export const useAnalysisResults = () => {
         // Clear existing platform results to avoid duplicates
         result.platformResults = [];
         
-        // Add model information if available
-        if (webhookResponse.model) {
-          result = {
-            ...result,
-            model: webhookResponse.model
-          };
+        // Check for the new platforms array format
+        if (webhookResponse.platforms && webhookResponse.platforms.length > 0) {
+          console.log(`Found ${webhookResponse.platforms.length} platforms in webhook response`);
           
-          // First normalize the model name to a proper platform name
-          const platformName = normalizeModelToPlatform(webhookResponse.model);
-          console.log(`Normalized model ${webhookResponse.model} to platform ${platformName}`);
-          
-          // Generate a realistic score based on the rank (higher ranks get higher scores)
-          const baseScore = webhookResponse.estimatedRank 
-            ? 95 - ((webhookResponse.estimatedRank - 1) * 3)
-            : 85;
-          const score = Math.max(60, Math.min(95, baseScore + (Math.random() * 4 - 2))); // Add some randomness
-          
-          // Create the entry for this platform with the webhook rank
-          result.platformResults.push({
-            platform: platformName,
-            score: Math.round(score), // Round to whole number
-            rank: webhookResponse.estimatedRank,
-            model: webhookResponse.model
+          // Process each platform in the response
+          webhookResponse.platforms.forEach(platformData => {
+            // Generate a realistic score based on the rank (higher ranks get higher scores)
+            const baseScore = platformData.estimatedRank 
+              ? 95 - ((platformData.estimatedRank - 1) * 3)
+              : 85;
+            const score = Math.max(60, Math.min(95, baseScore + (Math.random() * 4 - 2))); // Add some randomness
+            
+            // Add the platform to the results
+            result.platformResults.push({
+              platform: platformData.platform,
+              score: Math.round(score), // Round to whole number
+              rank: platformData.estimatedRank,
+              model: platformData.model
+            });
+            
+            console.log(`Added platform ${platformData.platform} with rank ${platformData.estimatedRank} from webhook`);
           });
+        } 
+        // Handle legacy single platform format
+        else if (webhookResponse.model || webhookResponse.platform) {
+          // Add model information if available
+          if (webhookResponse.model) {
+            result = {
+              ...result,
+              model: webhookResponse.model
+            };
+            
+            // First normalize the model name to a proper platform name
+            const platformName = normalizeModelToPlatform(webhookResponse.model);
+            console.log(`Normalized model ${webhookResponse.model} to platform ${platformName}`);
+            
+            // Generate a realistic score based on the rank (higher ranks get higher scores)
+            const baseScore = webhookResponse.estimatedRank 
+              ? 95 - ((webhookResponse.estimatedRank - 1) * 3)
+              : 85;
+            const score = Math.max(60, Math.min(95, baseScore + (Math.random() * 4 - 2))); // Add some randomness
+            
+            // Create the entry for this platform with the webhook rank
+            result.platformResults.push({
+              platform: platformName,
+              score: Math.round(score), // Round to whole number
+              rank: webhookResponse.estimatedRank,
+              model: webhookResponse.model
+            });
+            
+            console.log(`Added platform ${platformName} with rank ${webhookResponse.estimatedRank} from webhook`);
+          }
+        }
+        
+        // If we still don't have enough platforms (at least 4), add some synthetic ones
+        if (result.platformResults.length < 4) {
+          // Fill in missing major platforms
+          const availablePlatforms = result.platformResults.map(p => p.platform);
           
-          console.log(`Added platform ${platformName} with rank ${webhookResponse.estimatedRank} from webhook`);
+          if (!availablePlatforms.includes("OpenAI")) {
+            addPlatformWithRank(result.platformResults, "OpenAI", "gpt-4o");
+          }
           
-          // Add additional platforms with relative rankings
-          // Each AI platform will have its own entry with a unique rank
-          addPlatformWithRank(result.platformResults, "OpenAI", "gpt-4o");
-          addPlatformWithRank(result.platformResults, "Perplexity", "llama-3.1-sonar");
-          addPlatformWithRank(result.platformResults, "Mistral", "mistral-large-latest");
-          addPlatformWithRank(result.platformResults, "DeepSeek", "deepseek-chat");
-          addPlatformWithRank(result.platformResults, "Gemini", "gemini-1.5-flash");
+          if (!availablePlatforms.includes("Perplexity")) {
+            addPlatformWithRank(result.platformResults, "Perplexity", "llama-3.1-sonar");
+          }
+          
+          if (!availablePlatforms.includes("Mistral")) {
+            addPlatformWithRank(result.platformResults, "Mistral", "mistral-large-latest");
+          }
+          
+          if (!availablePlatforms.includes("DeepSeek")) {
+            addPlatformWithRank(result.platformResults, "DeepSeek", "deepseek-chat");
+          }
+          
+          if (!availablePlatforms.includes("Gemini")) {
+            addPlatformWithRank(result.platformResults, "Gemini", "gemini-1.5-flash");
+          }
         }
       }
       
@@ -157,7 +201,7 @@ export const useAnalysisResults = () => {
         rank
       });
       
-      console.log(`Added platform ${platform} with assigned rank ${rank}`);
+      console.log(`Added synthetic platform ${platform} with assigned rank ${rank}`);
     }
   };
 

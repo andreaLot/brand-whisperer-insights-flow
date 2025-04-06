@@ -31,8 +31,27 @@ export const useWebhook = () => {
           setWebhookSent(true);
           setWebhookResponse(response);
           
-          // Show a toast notification if we got estimated rank data
-          if (response.estimatedRank) {
+          // Show a toast notification for platforms
+          if (response.platforms && response.platforms.length > 0) {
+            // Show toast for the highest-ranking platform
+            const topPlatform = response.platforms.sort((a, b) => a.estimatedRank - b.estimatedRank)[0];
+            toast({
+              title: "Rankings Retrieved",
+              description: `${topPlatform.platform} ranks your business at #${topPlatform.estimatedRank}`,
+            });
+            
+            // If we have multiple platforms, show another toast
+            if (response.platforms.length > 1) {
+              setTimeout(() => {
+                toast({
+                  title: "Multiple Rankings",
+                  description: `Retrieved rankings from ${response.platforms?.length} AI platforms`,
+                });
+              }, 1500);
+            }
+          } 
+          // Fallback to legacy format
+          else if (response.estimatedRank) {
             const platformName = WebhookService.normalizeModelToPlatform(response.model);
             toast({
               title: "Rankings Retrieved",

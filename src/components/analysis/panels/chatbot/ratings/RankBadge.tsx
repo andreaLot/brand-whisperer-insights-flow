@@ -15,7 +15,7 @@ const RankBadge: React.FC<RankBadgeProps> = ({ rank }) => {
       transition={{ delay: 0.4, duration: 0.5 }}
       title="Waiting for data"
     >
-      Loading...
+      Pending
     </motion.span>
   );
   

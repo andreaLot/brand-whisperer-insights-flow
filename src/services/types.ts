@@ -53,8 +53,16 @@ export interface ApifyCategoryResult {
   images?: string[];
 }
 
-// Updated WebhookResponse type to include platform property
+// Updated WebhookResponse type to include multiple platforms
+export interface PlatformRanking {
+  platform: string;
+  model: string;
+  estimatedRank: number;
+  score?: number;
+}
+
 export interface WebhookResponse {
+  platforms?: PlatformRanking[];
   estimatedRank?: number;
   confidence?: number;
   message?: string;

@@ -1,4 +1,5 @@
-import { WebhookResponse } from './types';
+
+import { WebhookResponse, PlatformRanking } from './types';
 
 // Enhanced map of model identifiers to platform names for better display
 const modelToPlatformMap: Record<string, string> = {
@@ -78,7 +79,12 @@ export const WebhookService = {
           const rawResponseData = await response.json();
           console.log("Webhook response received:", rawResponseData);
           
-          // Extract data from OpenAI format
+          // Handle array of results (multiple platforms)
+          if (Array.isArray(rawResponseData)) {
+            return processMultiplePlatformResponse(rawResponseData);
+          }
+          
+          // Extract data from OpenAI format for single response
           if (rawResponseData.choices && rawResponseData.choices.length > 0) {
             const content = rawResponseData.choices[0].message?.content;
             const model = rawResponseData.model;
@@ -95,7 +101,13 @@ export const WebhookService = {
             // Normalize the model to platform
             const platform = normalizeModelToPlatform(model);
             
+            // Create a response with platforms array
             return {
+              platforms: [{
+                platform,
+                model: model || platform,
+                estimatedRank: estimatedRank || 1
+              }],
               estimatedRank,
               model,
               platform,
@@ -106,6 +118,19 @@ export const WebhookService = {
           }
           
           // Fallback to the old format if OpenAI format is not detected
+          // Convert old format to include platforms array
+          if (rawResponseData.estimatedRank && (rawResponseData.model || rawResponseData.platform)) {
+            const platform = rawResponseData.platform || normalizeModelToPlatform(rawResponseData.model);
+            return {
+              ...rawResponseData,
+              platforms: [{
+                platform,
+                model: rawResponseData.model || platform,
+                estimatedRank: rawResponseData.estimatedRank
+              }]
+            };
+          }
+          
           return rawResponseData as WebhookResponse;
         } catch (parseError) {
           console.log("Webhook responded but couldn't parse JSON:", parseError);
@@ -125,6 +150,54 @@ export const WebhookService = {
     }
   }
 };
+
+// Process responses that contain multiple platform results
+function processMultiplePlatformResponse(responses: any[]): WebhookResponse {
+  const platforms: PlatformRanking[] = [];
+  
+  responses.forEach(response => {
+    if (response.choices && response.choices.length > 0) {
+      const content = response.choices[0].message?.content;
+      const model = response.model;
+      
+      // Extract rank from content (e.g. "Estimated Rank: 3")
+      let estimatedRank: number | undefined;
+      if (content) {
+        const rankMatch = content.match(/Estimated Rank:\s*(\d+)/i);
+        if (rankMatch && rankMatch[1]) {
+          estimatedRank = parseInt(rankMatch[1], 10);
+        }
+      }
+      
+      // Only add if we found a rank
+      if (estimatedRank && model) {
+        const platform = normalizeModelToPlatform(model);
+        platforms.push({
+          platform,
+          model,
+          estimatedRank
+        });
+      }
+    } else if (response.platform || response.model) {
+      // Handle direct platform objects
+      const platform = response.platform || normalizeModelToPlatform(response.model);
+      if (response.estimatedRank) {
+        platforms.push({
+          platform,
+          model: response.model || platform,
+          estimatedRank: response.estimatedRank
+        });
+      }
+    }
+  });
+  
+  return {
+    platforms,
+    status: "success",
+    message: "Multiple platform analysis complete",
+    timestamp: new Date().toISOString()
+  };
+}
 
 // Helper function for no-cors mode
 async function sendWithNoCors(businessData: any, webhookUrl: string): Promise<WebhookResponse | null> {
@@ -181,21 +254,38 @@ async function sendWithNoCors(businessData: any, webhookUrl: string): Promise<We
 // Poll for results using a separate endpoint
 async function pollForWebhookResults(businessData: any): Promise<WebhookResponse | null> {
   // In a real implementation, you would have a status endpoint to poll
-  // For now, we're simulating a response
+  // For now, we're simulating a response with multiple platforms
   console.log("Polling for webhook results...");
   
   // Create a polling endpoint URL (in production, this would be a real endpoint)
   const pollingUrl = "https://uberall.app.n8n.cloud/webhook/status";
   
   try {
-    // Simulate polling with a timeout
+    // Simulate polling with a timeout and multiple platform results
     return new Promise((resolve) => {
       setTimeout(() => {
+        // Simulate response with multiple platforms
         resolve({
-          estimatedRank: Math.floor(Math.random() * 10) + 1, // Random rank 1-10 for demo
+          platforms: [
+            {
+              platform: "OpenAI", 
+              model: "gpt-4o",
+              estimatedRank: Math.floor(Math.random() * 3) + 1, // Random rank 1-3
+            },
+            {
+              platform: "Perplexity",
+              model: "llama-3.1-sonar",
+              estimatedRank: Math.floor(Math.random() * 3) + 1, // Random rank 1-3
+            },
+            {
+              platform: "Mistral", 
+              model: "mistral-large",
+              estimatedRank: Math.floor(Math.random() * 3) + 2, // Random rank 2-4
+            }
+          ],
           confidence: 0.85,
           status: "success",
-          message: "Analysis complete",
+          message: "Multi-platform analysis complete",
           timestamp: new Date().toISOString()
         });
       }, 1000);
