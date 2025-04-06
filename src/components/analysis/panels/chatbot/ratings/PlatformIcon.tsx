@@ -53,7 +53,7 @@ const PlatformIcon: React.FC<PlatformIconProps> = ({ platform }) => {
     return (
       <div className="flex items-center justify-center">
         <img 
-          src="/lovable-uploads/e79d32ca-a36f-48de-a6b3-f27d29d292bd.png" 
+          src="/lovable-uploads/ec67035f-3973-4f95-be30-d13ecd898157.png" 
           alt="Deepseek Logo" 
           width={20} 
           height={20} 
@@ -67,7 +67,7 @@ const PlatformIcon: React.FC<PlatformIconProps> = ({ platform }) => {
     return (
       <div className="flex items-center justify-center">
         <img 
-          src="/lovable-uploads/ec67035f-3973-4f95-be30-d13ecd898157.png" 
+          src="/lovable-uploads/02f21b29-cdb5-4e4a-a798-002181f47208.png" 
           alt="Mistral Logo" 
           width={20} 
           height={20} 

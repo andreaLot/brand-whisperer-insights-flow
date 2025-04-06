@@ -24,7 +24,7 @@ const AnalyzingStep: React.FC<AnalyzingStepProps> = ({
   
   const categoryText = primaryCategory ? simplifyCategory(primaryCategory) : "your business";
   
-  // Define platforms with their specific colors
+  // Define platforms with their specific colors - ensuring all are white
   const platforms = [
     { name: "Gemini", color: "#FFFFFF" },
     { name: "OpenAI", color: "#FFFFFF" },

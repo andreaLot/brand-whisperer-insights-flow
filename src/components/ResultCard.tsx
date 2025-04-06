@@ -58,7 +58,7 @@ const ResultCard: React.FC<ResultCardProps> = ({
                 {icon}
               </motion.div>
             )}
-            <span>{platform}</span>
+            <span className="text-white">{platform}</span>
           </div>
           {rank && (
             <motion.span 
