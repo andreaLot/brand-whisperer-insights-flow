@@ -53,7 +53,7 @@ export interface ApifyCategoryResult {
   images?: string[];
 }
 
-// Add WebhookResponse type to types.ts
+// Updated WebhookResponse type to include platform property
 export interface WebhookResponse {
   estimatedRank?: number;
   confidence?: number;

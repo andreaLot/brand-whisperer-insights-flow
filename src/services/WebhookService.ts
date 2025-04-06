@@ -1,12 +1,5 @@
 
-export interface WebhookResponse {
-  estimatedRank?: number;
-  confidence?: number;
-  message?: string;
-  status?: string;
-  timestamp?: string;
-  model?: string;
-}
+import { WebhookResponse } from './types';
 
 // Map of model identifiers to platform names for better display
 const modelToPlatformMap: Record<string, string> = {
