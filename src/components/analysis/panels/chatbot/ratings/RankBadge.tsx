@@ -9,6 +9,7 @@ interface RankBadgeProps {
 const RankBadge: React.FC<RankBadgeProps> = ({ rank }) => {
   if (!rank) return null;
   
+  // Get appropriate CSS classes based on rank
   const getRankBadgeClass = (rank: number) => {
     if (rank === 1) return "bg-amber-500/30 text-amber-200 ring-1 ring-amber-500/30";
     if (rank === 2) return "bg-slate-400/30 text-slate-200 ring-1 ring-slate-400/30";
@@ -22,7 +23,7 @@ const RankBadge: React.FC<RankBadgeProps> = ({ rank }) => {
       initial={{ scale: 0.8, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       transition={{ delay: 0.4, duration: 0.5 }}
-      title={`Rank: ${rank}`}
+      title={`Rank from AI analysis: ${rank}`}
     >
       #{rank}
     </motion.span>

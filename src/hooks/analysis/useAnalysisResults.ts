@@ -22,9 +22,12 @@ export const useAnalysisResults = () => {
     try {
       let result = await AnalysisService.analyzeBrand(businessName, location, category);
       
+      // Start with an empty platformResults array to ensure webhook data takes priority
+      result.platformResults = [];
+      
       // Enhance results with webhook response data if available
       if (webhookResponse) {
-        console.log("Enhancing results with webhook data:", webhookResponse);
+        console.log("Using webhook data for platform results:", webhookResponse);
         
         // Add model information if available
         if (webhookResponse.model) {
@@ -40,73 +43,34 @@ export const useAnalysisResults = () => {
           const platformName = normalizeModelToPlatform(webhookResponse.model);
           console.log(`Normalized model ${webhookResponse.model} to platform ${platformName}`);
           
-          // Create a flag to track if we've added the webhook platform
-          let webhookPlatformAdded = false;
+          // Create the entry for this platform with the webhook rank
+          result.platformResults.push({
+            platform: platformName,
+            score: Math.floor(Math.random() * 15) + 75, // Score between 75-90 for demo
+            rank: webhookResponse.estimatedRank,
+            model: webhookResponse.model
+          });
           
-          // Check if this platform already exists in our results
-          const existingPlatformIndex = result.platformResults.findIndex(
-            p => p.platform?.toLowerCase() === platformName.toLowerCase()
-          );
+          console.log(`Added platform ${platformName} with rank ${webhookResponse.estimatedRank} from webhook`);
           
-          if (existingPlatformIndex >= 0) {
-            // Log the platform match
-            console.log(`Found matching platform at index ${existingPlatformIndex}: ${result.platformResults[existingPlatformIndex].platform}`);
-            
-            // Update the existing platform entry with the webhook rank
-            result.platformResults[existingPlatformIndex] = {
-              ...result.platformResults[existingPlatformIndex],
-              rank: webhookResponse.estimatedRank,
-              // Ensure we have the correct platform name
-              platform: platformName
-            };
-            
-            console.log(`Updated platform ${platformName} rank to ${webhookResponse.estimatedRank}`);
-            webhookPlatformAdded = true;
-          } else {
-            // If the platform doesn't exist yet, add it
-            console.log(`Platform ${platformName} not found, adding new entry with rank ${webhookResponse.estimatedRank}`);
-            result.platformResults.push({
-              platform: platformName,
-              score: Math.floor(Math.random() * 15) + 75, // Score between 75-90 for demo
-              rank: webhookResponse.estimatedRank,
-              model: webhookResponse.model
-            });
-            webhookPlatformAdded = true;
-          }
-          
-          // Log the platform results after webhook updating
-          console.log("Platform results after webhook update:", JSON.stringify(result.platformResults));
-          
-          // Make sure the webhook platform has the correct rank
-          if (webhookPlatformAdded) {
-            console.log("Ensuring webhook platform has the correct rank:", webhookResponse.estimatedRank);
-            
-            // Re-check that the platform has the correct rank after sorting
-            const platformWithWebhookRank = result.platformResults.find(
-              p => p.platform?.toLowerCase() === platformName.toLowerCase()
-            );
-            
-            if (platformWithWebhookRank) {
-              platformWithWebhookRank.rank = webhookResponse.estimatedRank;
-            }
-          }
+          // Add additional platforms with relative ranks
+          addComparisonPlatforms(result.platformResults, webhookResponse.estimatedRank);
         }
-        
-        // Sort platforms by rank after update 
-        // But also make sure we assign ranks to ALL platforms based on their score if they don't have a rank
-        result.platformResults = assignRanksBasedOnScore(result.platformResults);
-      } else {
-        // If no webhook data, ensure all platforms have ranks based on scores
-        result.platformResults = assignRanksBasedOnScore(result.platformResults);
       }
       
-      // Only generate default results if we don't have any platforms yet
+      // If no webhook data is available, add some default platforms
       if (result.platformResults.length === 0) {
-        console.log("No platform results available, generating defaults");
+        console.log("No webhook data available, generating default platform results");
         result.platformResults = generateDefaultPlatformResults();
-      } else {
-        console.log("Using existing platform results, not generating defaults");
       }
+      
+      // Sort the platforms by rank
+      result.platformResults.sort((a, b) => {
+        if (a.rank !== undefined && b.rank !== undefined) {
+          return a.rank - b.rank;
+        }
+        return 0;
+      });
       
       // Log final platform results
       console.log("Final platform results:", JSON.stringify(result.platformResults));
@@ -124,50 +88,37 @@ export const useAnalysisResults = () => {
     }
   };
   
-  // Helper function to assign ranks based on scores for platforms that don't have ranks yet
-  const assignRanksBasedOnScore = (platforms: PlatformResult[]): PlatformResult[] => {
-    console.log("Assigning ranks based on scores for platforms:", platforms);
+  // Helper function to add comparison platforms based on the webhook rank
+  const addComparisonPlatforms = (platforms: PlatformResult[], webhookRank: number) => {
+    // Define common platforms to compare against
+    const comparisonPlatforms = [
+      "OpenAI", "Perplexity", "Gemini", "DeepSeek", "Mistral", "Anthropic", "Claude"
+    ];
     
-    // First make a copy of the platforms array to avoid modifying the original
-    const platformsCopy = [...platforms];
+    // Get the platform we already added
+    const existingPlatform = platforms[0].platform;
     
-    // Map of platforms that already have ranks
-    const platformsWithRanks = new Map<number, string>();
+    // Filter out the existing platform
+    const availablePlatforms = comparisonPlatforms.filter(p => p !== existingPlatform);
     
-    // Collect existing ranks
-    platformsCopy.forEach(platform => {
-      if (platform.rank !== undefined) {
-        platformsWithRanks.set(platform.rank, platform.platform || '');
-        console.log(`Platform ${platform.platform} already has rank ${platform.rank}`);
+    // Add platforms with ranks relative to webhook rank
+    let currentRank = 1;
+    
+    // Add up to 4 comparison platforms
+    for (let i = 0; i < Math.min(4, availablePlatforms.length); i++) {
+      // Skip the webhook rank
+      if (currentRank === webhookRank) {
+        currentRank++;
       }
-    });
-    
-    // First assign ranks to platforms without ranks
-    // Sort remaining platforms by score (descending)
-    const platformsWithoutRanks = platformsCopy
-      .filter(p => p.rank === undefined)
-      .sort((a, b) => b.score - a.score);
-    
-    // Find next available rank
-    let nextRank = 1;
-    const getNextAvailableRank = () => {
-      while (platformsWithRanks.has(nextRank)) {
-        nextRank++;
-      }
-      return nextRank;
-    };
-    
-    // Assign ranks to platforms that don't have them
-    platformsWithoutRanks.forEach(platform => {
-      const rank = getNextAvailableRank();
-      platformsWithRanks.set(rank, platform.platform || '');
-      platform.rank = rank;
-      console.log(`Assigned rank ${rank} to platform ${platform.platform} based on score ${platform.score}`);
-      nextRank++;
-    });
-    
-    // Return the combined and updated platforms array
-    return platformsCopy;
+      
+      platforms.push({
+        platform: availablePlatforms[i],
+        score: Math.floor(Math.random() * 15) + 75, // Score between 75-90
+        rank: currentRank
+      });
+      
+      currentRank++;
+    }
   };
   
   // Generate default platform results if no real data available
