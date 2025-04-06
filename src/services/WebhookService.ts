@@ -1,6 +1,6 @@
 
 import { WebhookResponse } from './types';
-import { WebhookServiceImpl } from './webhook/WebhookService';
+import { WebhookService as WebhookServiceImpl } from './webhook/WebhookService';
 
 export const WebhookService = {
   normalizeModelToPlatform: WebhookServiceImpl.normalizeModelToPlatform,
