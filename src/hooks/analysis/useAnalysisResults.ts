@@ -38,6 +38,7 @@ export const useAnalysisResults = () => {
         if (webhookResponse.estimatedRank) {
           // First normalize the model name to a proper platform name
           const platformName = normalizeModelToPlatform(webhookResponse.model);
+          console.log(`Normalized model ${webhookResponse.model} to platform ${platformName}`);
           
           // Check if this platform already exists in our results
           const existingPlatformIndex = result.platformResults.findIndex(
@@ -45,15 +46,21 @@ export const useAnalysisResults = () => {
           );
           
           if (existingPlatformIndex >= 0) {
-            // Update the existing platform entry
+            // Log the platform match
+            console.log(`Found matching platform at index ${existingPlatformIndex}: ${result.platformResults[existingPlatformIndex].platform}`);
+            
+            // Update the existing platform entry with the webhook rank
             result.platformResults[existingPlatformIndex] = {
               ...result.platformResults[existingPlatformIndex],
               rank: webhookResponse.estimatedRank,
               // Ensure we have the correct platform name
               platform: platformName
             };
+            
+            console.log(`Updated platform rank to ${webhookResponse.estimatedRank}`);
           } else {
             // If the platform doesn't exist yet, add it
+            console.log(`Platform ${platformName} not found, adding new entry with rank ${webhookResponse.estimatedRank}`);
             result.platformResults.push({
               platform: platformName,
               score: Math.floor(Math.random() * 15) + 75, // Score between 75-90 for demo
@@ -61,6 +68,9 @@ export const useAnalysisResults = () => {
               model: webhookResponse.model
             });
           }
+          
+          // Log the platform results after webhook updating
+          console.log("Platform results after webhook update:", JSON.stringify(result.platformResults));
         }
         
         // Sort platforms by rank after update 
@@ -71,10 +81,17 @@ export const useAnalysisResults = () => {
         result.platformResults = assignRanksBasedOnScore(result.platformResults);
       }
       
-      // Ensure we have at least some platform results for a better demo experience
+      // IMPORTANT: Don't generate default results if we already have platform results
+      // This was causing webhook ranks to be ignored
       if (result.platformResults.length === 0) {
+        console.log("No platform results available, generating defaults");
         result.platformResults = generateDefaultPlatformResults();
+      } else {
+        console.log("Using existing platform results, not generating defaults");
       }
+      
+      // Log final platform results
+      console.log("Final platform results:", JSON.stringify(result.platformResults));
       
       setAnalysisResult(result);
       return result;
@@ -91,18 +108,27 @@ export const useAnalysisResults = () => {
   
   // Helper function to assign ranks based on scores for platforms that don't have ranks yet
   const assignRanksBasedOnScore = (platforms: PlatformResult[]): PlatformResult[] => {
-    // First, sort by score (descending)
-    const sortedByScore = [...platforms].sort((a, b) => b.score - a.score);
+    console.log("Assigning ranks based on scores for platforms:", platforms);
+    
+    // First make a copy of the platforms array to avoid modifying the original
+    const platformsCopy = [...platforms];
     
     // Map of platforms that already have ranks
     const platformsWithRanks = new Map<number, string>();
     
     // Collect existing ranks
-    sortedByScore.forEach(platform => {
+    platformsCopy.forEach(platform => {
       if (platform.rank !== undefined) {
         platformsWithRanks.set(platform.rank, platform.platform || '');
+        console.log(`Platform ${platform.platform} already has rank ${platform.rank}`);
       }
     });
+    
+    // First assign ranks to platforms without ranks
+    // Sort remaining platforms by score (descending)
+    const platformsWithoutRanks = platformsCopy
+      .filter(p => p.rank === undefined)
+      .sort((a, b) => b.score - a.score);
     
     // Find next available rank
     let nextRank = 1;
@@ -113,15 +139,19 @@ export const useAnalysisResults = () => {
       return nextRank;
     };
     
-    // Assign ranks where missing
-    return sortedByScore.map(platform => {
-      if (platform.rank === undefined) {
-        const rank = getNextAvailableRank();
-        platformsWithRanks.set(rank, platform.platform || '');
-        return { ...platform, rank };
-      }
-      return platform;
+    // Assign ranks to platforms that don't have them
+    platformsWithoutRanks.forEach(platform => {
+      const rank = getNextAvailableRank();
+      platformsWithRanks.set(rank, platform.platform || '');
+      platform.rank = rank;
+      console.log(`Assigned rank ${rank} to platform ${platform.platform} based on score ${platform.score}`);
+      nextRank++;
     });
+    
+    // Return the combined and updated platforms array
+    const rankedPlatforms = [...platformsCopy.filter(p => p.rank !== undefined)];
+    console.log("Final ranked platforms:", rankedPlatforms);
+    return rankedPlatforms;
   };
   
   // Generate default platform results if no real data available
