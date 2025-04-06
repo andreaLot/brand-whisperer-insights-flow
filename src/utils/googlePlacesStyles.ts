@@ -11,29 +11,31 @@ export const injectGooglePlacesStyles = () => {
         z-index: 2 !important; /* Lower z-index so it doesn't go above the video */
         position: absolute !important;
         display: block !important;
-        background-color: #1e1e1e !important;
+        background-color: rgba(30, 30, 30, 0.85) !important;
         color: white !important;
-        border: 1px solid #333 !important;
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5) !important;
+        border: 1px solid rgba(76, 154, 255, 0.2) !important;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
         margin-top: 4px !important;
         border-radius: 0.375rem !important;
         font-family: inherit !important;
         width: auto !important;
         min-width: 300px !important;
         overflow: visible !important;
+        backdrop-filter: blur(12px) !important;
       }
       
       .pac-item {
         padding: 8px 12px !important;
         cursor: pointer !important;
         color: #f3f4f6 !important;
-        border-bottom: 1px solid #333 !important;
+        border-bottom: 1px solid rgba(76, 154, 255, 0.1) !important;
         display: flex !important;
         align-items: center !important;
+        transition: all 0.2s ease !important;
       }
       
       .pac-item:hover {
-        background-color: #333 !important;
+        background-color: rgba(76, 154, 255, 0.15) !important;
       }
       
       .pac-icon {
@@ -46,12 +48,12 @@ export const injectGooglePlacesStyles = () => {
       }
 
       .pac-matched {
-        color: #8b5cf6 !important;
+        color: #4C9AFF !important;
         font-weight: bold !important;
       }
 
       .pac-item-selected {
-        background-color: #374151 !important;
+        background-color: rgba(76, 154, 255, 0.2) !important;
       }
       
       /* Hide Google attribution */
@@ -90,6 +92,7 @@ export const fixPacContainerVisibility = () => {
       (container as HTMLElement).style.zIndex = '2'; // Lower z-index
       (container as HTMLElement).style.position = 'absolute';
       (container as HTMLElement).style.display = 'block';
+      (container as HTMLElement).style.backdropFilter = 'blur(12px)';
     });
     // Debug check of containers
     checkPacContainers();

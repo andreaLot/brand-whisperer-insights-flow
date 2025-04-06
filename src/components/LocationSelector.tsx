@@ -92,13 +92,15 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
 
   return (
     <div className="relative w-full animate-fade-in z-1">
-      <LocationInput
-        value={searchTerm}
-        onChange={handleSearchTermChange}
-        onFocus={handleInputFocus}
-        inputRef={inputRef}
-        isLoading={scriptLoading}
-      />
+      <div className="relative before:absolute before:inset-0 before:rounded-lg before:bg-gradient-to-br before:from-brand-blue-light/20 before:to-brand-blue/5 before:blur-xl before:-z-10">
+        <LocationInput
+          value={searchTerm}
+          onChange={handleSearchTermChange}
+          onFocus={handleInputFocus}
+          inputRef={inputRef}
+          isLoading={scriptLoading}
+        />
+      </div>
       
       <StatusMessage
         isLoading={!isLoaded && scriptLoading}
