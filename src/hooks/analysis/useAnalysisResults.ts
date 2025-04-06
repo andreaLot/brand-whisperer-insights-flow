@@ -20,10 +20,13 @@ export const useAnalysisResults = () => {
     webhookResponse: WebhookResponse | null
   ) => {
     try {
+      console.log("Starting analysis with webhook response:", webhookResponse);
       let result = await AnalysisService.analyzeBrand(businessName, location, category);
       
-      // Start with an empty platformResults array to ensure webhook data takes priority
-      result.platformResults = [];
+      // Ensure platformResults always exists
+      if (!result.platformResults) {
+        result.platformResults = [];
+      }
       
       // Enhance results with webhook response data if available
       if (webhookResponse) {
@@ -40,7 +43,7 @@ export const useAnalysisResults = () => {
         // Update platform results with rank information if available
         if (webhookResponse.estimatedRank) {
           // First normalize the model name to a proper platform name
-          const platformName = normalizeModelToPlatform(webhookResponse.model);
+          const platformName = normalizeModelToPlatform(webhookResponse.model || 'AI Analysis');
           console.log(`Normalized model ${webhookResponse.model} to platform ${platformName}`);
           
           // Create the entry for this platform with the webhook rank
@@ -58,9 +61,9 @@ export const useAnalysisResults = () => {
         }
       }
       
-      // If no webhook data is available, add some default platforms
-      if (result.platformResults.length === 0) {
-        console.log("No webhook data available, generating default platform results");
+      // If no webhook data or if platformResults is still empty, add default platforms
+      if (!result.platformResults || result.platformResults.length === 0) {
+        console.log("No webhook data or empty results, generating default platform results");
         result.platformResults = generateDefaultPlatformResults();
       }
       
@@ -123,6 +126,7 @@ export const useAnalysisResults = () => {
   
   // Generate default platform results if no real data available
   const generateDefaultPlatformResults = (): PlatformResult[] => {
+    console.log("Generating default platform results");
     return [
       { platform: 'OpenAI', score: 92, rank: 1 },
       { platform: 'Perplexity', score: 89, rank: 2 },

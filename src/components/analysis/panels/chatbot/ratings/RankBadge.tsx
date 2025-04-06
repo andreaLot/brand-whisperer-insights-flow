@@ -7,7 +7,7 @@ interface RankBadgeProps {
 }
 
 const RankBadge: React.FC<RankBadgeProps> = ({ rank }) => {
-  if (!rank) return null;
+  if (rank === undefined || rank === null) return null;
   
   // Get appropriate CSS classes based on rank
   const getRankBadgeClass = (rank: number) => {

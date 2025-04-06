@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from "framer-motion";
 import { AnalysisResult } from "@/services/AnalysisService";
 import ResultsHeader from "./components/ResultsHeader";
@@ -13,6 +13,11 @@ interface ResultsStepProps {
 
 const ResultsStep: React.FC<ResultsStepProps> = ({ analysisResult, onStartOver }) => {
   const [activeTab, setActiveTab] = useState("results");
+  
+  useEffect(() => {
+    console.log("ResultsStep received analysisResult:", analysisResult);
+    console.log("Platform results:", analysisResult.platformResults);
+  }, [analysisResult]);
   
   return (
     <motion.div 
@@ -34,7 +39,7 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ analysisResult, onStartOver }
 
       <AnimatePresence mode="wait">
         {activeTab === "results" ? (
-          <ResultsTabContent platformResults={analysisResult.platformResults} />
+          <ResultsTabContent platformResults={analysisResult.platformResults || []} />
         ) : (
           <SummaryTabContent
             overallScore={analysisResult.overallScore} 

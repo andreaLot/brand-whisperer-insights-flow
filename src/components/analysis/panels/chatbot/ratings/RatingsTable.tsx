@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Table, TableHeader, TableRow, TableHead, TableBody } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart2 } from "lucide-react";
+import { BarChart2, AlertTriangle } from "lucide-react";
 import PlatformTableRow from './PlatformTableRow';
 import ScoreLegend from './ScoreLegend';
 import TableFooter from './TableFooter';
@@ -27,12 +27,13 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
   const [legendVisible, setLegendVisible] = useState(false);
   const [footerVisible, setFooterVisible] = useState(false);
 
-  // Important: prioritize actual webhook results, not demo data
-  const results = platformResults.length > 0 ? platformResults : [];
+  // Important: Make sure we have an array, even if empty
+  const results = Array.isArray(platformResults) ? platformResults : [];
   
   // Log the results that will be displayed
   useEffect(() => {
     console.log("RatingsTable displaying platform results:", results);
+    console.log("Rendering ratings table with data:", JSON.stringify(results));
   }, [results]);
   
   // Animate the table rows one by one with a staggered delay
@@ -43,16 +44,22 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
     // Then show the title
     setTimeout(() => setTitleVisible(true), 800);
     
-    // Then show each row one by one
-    results.forEach((_, index) => {
-      setTimeout(() => {
-        setVisibleRows(prev => [...prev, index]);
-      }, 1200 + (index * 600)); // 600ms delay between each row
-    });
-    
-    // Finally show the legend and footer
-    setTimeout(() => setLegendVisible(true), 1200 + (results.length * 600) + 300);
-    setTimeout(() => setFooterVisible(true), 1200 + (results.length * 600) + 800);
+    // Only start animating rows if we have results
+    if (results.length > 0) {
+      results.forEach((_, index) => {
+        setTimeout(() => {
+          setVisibleRows(prev => [...prev, index]);
+        }, 1200 + (index * 600)); // 600ms delay between each row
+      });
+      
+      // Finally show the legend and footer
+      setTimeout(() => setLegendVisible(true), 1200 + (results.length * 600) + 300);
+      setTimeout(() => setFooterVisible(true), 1200 + (results.length * 600) + 800);
+    } else {
+      // If no results, show the legend and footer sooner
+      setTimeout(() => setLegendVisible(true), 1200);
+      setTimeout(() => setFooterVisible(true), 1800);
+    }
   }, [results.length]);
 
   // Sort results properly by rank
@@ -98,26 +105,34 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
               <div className="relative rounded-xl overflow-hidden border border-violet-500/20">
                 <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-fuchsia-500/10 pointer-events-none" />
                 
-                <Table>
-                  <TableHeader className="bg-gray-900/50">
-                    <TableRow>
-                      <TableHead className="w-[40px] text-white">#</TableHead>
-                      <TableHead className="text-white">Platform</TableHead>
-                      <TableHead className="text-right text-white">Score</TableHead>
-                      <TableHead className="text-right text-white">Rank</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {sortedResults.map((result, index) => (
-                      <PlatformTableRow 
-                        key={index}
-                        result={result}
-                        index={index}
-                        isVisible={visibleRows.includes(index)}
-                      />
-                    ))}
-                  </TableBody>
-                </Table>
+                {sortedResults.length > 0 ? (
+                  <Table>
+                    <TableHeader className="bg-gray-900/50">
+                      <TableRow>
+                        <TableHead className="w-[40px] text-white">#</TableHead>
+                        <TableHead className="text-white">Platform</TableHead>
+                        <TableHead className="text-right text-white">Score</TableHead>
+                        <TableHead className="text-right text-white">Rank</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {sortedResults.map((result, index) => (
+                        <PlatformTableRow 
+                          key={index}
+                          result={result}
+                          index={index}
+                          isVisible={visibleRows.includes(index)}
+                        />
+                      ))}
+                    </TableBody>
+                  </Table>
+                ) : (
+                  <div className="p-8 flex flex-col items-center justify-center text-center">
+                    <AlertTriangle className="text-amber-400 mb-2" size={24} />
+                    <p className="text-gray-300">No platform results available yet.</p>
+                    <p className="text-gray-400 text-sm mt-1">Results will appear after analysis is completed.</p>
+                  </div>
+                )}
               </div>
               
               {/* Score legend */}
