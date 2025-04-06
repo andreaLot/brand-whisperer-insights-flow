@@ -20,6 +20,8 @@ export const ApifyService = {
           includeImages: true,
           includePopularTimes: false,
           exportPlaceUrls: false,
+          reviewsSort: "newest_first", // Sort by newest first to help with filtering
+          reviewsFilterDateFrom: "2025-01-01", // Only collect reviews from 2025 onwards
         }),
       });
       
@@ -38,6 +40,13 @@ export const ApifyService = {
       
       if (result && result.items && result.items.length > 0) {
         const place = result.items[0];
+        
+        // Filter reviews to only include those from 2025 onwards
+        const filteredReviews = place.reviews ? place.reviews.filter((review: any) => {
+          const reviewDate = review.publishedAtDate ? new Date(review.publishedAtDate) : null;
+          return reviewDate && reviewDate.getFullYear() >= 2025;
+        }) : [];
+        
         return {
           name: place.name || businessName,
           rating: place.rating,
@@ -45,7 +54,7 @@ export const ApifyService = {
           address: place.address,
           category: place.category,
           website: place.website,
-          reviews: place.reviews || [],
+          reviews: filteredReviews,
           images: place.imageUrls || []
         };
       }
@@ -77,6 +86,8 @@ export const ApifyService = {
           includeImages: true,
           includePopularTimes: false,
           exportPlaceUrls: false,
+          reviewsSort: "newest_first", // Sort by newest first
+          reviewsFilterDateFrom: "2025-01-01", // Only collect reviews from 2025 onwards
         }),
       });
       
@@ -94,16 +105,24 @@ export const ApifyService = {
       const result = await ApifyService.pollApifyRunStatus(runId);
       
       if (result && result.items && result.items.length > 0) {
-        return result.items.slice(0, 3).map((place: any) => ({
-          name: place.name || "Unknown",
-          rating: place.rating,
-          reviewsCount: place.reviewsCount,
-          address: place.address,
-          category: place.category,
-          website: place.website,
-          reviews: place.reviews || [],
-          images: place.imageUrls || []
-        }));
+        return result.items.slice(0, 3).map((place: any) => {
+          // Filter reviews to only include those from 2025 onwards
+          const filteredReviews = place.reviews ? place.reviews.filter((review: any) => {
+            const reviewDate = review.publishedAtDate ? new Date(review.publishedAtDate) : null;
+            return reviewDate && reviewDate.getFullYear() >= 2025;
+          }) : [];
+          
+          return {
+            name: place.name || "Unknown",
+            rating: place.rating,
+            reviewsCount: place.reviewsCount,
+            address: place.address,
+            category: place.category,
+            website: place.website,
+            reviews: filteredReviews,
+            images: place.imageUrls || []
+          };
+        });
       }
       
       return [];
