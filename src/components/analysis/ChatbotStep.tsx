@@ -5,6 +5,7 @@ import ChatMessages from './components/ChatMessages';
 import QuickOptions from './components/QuickOptions';
 import { useChatbotState } from './hooks/useChatbotState';
 import { useIntroSequence } from './hooks/useIntroSequence';
+import { Button } from '../ui/button';
 
 interface ChatbotStepProps {
   primaryCategory?: string;
@@ -79,16 +80,18 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
       // Post a message to trigger the ratings panel
       window.postMessage({ type: 'chatbot-selection', message: 'ratings' }, '*');
       
-      // Add a reminder about Google basics after a delay
+      // Add a reminder about Google basics after a delay, but don't switch panels automatically
       setTimeout(() => {
         const googleReminderMessageId = `bot-google-${Date.now()}`;
         const googleReminderText = `Don't forget the basics! While AI platforms are important, your Google Business Profile is still essential. Let me show you the completeness of your profile:`;
         
         // Add Google reminder to chat
-        setChatHistory(prev => [...prev, { sender: 'bot', text: googleReminderText, id: googleReminderMessageId }]);
-        
-        // Post a message to trigger the Google basics panel
-        window.postMessage({ type: 'chatbot-selection', message: 'google-basics' }, '*');
+        setChatHistory(prev => [...prev, { 
+          sender: 'bot', 
+          text: googleReminderText, 
+          id: googleReminderMessageId,
+          showCTA: true // Add flag to show CTA
+        }]);
       }, 3000);
       
       // Explicitly call onChatComplete to trigger any parent component logic
@@ -98,6 +101,11 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
       }, 4000);
     }, 800);
   };
+
+  // Function to handle the CTA button click
+  const handleShowBasics = () => {
+    window.postMessage({ type: 'chatbot-selection', message: 'google-basics' }, '*');
+  };
   
   // Send message to show ratings panel when we're in final phase
   useEffect(() => {
@@ -105,12 +113,6 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
       // Explicitly trigger the ratings panel to appear
       console.log("ChatbotStep: Triggering ratings panel (isFinalPhase effect)");
       window.postMessage({ type: 'chatbot-selection', message: 'ratings' }, '*');
-      
-      // After a delay, show Google basics
-      setTimeout(() => {
-        console.log("ChatbotStep: Triggering Google basics panel");
-        window.postMessage({ type: 'chatbot-selection', message: 'google-basics' }, '*');
-      }, 3000);
     }
   }, [isFinalPhase]);
 
@@ -131,7 +133,11 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
       </h2>
       
       <div className="flex-1 overflow-auto p-4 bg-brand-black/50 rounded-lg h-[300px] overflow-y-auto">
-        <ChatMessages chatHistory={chatHistory} isTyping={isTyping} />
+        <ChatMessages 
+          chatHistory={chatHistory} 
+          isTyping={isTyping} 
+          onShowBasics={handleShowBasics}
+        />
       </div>
       
       {/* Quick option buttons */}

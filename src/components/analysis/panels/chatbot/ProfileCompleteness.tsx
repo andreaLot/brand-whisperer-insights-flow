@@ -2,6 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import { Progress } from '@/components/ui/progress';
 import { ApifyBusinessResult } from '@/services/types';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CheckCircle, XCircle, Info } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface ProfileCompletenessProps {
   apifyBusinessResult: ApifyBusinessResult | null | undefined;
@@ -10,6 +13,7 @@ interface ProfileCompletenessProps {
 const ProfileCompleteness: React.FC<ProfileCompletenessProps> = ({ apifyBusinessResult }) => {
   const [completenessScore, setCompletenessScore] = useState(0);
   const [scoreDetails, setScoreDetails] = useState<Array<{field: string, present: boolean}>>([]);
+  const [animateProgress, setAnimateProgress] = useState(false);
   
   useEffect(() => {
     if (apifyBusinessResult) {
@@ -31,34 +35,110 @@ const ProfileCompleteness: React.FC<ProfileCompletenessProps> = ({ apifyBusiness
       const calculatedScore = Math.round((presentFields / totalFields) * 100);
       
       setScoreDetails(fieldsToCheck);
-      setCompletenessScore(calculatedScore);
+      setCompletenessScore(0); // Start at 0
+      
+      // Set a short delay before animating the progress
+      setTimeout(() => {
+        setAnimateProgress(true);
+        setCompletenessScore(calculatedScore);
+      }, 500);
     }
   }, [apifyBusinessResult]);
   
   if (!apifyBusinessResult) {
     return null;
   }
+  
+  const getScoreColor = (score: number) => {
+    if (score >= 80) return 'text-green-500';
+    if (score >= 50) return 'text-yellow-500';
+    return 'text-red-500';
+  };
+
+  const getProgressColor = (score: number) => {
+    if (score >= 80) return 'bg-gradient-to-r from-green-500 to-green-400';
+    if (score >= 50) return 'bg-gradient-to-r from-yellow-500 to-yellow-400';
+    return 'bg-gradient-to-r from-red-500 to-red-400';
+  };
 
   return (
-    <div className="mt-6 space-y-4">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Google Profile Completeness</h3>
-        <span className="text-lg font-bold">{completenessScore}%</span>
-      </div>
-      
-      <Progress value={completenessScore} className="h-2" />
-      
-      <div className="grid grid-cols-2 gap-2 mt-4">
-        {scoreDetails.map((detail) => (
-          <div key={detail.field} className="flex items-center">
-            <div className={`w-2 h-2 rounded-full mr-2 ${detail.present ? 'bg-green-500' : 'bg-gray-400'}`}></div>
-            <span className={detail.present ? 'text-white' : 'text-gray-400'}>
-              {detail.field}
-            </span>
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="mt-6"
+    >
+      <Card className="border-brand-blue-light/20 bg-gray-800/50 backdrop-blur-sm shadow-lg">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg font-medium flex items-center gap-2 text-white">
+            <Info size={18} className="text-brand-blue-light" />
+            Google Business Profile Completeness
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-semibold text-gray-200">Profile Score</h3>
+              <motion.span 
+                initial={{ scale: 0.8 }}
+                animate={{ scale: animateProgress ? 1 : 0.8 }}
+                transition={{ type: "spring", stiffness: 300 }}
+                className={`text-2xl font-bold ${getScoreColor(completenessScore)}`}
+              >
+                {completenessScore}%
+              </motion.span>
+            </div>
+            
+            <div className="relative h-2 overflow-hidden rounded-full bg-gray-700">
+              <motion.div
+                initial={{ width: '0%' }}
+                animate={{ width: `${completenessScore}%` }}
+                transition={{ 
+                  duration: 1.5, 
+                  ease: "easeOut",
+                  delay: 0.2
+                }}
+                className={`absolute top-0 left-0 h-full ${getProgressColor(completenessScore)}`}
+              />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-3 mt-4">
+              {scoreDetails.map((detail, index) => (
+                <motion.div 
+                  key={detail.field} 
+                  className="flex items-center bg-gray-700/50 p-2.5 rounded-lg"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 + (index * 0.1) }}
+                >
+                  {detail.present ? (
+                    <CheckCircle className="h-5 w-5 text-green-500 mr-2.5" />
+                  ) : (
+                    <XCircle className="h-5 w-5 text-gray-400 mr-2.5" />
+                  )}
+                  <span className={detail.present ? 'text-white' : 'text-gray-400'}>
+                    {detail.field}
+                  </span>
+                </motion.div>
+              ))}
+            </div>
+            
+            {completenessScore < 70 && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.2 }}
+                className="bg-brand-blue-dark/50 border border-brand-blue-light/20 rounded-lg p-3 text-sm text-gray-200"
+              >
+                <p>
+                  <span className="font-semibold text-brand-blue-light">Pro Tip:</span> Complete your Google Business Profile to improve visibility in search results and AI platforms.
+                </p>
+              </motion.div>
+            )}
           </div>
-        ))}
-      </div>
-    </div>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 };
 

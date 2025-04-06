@@ -34,26 +34,56 @@ const InputPanel: React.FC<InputPanelProps> = ({
   apifyBusinessResult,
   apifyLoading = false
 }) => {
-  // Default to 'none' in chatbot step instead of 'ratings'
-  const [visibleSnippet, setVisibleSnippet] = useState<'none' | 'competitors' | 'seo' | 'content' | 'ratings' | 'google-basics'>('none');
+  // Track active panels instead of just one
+  const [activePanels, setActivePanels] = useState<Array<'none' | 'competitors' | 'seo' | 'content' | 'ratings' | 'google-basics'>>(['none']);
   
   // Listen for message changes in ChatbotStep
   useEffect(() => {
     const handleChatbotMessage = (event: MessageEvent) => {
       if (event.data && event.data.type === 'chatbot-selection') {
         console.log("Received message event:", event.data);
+        
         if (event.data.message.includes('ratings')) {
-          console.log("Setting visible snippet to ratings");
-          setVisibleSnippet('ratings');
-        } else if (event.data.message.includes('google-basics')) {
-          console.log("Setting visible snippet to google-basics");
-          setVisibleSnippet('google-basics');
-        } else if (event.data.message.includes('competitors')) {
-          setVisibleSnippet('competitors');
-        } else if (event.data.message.includes('SEO')) {
-          setVisibleSnippet('seo');
-        } else if (event.data.message.includes('content')) {
-          setVisibleSnippet('content');
+          console.log("Setting ratings panel to visible");
+          setActivePanels(prev => {
+            if (!prev.includes('ratings')) {
+              return [...prev, 'ratings'];
+            }
+            return prev;
+          });
+        } 
+        else if (event.data.message.includes('google-basics')) {
+          console.log("Setting google-basics panel to visible");
+          setActivePanels(prev => {
+            if (!prev.includes('google-basics')) {
+              return [...prev, 'google-basics'];
+            }
+            return prev;
+          });
+        }
+        else if (event.data.message.includes('competitors')) {
+          setActivePanels(prev => {
+            if (!prev.includes('competitors')) {
+              return [...prev, 'competitors'];
+            }
+            return prev;
+          });
+        }
+        else if (event.data.message.includes('SEO')) {
+          setActivePanels(prev => {
+            if (!prev.includes('seo')) {
+              return [...prev, 'seo'];
+            }
+            return prev;
+          });
+        }
+        else if (event.data.message.includes('content')) {
+          setActivePanels(prev => {
+            if (!prev.includes('content')) {
+              return [...prev, 'content'];
+            }
+            return prev;
+          });
         }
       }
     };
@@ -64,10 +94,10 @@ const InputPanel: React.FC<InputPanelProps> = ({
     };
   }, []);
 
-  // Monitor step changes but don't automatically set ratings as visible
+  // Reset active panels when step changes
   useEffect(() => {
     if (step !== 'chatbot') {
-      setVisibleSnippet('none');
+      setActivePanels(['none']);
     }
   }, [step]);
 
@@ -145,13 +175,48 @@ const InputPanel: React.FC<InputPanelProps> = ({
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="space-y-4"
+            className="space-y-6"
           >
-            <ChatbotContent 
-              visibleSnippet={visibleSnippet}
-              analysisResult={analysisResult}
-              apifyBusinessResult={apifyBusinessResult}
-            />
+            {/* Show all active panels in order */}
+            {activePanels.includes('ratings') && (
+              <ChatbotContent 
+                visibleSnippet="ratings"
+                analysisResult={analysisResult}
+                apifyBusinessResult={apifyBusinessResult}
+              />
+            )}
+            
+            {activePanels.includes('google-basics') && (
+              <ChatbotContent 
+                visibleSnippet="google-basics"
+                analysisResult={analysisResult}
+                apifyBusinessResult={apifyBusinessResult}
+              />
+            )}
+            
+            {activePanels.includes('competitors') && (
+              <ChatbotContent 
+                visibleSnippet="competitors"
+                analysisResult={analysisResult}
+                apifyBusinessResult={apifyBusinessResult}
+              />
+            )}
+            
+            {activePanels.includes('seo') && (
+              <ChatbotContent 
+                visibleSnippet="seo"
+                analysisResult={analysisResult}
+                apifyBusinessResult={apifyBusinessResult}
+              />
+            )}
+            
+            {activePanels.includes('content') && (
+              <ChatbotContent 
+                visibleSnippet="content"
+                analysisResult={analysisResult}
+                apifyBusinessResult={apifyBusinessResult}
+              />
+            )}
           </motion.div>
         )}
       </AnimatePresence>

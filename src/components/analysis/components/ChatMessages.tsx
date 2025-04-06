@@ -2,13 +2,15 @@
 import React, { useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from "framer-motion";
 import { ChatMessage } from '../hooks/useChatbotState';
+import { Button } from '@/components/ui/button';
 
 interface ChatMessagesProps {
   chatHistory: ChatMessage[];
   isTyping: boolean;
+  onShowBasics?: () => void;
 }
 
-const ChatMessages: React.FC<ChatMessagesProps> = ({ chatHistory, isTyping }) => {
+const ChatMessages: React.FC<ChatMessagesProps> = ({ chatHistory, isTyping, onShowBasics }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom when new messages appear
@@ -35,6 +37,25 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ chatHistory, isTyping }) =>
             }`}
           >
             {msg.text}
+            
+            {/* Show the CTA button if this message has showCTA flag */}
+            {msg.showCTA && onShowBasics && (
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.5 }}
+                className="mt-3"
+              >
+                <Button 
+                  size="sm" 
+                  variant="dynamic"
+                  onClick={onShowBasics}
+                  className="w-full"
+                >
+                  Show me the basics
+                </Button>
+              </motion.div>
+            )}
           </div>
         </motion.div>
       ))}
