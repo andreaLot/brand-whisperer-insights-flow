@@ -7,12 +7,12 @@ export const simulatePlatformResponses = async (businessData: any): Promise<Webh
   console.log("🔮 [SimulationService] Generating simulated platform responses");
   
   // Generate realistic platform rankings based on business name
-  const businessNameHash = businessData.businessName
+  const businessNameHash = businessData.businessName && typeof businessData.businessName === 'string'
     ? Array.from(businessData.businessName).reduce((acc, char) => acc + char.charCodeAt(0), 0)
     : 0;
   
   // Add some randomness, but keep it consistent for the same business name
-  const randomSeed = (businessNameHash % 100) / 100;
+  const randomSeed = businessNameHash ? (businessNameHash % 100) / 100 : Math.random();
   
   // Generate a base rank that will be adjusted for each platform
   const baseRank = Math.max(1, Math.min(10, Math.ceil(randomSeed * 10)));
