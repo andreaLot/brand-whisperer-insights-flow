@@ -31,10 +31,10 @@ const QuickOptions: React.FC<QuickOptionsProps> = ({
         variant="outline"
         size="lg"
         className="text-base bg-violet-500/30 border-violet-400 text-violet-100 hover:bg-violet-500/40 px-6 py-2 flex items-center gap-2"
-        onClick={() => onOptionClick("Show my ratings across AI platforms")}
+        onClick={() => onOptionClick("View my ratings")}
       >
         <BarChart2 size={18} className="text-violet-300" />
-        Show AI Search Rankings
+        View AI Search Rankings
       </Button>
     </motion.div>
   );

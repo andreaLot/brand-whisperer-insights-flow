@@ -55,33 +55,27 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
     const userMessageId = `user-${Date.now()}`;
     setChatHistory(prev => [...prev, { sender: 'user', text, id: userMessageId }]);
     
-    // Clear input and show typing indicator
+    // Clear options and show typing indicator
     setShowOptions(false);
-    setIsTyping(true);
     
-    // Show the side panel
+    // Show the side panel immediately
     setIsPanelVisible(true);
     
-    // Simulate bot response after a short delay
+    // Show ratings panel immediately
+    const botMessageId = `bot-${Date.now()}`;
+    const responseText = `Here are the current ratings for ${businessName} across different AI platforms:`;
+    
+    // Add bot response to chat
+    setChatHistory(prev => [...prev, { sender: 'bot', text: responseText, id: botMessageId }]);
+    
+    // Post an event for the iframe to receive and show ratings panel
+    window.postMessage({ type: 'chatbot-selection', message: 'ratings' }, '*');
+    setIsFinalPhase(true);
+    
+    // Automatically complete the chat process after giving user time to see the ratings
     setTimeout(() => {
-      let responseText = '';
-      const botMessageId = `bot-${Date.now()}`;
-      
-      // Show ratings panel
-      responseText = `Here are the current ratings for ${businessName} across different AI platforms:`;
-      // Post an event for the iframe to receive and show ratings panel
-      window.postMessage({ type: 'chatbot-selection', message: 'ratings' }, '*');
-      setIsFinalPhase(true);
-      
-      // Add bot response to chat
-      setChatHistory(prev => [...prev, { sender: 'bot', text: responseText, id: botMessageId }]);
-      setIsTyping(false);
-      
-      // Automatically complete the chat process
-      setTimeout(() => {
-        onChatComplete();
-      }, 2500); // Give user more time to see the ratings before completing
-    }, 1500); // 1.5 second typing delay
+      onChatComplete();
+    }, 5000); // Extended time to 5 seconds so user has more time to see the ratings
   };
 
   return (
