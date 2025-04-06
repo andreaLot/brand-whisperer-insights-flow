@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useGooglePlaces, PlaceSelectionResult } from '@/hooks/useGooglePlaces';
 import { injectGooglePlacesStyles, fixPacContainerVisibility, showAutocompleteDropdown, hideAutocompleteDropdown } from '@/utils/googlePlacesStyles';
@@ -38,7 +37,6 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
   useEffect(() => {
     if (isLoaded && inputRef.current) {
       initAutocomplete(inputRef.current);
-      
       fixPacContainerVisibility();
     }
     
@@ -53,10 +51,9 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
       const locationText = selectedPlace.address || selectedPlace.name || '';
       if (locationText) {
         setSearchTerm(locationText);
-        
         onSelect(locationText, selectedPlace);
         
-        // Hide the dropdown after selection with a reduced z-index
+        // Ensure dropdown is completely hidden after selection
         hideAutocompleteDropdown();
       }
     }
@@ -75,7 +72,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
     
     if (value.includes(',') && !selectedPlace) {
       onSelect(value);
-      // Hide dropdown for manual entries with commas
+      // Ensure dropdown is completely hidden for manual entries
       hideAutocompleteDropdown();
     }
   };

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import ResultCard from "@/components/ResultCard";
@@ -202,6 +201,7 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ analysisResult, onStartOver }
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 20 }}
             transition={{ duration: 0.4 }}
+            className="bg-transparent"
           >
             {showSummary && (
               <SummaryBox 
