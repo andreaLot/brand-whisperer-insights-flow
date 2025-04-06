@@ -1,30 +1,36 @@
 
 import React from 'react';
-import { ApifyCategoryResult } from "@/services/AnalysisService";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { AnalysisResult, ApifyBusinessResult } from '@/services/types';
 
 interface CompetitorsPanelProps {
-  apifyCategoryResults?: ApifyCategoryResult[];
+  analysisResult: AnalysisResult;
+  apifyBusinessResult?: ApifyBusinessResult | null;
 }
 
-const CompetitorsPanel: React.FC<CompetitorsPanelProps> = ({ apifyCategoryResults = [] }) => {
+const CompetitorsPanel: React.FC<CompetitorsPanelProps> = ({ 
+  analysisResult, 
+  apifyBusinessResult 
+}) => {
+  const competitors = apifyBusinessResult?.reviews || [];
+  
   return (
     <Card className="bg-gradient-to-br from-brand-gray-dark to-brand-blue-dark/30 border border-gray-700 text-white">
       <CardHeader>
         <CardTitle className="text-lg">Top Competitors</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {apifyCategoryResults && apifyCategoryResults.length > 0 ? (
-          apifyCategoryResults.map((competitor, index) => (
+        {competitors && competitors.length > 0 ? (
+          competitors.slice(0, 3).map((competitor, index) => (
             <div key={index} className="space-y-3">
               <div className="flex items-center justify-between">
-                <span>{competitor.name}</span>
+                <span>{competitor.userName || `Competitor ${index + 1}`}</span>
                 <span className="text-sm font-bold text-brand-blue-light">
-                  {competitor.rating ? `${competitor.rating * 20}% match` : ''}
+                  {competitor.stars ? `${competitor.stars * 20}% match` : ''}
                 </span>
               </div>
-              <Progress value={competitor.rating ? competitor.rating * 20 : 0} className="h-2" />
+              <Progress value={competitor.stars ? competitor.stars * 20 : 0} className="h-2" />
             </div>
           ))
         ) : (

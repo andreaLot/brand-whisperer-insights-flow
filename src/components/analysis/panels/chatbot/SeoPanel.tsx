@@ -1,34 +1,58 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { AnalysisResult } from '@/services/types';
 
-const SeoPanel: React.FC = () => {
+interface SeoPanelProps {
+  analysisResult: AnalysisResult;
+}
+
+const SeoPanel: React.FC<SeoPanelProps> = ({ analysisResult }) => {
   return (
     <Card className="bg-gradient-to-br from-brand-gray-dark to-brand-blue-dark/30 border border-gray-700 text-white">
       <CardHeader>
-        <CardTitle className="text-lg">SEO Opportunities</CardTitle>
+        <CardTitle className="text-lg">SEO Analysis</CardTitle>
       </CardHeader>
       <CardContent>
-        <ul className="space-y-3">
-          <li className="flex items-start gap-2">
-            <div className="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
-              <span className="text-xs text-green-500">+</span>
+        <div className="space-y-4">
+          <div className="p-3 bg-brand-blue-dark/30 rounded-lg">
+            <h4 className="font-medium mb-1">Keywords</h4>
+            <div className="flex flex-wrap gap-2">
+              {analysisResult.businessName && (
+                <span className="px-2 py-1 bg-brand-blue/20 rounded-md text-sm">
+                  {analysisResult.businessName}
+                </span>
+              )}
+              {analysisResult.location && (
+                <span className="px-2 py-1 bg-brand-blue/20 rounded-md text-sm">
+                  {analysisResult.location}
+                </span>
+              )}
+              {analysisResult.category && (
+                <span className="px-2 py-1 bg-brand-blue/20 rounded-md text-sm">
+                  {analysisResult.category}
+                </span>
+              )}
             </div>
-            <p className="text-sm">Add more location-specific keywords to your website content</p>
-          </li>
-          <li className="flex items-start gap-2">
-            <div className="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
-              <span className="text-xs text-green-500">+</span>
-            </div>
-            <p className="text-sm">Create unique meta descriptions for each page</p>
-          </li>
-          <li className="flex items-start gap-2">
-            <div className="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
-              <span className="text-xs text-green-500">+</span>
-            </div>
-            <p className="text-sm">Focus on generating more customer reviews</p>
-          </li>
-        </ul>
+          </div>
+          
+          <div className="p-3 bg-brand-blue-dark/30 rounded-lg">
+            <h4 className="font-medium mb-1">Recommendations</h4>
+            <ul className="text-sm text-gray-300">
+              {analysisResult.recommendations && analysisResult.recommendations.length > 0 ? (
+                analysisResult.recommendations.slice(0, 3).map((rec, index) => (
+                  <li key={index}>• {rec}</li>
+                ))
+              ) : (
+                <>
+                  <li>• Optimize meta descriptions</li>
+                  <li>• Create more internal links</li>
+                  <li>• Improve mobile responsiveness</li>
+                </>
+              )}
+            </ul>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
