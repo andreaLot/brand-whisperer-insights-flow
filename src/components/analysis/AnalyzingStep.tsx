@@ -26,11 +26,11 @@ const AnalyzingStep: React.FC<AnalyzingStepProps> = ({
   
   // Define platforms with their specific colors
   const platforms = [
-    { name: "Gemini", color: "#FFFFFF" },       // White
-    { name: "OpenAI", color: "#FFFFFF" },       // White  
-    { name: "Perplexity", color: "#FFFFFF" },   // White
-    { name: "Deepseek", color: "#FFFFFF" },     // White
-    { name: "Mistral", color: "#FFFFFF" }       // White
+    { name: "Gemini", color: "#FFFFFF" },
+    { name: "OpenAI", color: "#FFFFFF" },
+    { name: "Perplexity", color: "#FFFFFF" },
+    { name: "Deepseek", color: "#FFFFFF" },
+    { name: "Mistral", color: "#FFFFFF" }
   ];
   
   const [textOpacity, setTextOpacity] = useState(0);

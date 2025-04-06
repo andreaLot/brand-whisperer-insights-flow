@@ -17,8 +17,9 @@ export const BrandService = {
     const geminiScore = Math.min(100, Math.max(40, baseScore - 5 + Math.floor(Math.random() * 20)));
     const mistralScore = Math.min(100, Math.max(40, baseScore + 10 + Math.floor(Math.random() * 10) - 10));
     const deepseekScore = Math.min(100, Math.max(40, baseScore - 10 + Math.floor(Math.random() * 15)));
+    const openaiScore = Math.min(100, Math.max(40, baseScore + 5 + Math.floor(Math.random() * 15)));
     
-    const overallScore = Math.floor((perplexityScore + geminiScore + mistralScore + deepseekScore) / 4);
+    const overallScore = Math.floor((perplexityScore + geminiScore + mistralScore + deepseekScore + openaiScore) / 5);
     
     // Mock strengths, weaknesses and recommendations
     const strengths = [];
@@ -53,6 +54,13 @@ export const BrandService = {
       recommendations.push('Refine your unique selling proposition to stand out from competitors.');
     }
     
+    if (openaiScore > 70) {
+      strengths.push('Strong overall content quality and relevance.');
+    } else {
+      weaknesses.push('Content quality issues detected by OpenAI analysis.');
+      recommendations.push('Focus on creating higher quality content with expert insights.');
+    }
+    
     // Ensure we have at least some data in each section
     if (strengths.length === 0) {
       strengths.push('Brand name is recognizable and memorable.');
@@ -81,6 +89,11 @@ export const BrandService = {
         {
           platform: 'Gemini',
           score: geminiScore,
+          rank: Math.floor(Math.random() * 10) + 1
+        },
+        {
+          platform: 'OpenAI',
+          score: openaiScore,
           rank: Math.floor(Math.random() * 10) + 1
         },
         {

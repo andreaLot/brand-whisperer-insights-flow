@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from "framer-motion";
 import ResultCard from "@/components/ResultCard";
-import { Search, MessageSquare, BarChart2, Shield } from "lucide-react";
+import PlatformIcon from "../panels/chatbot/ratings/PlatformIcon";
 import {
   Carousel,
   CarouselContent,
@@ -31,26 +31,6 @@ const ResultsTabContent: React.FC<ResultsTabContentProps> = ({ platformResults }
       }, 600 + (index * 300)); // 300ms delay between each card
     });
   }, [platformResults.length]);
-  
-  // Render platform icon based on name
-  const renderPlatformIcon = (platform: string) => {
-    switch (platform.toLowerCase()) {
-      case 'perplexity':
-        return <Search size={16} className="text-white" />;
-      case 'gemini':
-        return <MessageSquare size={16} className="text-white" />;
-      case 'deepseek':
-        return <Shield size={16} className="text-white" />;
-      case 'mistral':
-        return <BarChart2 size={16} className="text-white" />;
-      case 'gpt-4o':
-      case 'gpt-4o-2024-08-06':
-      case 'openai':
-        return <MessageSquare size={16} className="text-white" />;
-      default:
-        return null;
-    }
-  };
 
   return (
     <motion.div 
@@ -73,10 +53,10 @@ const ResultsTabContent: React.FC<ResultsTabContentProps> = ({ platformResults }
                     transition={{ duration: 0.5, type: "spring" }}
                   >
                     <ResultCard 
-                      platform={result.platform} 
+                      platform={result.platform || result.model || ""} 
                       score={result.score} 
                       rank={result.rank} 
-                      icon={renderPlatformIcon(result.platform || result.model)} 
+                      icon={<PlatformIcon platform={result.platform || result.model} />} 
                     />
                   </motion.div>
                 )}
@@ -85,8 +65,8 @@ const ResultsTabContent: React.FC<ResultsTabContentProps> = ({ platformResults }
           ))}
         </CarouselContent>
         <div className="flex justify-center mt-4">
-          <CarouselPrevious className="relative static transform-none mx-2" />
-          <CarouselNext className="relative static transform-none mx-2" />
+          <CarouselPrevious className="relative static transform-none mx-2 text-white" />
+          <CarouselNext className="relative static transform-none mx-2 text-white" />
         </div>
       </Carousel>
     </motion.div>
