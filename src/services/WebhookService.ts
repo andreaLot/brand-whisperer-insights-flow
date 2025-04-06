@@ -8,7 +8,39 @@ export interface WebhookResponse {
   model?: string;
 }
 
+// Map of model identifiers to platform names for better display
+const modelToPlatformMap: Record<string, string> = {
+  "gpt": "OpenAI",
+  "openai": "OpenAI",
+  "gpt-4": "OpenAI",
+  "gpt4": "OpenAI",
+  "perplexity": "Perplexity",
+  "gemini": "Gemini",
+  "bard": "Gemini",
+  "claude": "Anthropic",
+  "deepseek": "DeepSeek",
+  "mistral": "Mistral",
+};
+
+// Function to normalize model names to platform names
+export const normalizeModelToPlatform = (model?: string): string => {
+  if (!model) return "AI Analysis";
+  
+  const modelLower = model.toLowerCase();
+  
+  // Check if any key in the map is contained in the model string
+  for (const [key, platform] of Object.entries(modelToPlatformMap)) {
+    if (modelLower.includes(key)) {
+      return platform;
+    }
+  }
+  
+  return model; // Return the original model if no match
+};
+
 export const WebhookService = {
+  normalizeModelToPlatform,
+  
   sendWebhookData: async (businessData: any): Promise<WebhookResponse | null> => {
     const webhookUrl = "https://uberall.app.n8n.cloud/webhook/analyze-business-ranking";
     
@@ -50,9 +82,13 @@ export const WebhookService = {
               }
             }
             
+            // Normalize the model to platform
+            const platform = normalizeModelToPlatform(model);
+            
             return {
               estimatedRank,
               model,
+              platform,
               status: "success",
               message: content || "Analysis complete",
               timestamp: new Date().toISOString()

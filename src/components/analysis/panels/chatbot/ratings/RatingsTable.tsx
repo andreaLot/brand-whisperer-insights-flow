@@ -27,14 +27,19 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
   const [legendVisible, setLegendVisible] = useState(false);
   const [footerVisible, setFooterVisible] = useState(false);
 
-  // If no results, show some demo data
+  // If no results, show some demo data, otherwise use the provided results
   const results = platformResults.length > 0 ? platformResults : [
-    { platform: 'Gemini', score: 87, rank: 3 },
-    { platform: 'GPT-4o', score: 92, rank: 1 },
+    { platform: 'OpenAI', score: 92, rank: 1 },
     { platform: 'Perplexity', score: 89, rank: 2 },
+    { platform: 'Gemini', score: 87, rank: 3 },
     { platform: 'DeepSeek', score: 83, rank: 4 },
     { platform: 'Mistral', score: 81, rank: 5 },
   ];
+
+  // Log the results that will be displayed
+  useEffect(() => {
+    console.log("RatingsTable displaying platform results:", results);
+  }, [results]);
   
   // Animate the table rows one by one with a staggered delay
   useEffect(() => {

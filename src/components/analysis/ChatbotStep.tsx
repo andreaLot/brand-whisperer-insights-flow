@@ -84,7 +84,7 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
     }, 800);
   };
   
-  // Immediately show the ratings after component mount if we're already in final phase
+  // Handle final phase visibility - using a strict dependency array
   useEffect(() => {
     if (isFinalPhase) {
       // Make sure the panel is visible
@@ -92,7 +92,7 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
       // Explicitly trigger the ratings panel to appear
       window.postMessage({ type: 'chatbot-selection', message: 'ratings' }, '*');
     }
-  }, [isFinalPhase, setIsPanelVisible]);
+  }, [isFinalPhase]); // Removed setIsPanelVisible from dependency array to prevent infinite loop
 
   return (
     <div className="flex flex-col space-y-4 w-full">

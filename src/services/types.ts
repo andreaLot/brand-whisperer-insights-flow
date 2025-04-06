@@ -5,7 +5,7 @@ export interface BusinessCategory {
 }
 
 export interface PlatformResult {
-  platform: string;
+  platform?: string;
   score: number;
   rank?: number;
   details?: string[];
@@ -51,4 +51,15 @@ export interface ApifyCategoryResult {
   website?: string;
   reviews?: ApifyReview[];
   images?: string[];
+}
+
+// Add WebhookResponse type to types.ts
+export interface WebhookResponse {
+  estimatedRank?: number;
+  confidence?: number;
+  message?: string;
+  status?: string;
+  timestamp?: string;
+  model?: string;
+  platform?: string;
 }
