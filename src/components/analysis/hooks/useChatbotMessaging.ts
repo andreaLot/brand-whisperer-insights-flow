@@ -32,7 +32,7 @@ export const useChatbotMessaging = ({
     // Show the side panel immediately
     setIsPanelVisible(true);
     
-    // After a delay to simulate typing (increased to 2 seconds)
+    // After a delay to simulate typing (consistent 2 seconds)
     setTimeout(() => {
       setIsTyping(false);
       
@@ -43,7 +43,7 @@ export const useChatbotMessaging = ({
       // Mark the interaction as in final phase
       setIsFinalPhase(true);
       
-      // Add a reminder about Google basics after a delay (increased to 2 seconds)
+      // Add a reminder about Google basics after a delay (consistent 2 seconds)
       setTimeout(() => {
         const googleReminderMessageId = `bot-google-${Date.now()}`;
         const googleReminderText = `Don't forget the basics! While AI platforms are important, your Google Business Profile is still essential. Let me show you the completeness of your profile:`;
@@ -55,14 +55,14 @@ export const useChatbotMessaging = ({
           id: googleReminderMessageId,
           showCTA: true // Add flag to show CTA
         }]);
-      }, 2000); // Increased from 3s to 2s (still separated from previous message by 2s)
+      }, 2000); // Consistent 2 second delay
       
       // Explicitly call onChatComplete to trigger any parent component logic (increased timing)
       setTimeout(() => {
         console.log("ChatbotStep: Calling onChatComplete");
         onChatComplete();
       }, 4000); // Keep as 4s to allow time for user to see the final message
-    }, 2000); // Increased from 0.8s to 2s
+    }, 2000); // Consistent 2 second delay
   };
 
   return { sendMessage };

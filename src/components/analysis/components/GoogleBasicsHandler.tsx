@@ -14,11 +14,17 @@ const GoogleBasicsHandler: React.FC<GoogleBasicsHandlerProps> = ({
       // Explicitly trigger the ratings panel to appear
       console.log("ChatbotStep: Triggering ratings panel (isFinalPhase effect)");
       window.postMessage({ type: 'chatbot-selection', message: 'ratings' }, '*');
+      
+      // After 2 seconds, also trigger the Google basics panel
+      setTimeout(() => {
+        window.postMessage({ type: 'chatbot-selection', message: 'google-basics' }, '*');
+      }, 2000);
     }
   }, [isFinalPhase]);
 
   // Function to handle the CTA button click
   const handleShowBasics = useCallback(() => {
+    console.log("GoogleBasicsHandler: Show basics button clicked");
     window.postMessage({ type: 'chatbot-selection', message: 'google-basics' }, '*');
   }, []);
 

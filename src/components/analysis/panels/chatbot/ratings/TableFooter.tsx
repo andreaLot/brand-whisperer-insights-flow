@@ -18,11 +18,6 @@ const TableFooter: React.FC<TableFooterProps> = ({
       transition={{ duration: 0.7 }}
       className="text-center text-sm text-gray-400"
     >
-      Analysis for <span className="text-white font-medium">{businessName}</span>
-      {platformCount > 0 && (
-        <> across <span className="text-violet-400 font-medium">{platformCount}</span> AI platforms</>
-      )}.
-      <br />
       Higher scores indicate better visibility and representation in AI responses.
     </motion.div>
   );
