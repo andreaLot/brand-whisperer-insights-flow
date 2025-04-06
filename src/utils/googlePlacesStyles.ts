@@ -8,9 +8,9 @@ export const injectGooglePlacesStyles = () => {
     styleElement.id = 'google-places-autocomplete-styles';
     styleElement.innerHTML = `
       .pac-container {
-        z-index: 2 !important; /* Lower z-index so it doesn't go above the video */
+        z-index: 10 !important; /* Higher z-index to ensure visibility */
         position: absolute !important;
-        display: block !important; /* Changed from none to block to show autocomplete dropdown */
+        display: block !important; /* Ensure it's displayed by default */
         background-color: #1e1e1e !important;
         color: white !important;
         border: 1px solid #333 !important;
@@ -21,6 +21,8 @@ export const injectGooglePlacesStyles = () => {
         width: auto !important;
         min-width: 300px !important;
         overflow: visible !important;
+        opacity: 1 !important;
+        visibility: visible !important;
       }
       
       .pac-item {
@@ -87,21 +89,26 @@ export const fixPacContainerVisibility = () => {
     const containers = document.querySelectorAll('.pac-container');
     console.log('PAC containers found:', containers.length);
     containers.forEach(container => {
-      (container as HTMLElement).style.zIndex = '2'; // Lower z-index
+      (container as HTMLElement).style.zIndex = '10'; // Higher z-index to ensure visibility
       (container as HTMLElement).style.position = 'absolute';
-      // Don't hide by default, let it be visible when typing
+      (container as HTMLElement).style.visibility = 'visible';
+      (container as HTMLElement).style.display = 'block'; // Ensure it's visible
+      (container as HTMLElement).style.opacity = '1';
     });
     // Debug check of containers
     checkPacContainers();
   }, 100);
 };
 
-// New function to show autocomplete only when explicitly needed
+// Function to show autocomplete only when explicitly needed
 export const showAutocompleteDropdown = (show: boolean = true) => {
   setTimeout(() => {
     const containers = document.querySelectorAll('.pac-container');
+    console.log(`${show ? 'Showing' : 'Hiding'} ${containers.length} autocomplete containers`);
     containers.forEach(container => {
       (container as HTMLElement).style.display = show ? 'block' : 'none';
+      // Force reflow to ensure the display change takes effect
+      void (container as HTMLElement).offsetHeight;
     });
   }, 50);
 };

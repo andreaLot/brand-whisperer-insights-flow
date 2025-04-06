@@ -41,7 +41,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
     if (isLoaded && inputRef.current) {
       initAutocomplete(inputRef.current);
       
-      // Ensure dropdown visibility is properly set
+      // Make sure the dropdown is visible after initialization
       fixPacContainerVisibility();
     }
     
@@ -72,9 +72,13 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
     setSearchTerm(value);
     console.log('Input changed:', value);
     
-    // Show the dropdown when user is typing
-    if (isLoaded && value) {
+    // Always show the dropdown when user is typing
+    if (isLoaded) {
       showAutocompleteDropdown(true);
+      // Force reflow to ensure dropdown visibility
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
     }
     
     // For manual entries (not from autocomplete)
@@ -88,14 +92,12 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
   // Handle input focus
   const handleInputFocus = () => {
     console.log('Input focused');
-    // Show dropdown on focus if there's text
-    if (searchTerm) {
-      showAutocompleteDropdown(true);
-    }
+    // Always show dropdown on focus to ensure it's visible
+    showAutocompleteDropdown(true);
   };
 
   return (
-    <div className="relative w-full animate-fade-in z-1">
+    <div className="relative w-full animate-fade-in" style={{ zIndex: 5 }}>
       <LocationInput
         value={searchTerm}
         onChange={handleSearchTermChange}
