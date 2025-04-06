@@ -66,27 +66,9 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
     setTimeout(() => {
       setIsTyping(false);
       
-      // Generate different responses based on the message
+      // Show ratings panel with bot response
       const botMessageId = `bot-${Date.now()}`;
-      let responseText = '';
-      let panelToShow = 'ratings';
-      
-      if (text.toLowerCase().includes('profile')) {
-        responseText = `Here's the completeness analysis of your Google Business Profile:`;
-        panelToShow = 'profile';
-      } else if (text.toLowerCase().includes('competitors')) {
-        responseText = `Here's how you compare to your competitors:`;
-        panelToShow = 'competitors';
-      } else if (text.toLowerCase().includes('seo')) {
-        responseText = `Here's your SEO analysis:`;
-        panelToShow = 'seo';
-      } else if (text.toLowerCase().includes('content')) {
-        responseText = `Here's your content analysis:`;
-        panelToShow = 'content';
-      } else {
-        responseText = `Here are the current AI platform rankings for ${businessName}:`;
-        panelToShow = 'ratings';
-      }
+      const responseText = `Here are the current AI platform rankings for ${businessName}:`;
       
       // Add bot response to chat
       setChatHistory(prev => [...prev, { sender: 'bot', text: responseText, id: botMessageId }]);
@@ -94,8 +76,8 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
       // Mark the interaction as in final phase
       setIsFinalPhase(true);
       
-      // Post a message to trigger the appropriate panel
-      window.postMessage({ type: 'chatbot-selection', message: panelToShow }, '*');
+      // Post a message to trigger the ratings panel
+      window.postMessage({ type: 'chatbot-selection', message: 'ratings' }, '*');
       
       // Explicitly call onChatComplete to trigger any parent component logic
       setTimeout(() => {

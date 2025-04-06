@@ -16,13 +16,13 @@ export const usePanelSplit = (step: Step, isPanelCollapsed: boolean): PanelSplit
   // Handle split ratio based on current step
   useEffect(() => {
     const updatePanelRatio = () => {
-      if (step === 'welcome' || step === 'business-name') {
+      if (step === 'welcome') {
         // Initial 50/50 split
         setPanelSplitRatio({
           conversation: '50%',
           input: '50%'
         });
-      } else if (step === 'category-detection' || step === 'analyzing') {
+      } else if (step === 'business-name' || step === 'category-detection' || step === 'analyzing') {
         // Transition to 40/60 split over 2 seconds
         const transitionDuration = 2000; // 2 seconds
         let startTime: number;

@@ -1,75 +1,53 @@
 
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { BadgeCheck, Search, PanelLeftOpen, FileText, BarChart3 } from 'lucide-react';
+import { BarChart2, Code } from "lucide-react";
+import { WebhookService } from '@/services/WebhookService';
 
 interface QuickOptionsProps {
   showOptions: boolean;
   isFinalPhase: boolean;
-  onOptionClick: (text: string) => void;
+  onOptionClick: (message: string) => void;
   forceShow?: boolean;
 }
 
 const QuickOptions: React.FC<QuickOptionsProps> = ({ 
   showOptions, 
-  isFinalPhase,
+  isFinalPhase, 
   onOptionClick,
   forceShow = false
 }) => {
-  const shouldShow = showOptions || forceShow;
+  // Always show in chatbot step unless in final phase
+  if ((!showOptions && !forceShow) || isFinalPhase) return null;
 
-  // Options shown in the initial phase (before the ratings table is shown)
-  const initialOptions = [
-    { text: "Show me my ranking", icon: <BarChart3 className="w-4 h-4 mr-2" /> },
-    { text: "Analyze my profile", icon: <BadgeCheck className="w-4 h-4 mr-2" /> },
-  ];
-
-  // Options shown in the final phase (after the ratings table is shown)
-  const finalOptions = [
-    { text: "Show rankings", icon: <BarChart3 className="w-4 h-4 mr-2" />, action: "ratings" },
-    { text: "Profile completeness", icon: <BadgeCheck className="w-4 h-4 mr-2" />, action: "profile" },
-    { text: "Competitors", icon: <PanelLeftOpen className="w-4 h-4 mr-2" />, action: "competitors" },
-    { text: "SEO", icon: <Search className="w-4 h-4 mr-2" />, action: "seo" },
-    { text: "Content", icon: <FileText className="w-4 h-4 mr-2" />, action: "content" },
-  ];
-
-  const options = isFinalPhase ? finalOptions : initialOptions;
-
-  const handleClick = (option: any) => {
-    // First dispatch a message to show the appropriate panel
-    if (isFinalPhase && option.action) {
-      window.postMessage({ type: 'chatbot-selection', message: option.action }, '*');
-    }
+  const handleRatingsClick = () => {
+    // Post message first to ensure panel shows immediately
+    window.postMessage({ type: 'chatbot-selection', message: 'ratings' }, '*');
     
-    // Then call the onOptionClick handler for managing chat messages
-    onOptionClick(option.text);
+    // Then trigger the analysis by sending the message
+    onOptionClick("Show me the current AI platform rankings");
   };
 
   return (
-    <AnimatePresence>
-      {shouldShow && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 10 }}
-          transition={{ duration: 0.2 }}
-          className="flex flex-wrap gap-2 mt-4"
-        >
-          {options.map((option, index) => (
-            <Button 
-              key={index}
-              variant="outline"
-              className="flex items-center border-brand-gray-light bg-brand-black/40 hover:bg-brand-blue/10"
-              onClick={() => handleClick(option)}
-            >
-              {option.icon}
-              {option.text}
-            </Button>
-          ))}
-        </motion.div>
-      )}
-    </AnimatePresence>
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      transition={{ duration: 0.4 }}
+      className="flex flex-wrap gap-2 justify-center"
+    >
+      <Button
+        variant="outline"
+        size="lg"
+        className="text-base bg-violet-500/30 border-violet-400 text-violet-100 hover:bg-violet-500/40 px-6 py-2 flex items-center gap-2"
+        onClick={handleRatingsClick}
+        data-testid="view-ratings-button"
+      >
+        <BarChart2 size={18} className="text-violet-300" />
+        View AI Platform Rankings
+      </Button>
+    </motion.div>
   );
 };
 

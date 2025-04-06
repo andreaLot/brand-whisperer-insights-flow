@@ -1,4 +1,3 @@
-
 import { WebhookResponse } from '../types';
 import { normalizeModelToPlatform } from './platformUtils';
 import { processMultiplePlatformResponse } from './responseProcessor';
@@ -157,6 +156,7 @@ async function tryFetchWebhook(webhookUrl: string, businessData: any): Promise<W
             }],
             estimatedRank,
             model,
+            platform,
             status: "success",
             message: content || "Analysis complete",
             timestamp: new Date().toISOString()
@@ -198,6 +198,7 @@ async function tryFetchWebhook(webhookUrl: string, businessData: any): Promise<W
               }],
               estimatedRank,
               model: "OpenAI",
+              platform: "OpenAI",
               status: "success",
               message: rankText,
               timestamp: new Date().toISOString()
