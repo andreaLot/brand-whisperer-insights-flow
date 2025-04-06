@@ -7,6 +7,7 @@ import { simulatePlatformResponses } from './simulationService';
 
 export const WebhookService = {
   normalizeModelToPlatform,
+  lastReceivedResponse: null as any,
   
   sendWebhookData: async (businessData: any): Promise<WebhookResponse | null> => {
     const webhookUrl = "https://uberall.app.n8n.cloud/webhook-test/analyze-business-ranking";
@@ -36,9 +37,36 @@ export const WebhookService = {
           console.log("🔍 [WebhookService] Raw webhook response received:", 
                       JSON.stringify(rawResponseData, null, 2));
           
+          // Save the last received response for debugging
+          WebhookService.lastReceivedResponse = rawResponseData;
+          console.log("💾 [WebhookService] Saved raw response for debugging access");
+          
+          // Log response to console in formatted way
+          console.log("📊 [WebhookService] N8N Response Summary:");
+          console.log("--------------------------------------------------");
+          
           // Handle array of results (multiple platforms)
           if (Array.isArray(rawResponseData)) {
             console.log(`🔍 [WebhookService] Detected array response with ${rawResponseData.length} platform results`);
+            
+            rawResponseData.forEach((item, index) => {
+              const platform = item.model ? normalizeModelToPlatform(item.model) : 'Unknown Platform';
+              console.log(`📌 Platform ${index + 1}: ${platform} (${item.model || 'unknown model'})`);
+              
+              if (item.choices && item.choices.length > 0) {
+                const content = item.choices[0].message?.content;
+                console.log(`   Content: ${content}`);
+                
+                const rankMatch = content?.match(/Estimated Rank:\s*(\d+)/i);
+                if (rankMatch && rankMatch[1]) {
+                  console.log(`   Rank: ${rankMatch[1]}`);
+                }
+              } else if (item.estimatedRank) {
+                console.log(`   Rank: ${item.estimatedRank}`);
+              }
+            });
+            
+            console.log("--------------------------------------------------");
             return processMultiplePlatformResponse(rawResponseData);
           }
           
@@ -48,6 +76,8 @@ export const WebhookService = {
             const model = rawResponseData.model;
             
             console.log(`🔍 [WebhookService] Detected OpenAI response format with model: ${model}`);
+            console.log(`📌 Platform: ${normalizeModelToPlatform(model)} (${model})`);
+            console.log(`   Content: ${content}`);
             
             // Extract rank from content (e.g. "Estimated Rank: 3")
             let estimatedRank: number | undefined;
@@ -55,9 +85,10 @@ export const WebhookService = {
               const rankMatch = content.match(/Estimated Rank:\s*(\d+)/i);
               if (rankMatch && rankMatch[1]) {
                 estimatedRank = parseInt(rankMatch[1], 10);
-                console.log(`🔍 [WebhookService] Extracted rank from content: ${estimatedRank}`);
+                console.log(`   Rank: ${estimatedRank}`);
               }
             }
+            console.log("--------------------------------------------------");
             
             // Normalize the model to platform
             const platform = normalizeModelToPlatform(model);
@@ -115,5 +146,10 @@ export const WebhookService = {
       // Try alternative approaches
       return await sendWithNoCors(businessData, webhookUrl);
     }
+  },
+  
+  // Method to retrieve the last received response
+  getLastReceivedResponse: () => {
+    return WebhookService.lastReceivedResponse;
   }
 };
