@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 const ScoreLegend: React.FC = () => {
   return (
     <motion.div 
-      className="mt-4 flex justify-center gap-4 text-xs text-gray-400"
+      className="mt-4 flex justify-center gap-4 text-xs text-white"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.7 }}

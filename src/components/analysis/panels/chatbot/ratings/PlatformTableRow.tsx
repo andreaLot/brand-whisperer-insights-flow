@@ -37,7 +37,7 @@ const PlatformTableRow: React.FC<PlatformTableRowProps> = ({
             duration: 0.6
           }}
         >
-          <TableCell className="font-mono text-sm text-gray-400">
+          <TableCell className="font-mono text-sm text-white">
             {index + 1}
           </TableCell>
           <TableCell>
@@ -50,7 +50,7 @@ const PlatformTableRow: React.FC<PlatformTableRowProps> = ({
               <div className="p-1 rounded-full bg-gray-800/50 flex items-center justify-center">
                 <PlatformIcon platform={result.platform || result.model} />
               </div>
-              <span className="font-medium">{result.platform || result.model || `Platform ${index + 1}`}</span>
+              <span className="font-medium text-white">{result.platform || result.model || `Platform ${index + 1}`}</span>
             </motion.div>
           </TableCell>
           <TableCell className="text-right font-mono">

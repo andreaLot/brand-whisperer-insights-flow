@@ -24,7 +24,7 @@ const ScoreDisplay: React.FC<ScoreDisplayProps> = ({ score }) => {
       transition={{ delay: 0.3, duration: 0.5 }}
     >
       <span className="text-lg">{score}</span>
-      <span className="text-xs text-gray-400">/100</span>
+      <span className="text-xs text-white">/100</span>
       
       {score >= 90 && (
         <motion.div

@@ -79,7 +79,7 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
                   >
-                    <CardTitle className="text-lg font-medium flex items-center gap-2">
+                    <CardTitle className="text-lg font-medium flex items-center gap-2 text-white">
                       <BarChart2 size={18} className="text-violet-400" />
                       AI Platform Ratings
                     </CardTitle>
@@ -94,10 +94,10 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
                 <Table>
                   <TableHeader className="bg-gray-900/50">
                     <TableRow>
-                      <TableHead className="w-[40px]">#</TableHead>
-                      <TableHead>Platform</TableHead>
-                      <TableHead className="text-right">Score</TableHead>
-                      <TableHead className="text-right">Rank</TableHead>
+                      <TableHead className="w-[40px] text-white">#</TableHead>
+                      <TableHead className="text-white">Platform</TableHead>
+                      <TableHead className="text-right text-white">Score</TableHead>
+                      <TableHead className="text-right text-white">Rank</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
