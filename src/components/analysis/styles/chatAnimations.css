@@ -1,0 +1,25 @@
+
+/* Typing indicator dots animation */
+.typing-dot {
+  @apply w-2 h-2 bg-gray-400 rounded-full inline-block;
+  animation: blink 1.4s infinite both;
+}
+
+.typing-dot.animation-delay-200 {
+  animation-delay: 0.2s;
+}
+
+.typing-dot.animation-delay-400 {
+  animation-delay: 0.4s;
+}
+
+@keyframes blink {
+  0%, 100% {
+    transform: scale(0.7);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
