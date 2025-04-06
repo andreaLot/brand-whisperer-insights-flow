@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Table, TableHeader, TableRow, TableHead, TableBody } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart2, AlertTriangle } from "lucide-react";
+import { BarChart2, AlertTriangle, ArrowDown } from "lucide-react";
 import PlatformTableRow from './PlatformTableRow';
 import ScoreLegend from './ScoreLegend';
 import TableFooter from './TableFooter';
@@ -31,9 +31,8 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
   // Important: Make sure we have an array, even if empty
   const results = Array.isArray(platformResults) ? platformResults : [];
   
-  // Reset animation states when platform results change
   useEffect(() => {
-    console.log("RatingsTable received updated platformResults:", results);
+    console.log("RatingsTable received platformResults:", results);
     
     // Reset animation states
     setVisibleRows([]);
@@ -47,14 +46,13 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
       startAnimations(results);
     }, 100);
     
-    // Mark as no longer loading if we have results or after 5 seconds
+    // Mark as no longer loading after 3 seconds or if we have results
     if (results.length > 0) {
       setIsLoading(false);
     } else {
-      // If no results yet, set a timeout to stop showing the loading state after 5 seconds
       const loadingTimeout = setTimeout(() => {
         setIsLoading(false);
-      }, 5000);
+      }, 3000);
       
       return () => clearTimeout(loadingTimeout);
     }
@@ -87,14 +85,11 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
 
   // Sort results properly by rank
   const sortedResults = [...results].sort((a, b) => {
-    // If both have ranks, sort by rank
     if (a.rank !== undefined && b.rank !== undefined) {
       return a.rank - b.rank;
     }
-    // If only one has a rank, prioritize the one with rank
     if (a.rank !== undefined) return -1;
     if (b.rank !== undefined) return 1;
-    // If neither has a rank, sort by score
     return b.score - a.score;
   });
 
@@ -141,7 +136,7 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
                     <TableBody>
                       {sortedResults.map((result, index) => (
                         <PlatformTableRow 
-                          key={index}
+                          key={`platform-${index}-${result.platform}`}
                           result={result}
                           index={index}
                           isVisible={visibleRows.includes(index)}
@@ -169,13 +164,15 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
                     </motion.div>
                     {isLoading ? (
                       <>
-                        <p className="text-gray-300">Fetching AI platform rankings...</p>
+                        <p className="text-gray-300">Retrieving AI platform rankings...</p>
                         <p className="text-gray-400 text-sm mt-1">Results will appear shortly.</p>
                       </>
                     ) : (
                       <>
                         <p className="text-gray-300">No ranking data available</p>
-                        <p className="text-gray-400 text-sm mt-1">Try running the analysis again to retrieve AI platform rankings.</p>
+                        <p className="text-gray-400 text-sm mt-1 flex items-center justify-center gap-1">
+                          <ArrowDown size={14} className="text-amber-400" /> Try running the analysis again to retrieve AI platform rankings
+                        </p>
                       </>
                     )}
                   </div>

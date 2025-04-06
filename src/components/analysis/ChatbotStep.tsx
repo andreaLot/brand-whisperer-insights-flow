@@ -76,8 +76,8 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
       // Mark the interaction as in final phase
       setIsFinalPhase(true);
       
-      // IMPORTANT: We're commenting this out to prevent the panel from disappearing
-      // onChatComplete();
+      // Post a message to trigger the ratings panel
+      window.postMessage({ type: 'chatbot-selection', message: 'ratings' }, '*');
     }, 800);
   };
   
@@ -87,7 +87,7 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
       // Explicitly trigger the ratings panel to appear
       window.postMessage({ type: 'chatbot-selection', message: 'ratings' }, '*');
     }
-  }, [isFinalPhase]); // Only depend on isFinalPhase
+  }, [isFinalPhase]);
 
   return (
     <div className="flex flex-col space-y-4 w-full">

@@ -21,7 +21,9 @@ const ChatbotContent: React.FC<ChatbotContentProps> = ({
   useEffect(() => {
     console.log("ChatbotContent visibleSnippet:", visibleSnippet);
     console.log("ChatbotContent analysisResult:", analysisResult);
-    console.log("Platform results from analysisResult:", analysisResult?.platformResults);
+    if (analysisResult?.platformResults) {
+      console.log("Platform results from analysisResult:", JSON.stringify(analysisResult.platformResults));
+    }
   }, [visibleSnippet, analysisResult]);
 
   // Animation variants for content transition
@@ -131,8 +133,10 @@ const ChatbotContent: React.FC<ChatbotContentProps> = ({
   }
 
   if (visibleSnippet === 'ratings') {
-    console.log("Rendering ratings table with data:", analysisResult?.platformResults || []);
-    // Always ensure we have platformResults, even if they're default ones
+    console.log("Rendering ratings table with platform results:", 
+      analysisResult?.platformResults || []);
+    
+    // Always ensure we have platformResults, even if they're empty
     const platformResults = analysisResult?.platformResults || [];
     const businessName = analysisResult?.businessName || apifyBusinessResult?.name || "Your Business";
     

@@ -20,9 +20,10 @@ const QuickOptions: React.FC<QuickOptionsProps> = ({
   if ((!showOptions && !forceShow) || isFinalPhase) return null;
 
   const handleRatingsClick = () => {
-    // Immediately post the message to show ratings panel before sending the message
+    // Post message first to ensure panel shows immediately
     window.postMessage({ type: 'chatbot-selection', message: 'ratings' }, '*');
-    // Then send the user message
+    
+    // Then trigger the analysis by sending the message
     onOptionClick("Show me the current AI platform rankings");
   };
 

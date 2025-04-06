@@ -52,7 +52,7 @@ const PlatformTableRow: React.FC<PlatformTableRowProps> = ({
               </div>
               <div className="flex flex-col">
                 <span className="font-medium text-white">{result.platform || result.model || `AI Platform ${index + 1}`}</span>
-                {result.model && result.platform !== result.model && (
+                {result.model && result.platform && result.platform !== result.model && (
                   <span className="text-xs text-gray-400">{result.model}</span>
                 )}
               </div>

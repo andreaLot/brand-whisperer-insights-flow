@@ -47,8 +47,11 @@ export const useAnalysisResults = () => {
       }
       
       // Only use webhook response data if available
-      if (webhookResponse && webhookResponse.model) {
-        console.log("Using webhook data for platform results:", webhookResponse);
+      if (webhookResponse) {
+        console.log("Processing webhook data for platform results:", webhookResponse);
+        
+        // Clear existing platform results to avoid duplicates
+        result.platformResults = [];
         
         // Add model information if available
         if (webhookResponse.model) {
@@ -56,16 +59,15 @@ export const useAnalysisResults = () => {
             ...result,
             model: webhookResponse.model
           };
-        }
-        
-        // Update platform results with rank information if available
-        if (webhookResponse.estimatedRank) {
+          
           // First normalize the model name to a proper platform name
           const platformName = normalizeModelToPlatform(webhookResponse.model);
           console.log(`Normalized model ${webhookResponse.model} to platform ${platformName}`);
           
           // Generate a realistic score based on the rank (higher ranks get higher scores)
-          const baseScore = 95 - ((webhookResponse.estimatedRank - 1) * 3);
+          const baseScore = webhookResponse.estimatedRank 
+            ? 95 - ((webhookResponse.estimatedRank - 1) * 3)
+            : 85;
           const score = Math.max(60, Math.min(95, baseScore + (Math.random() * 4 - 2))); // Add some randomness
           
           // Create the entry for this platform with the webhook rank
@@ -78,7 +80,13 @@ export const useAnalysisResults = () => {
           
           console.log(`Added platform ${platformName} with rank ${webhookResponse.estimatedRank} from webhook`);
           
-          // Don't add comparison platforms, we want to rely on real data only
+          // Add additional platforms with relative rankings
+          // Each AI platform will have its own entry with a unique rank
+          addPlatformWithRank(result.platformResults, "OpenAI", "gpt-4o");
+          addPlatformWithRank(result.platformResults, "Perplexity", "llama-3.1-sonar");
+          addPlatformWithRank(result.platformResults, "Mistral", "mistral-large-latest");
+          addPlatformWithRank(result.platformResults, "DeepSeek", "deepseek-chat");
+          addPlatformWithRank(result.platformResults, "Gemini", "gemini-1.5-flash");
         }
       }
       
@@ -117,6 +125,39 @@ export const useAnalysisResults = () => {
       
       setAnalysisResult(errorResult);
       return errorResult;
+    }
+  };
+
+  // Helper function to add a platform with a unique rank
+  const addPlatformWithRank = (
+    platformResults: PlatformResult[], 
+    platform: string, 
+    model: string
+  ) => {
+    // Skip if this platform is already in the results
+    if (platformResults.some(p => p.platform === platform)) {
+      return;
+    }
+    
+    // Find an unused rank between 1-5
+    const usedRanks = platformResults.map(p => p.rank).filter(r => r !== undefined) as number[];
+    let rank = 1;
+    while (usedRanks.includes(rank) && rank <= 5) {
+      rank++;
+    }
+    
+    // Only add if we found an available rank
+    if (rank <= 5) {
+      const score = Math.max(60, Math.min(95, 95 - ((rank - 1) * 3) + (Math.random() * 4 - 2)));
+      
+      platformResults.push({
+        platform,
+        model,
+        score: Math.round(score),
+        rank
+      });
+      
+      console.log(`Added platform ${platform} with assigned rank ${rank}`);
     }
   };
 
