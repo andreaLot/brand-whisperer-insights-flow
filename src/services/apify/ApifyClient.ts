@@ -26,7 +26,9 @@ export class ApifyClient {
     });
     
     if (!response.ok) {
-      throw new Error(`Apify API request failed with status ${response.status}`);
+      const errorData = await response.json();
+      console.error("Apify API error:", errorData);
+      throw new Error(`Apify API request failed: ${errorData.error?.message || response.status}`);
     }
     
     return await response.json();
@@ -39,7 +41,9 @@ export class ApifyClient {
     const response = await fetch(`https://api.apify.com/v2/acts/compass~crawler-google-places/runs/${runId}?token=${this.apiToken}`);
     
     if (!response.ok) {
-      throw new Error(`Status check failed with status ${response.status}`);
+      const errorData = await response.json();
+      console.error("Apify status check error:", errorData);
+      throw new Error(`Status check failed: ${errorData.error?.message || response.status}`);
     }
     
     return await response.json();
@@ -52,7 +56,9 @@ export class ApifyClient {
     const response = await fetch(`https://api.apify.com/v2/datasets/${datasetId}/items?token=${this.apiToken}`);
     
     if (!response.ok) {
-      throw new Error(`Items fetch failed with status ${response.status}`);
+      const errorData = await response.json();
+      console.error("Apify dataset fetch error:", errorData);
+      throw new Error(`Items fetch failed: ${errorData.error?.message || response.status}`);
     }
     
     return await response.json();

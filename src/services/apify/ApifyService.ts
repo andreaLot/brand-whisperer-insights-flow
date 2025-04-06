@@ -23,8 +23,12 @@ export class ApifyService {
     console.log(`Fetching business data from Apify for: ${businessName} in ${location}`);
     
     try {
+      // Construct a very specific search to find exactly the business the user is looking for
+      const exactBusinessSearch = businessName.trim() + " " + location.trim();
+      console.log("Search query:", exactBusinessSearch);
+      
       const config: ApifyConfig = {
-        searchString: `${businessName} ${location}`,
+        searchString: exactBusinessSearch,
         maxPlaces: 1, // Only fetch the main business
         language: "en",
         maxCrawledPlaces: 1,
@@ -32,13 +36,14 @@ export class ApifyService {
         includeImages: true,
         includePopularTimes: false,
         exportPlaceUrls: false,
-        reviewsSort: "newest_first", // Sort by newest first to help with filtering
+        reviewsSort: "newest", // Using "newest" instead of "newest_first" to match API requirements
         reviewsFilterDateFrom: "2025-01-01", // Only collect reviews from 2025 onwards
       };
       
       // Start the Apify run
       const runData = await this.client.startGooglePlacesCrawl(config);
       const runId = runData.data.id;
+      console.log("Apify run started with ID:", runId);
       
       // Poll until the run completes
       const result = await this.pollApifyRunStatus(runId);
@@ -50,6 +55,7 @@ export class ApifyService {
       
       // Process the first (and only) result
       const place = result.items[0];
+      console.log("Place found:", place.name);
       return this.processor.processBusinessResult(place);
     } catch (error) {
       console.error("Error fetching from Apify:", error);
@@ -61,7 +67,7 @@ export class ApifyService {
    * Polls the Apify run status until it completes or fails
    */
   async pollApifyRunStatus(runId: string): Promise<any> {
-    const maxAttempts = 10;
+    const maxAttempts = 15; // Increase max attempts for slower runs
     const pollingInterval = 5000; // 5 seconds
     
     for (let attempt = 0; attempt < maxAttempts; attempt++) {

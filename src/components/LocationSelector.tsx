@@ -58,6 +58,9 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
       const locationText = selectedPlace.address || selectedPlace.name || '';
       if (locationText) {
         setSearchTerm(locationText);
+        
+        // When we have a selected place, pass it to the parent but don't pass apifyResult yet
+        // This will trigger the location selection without waiting for Apify results
         onSelect(locationText, selectedPlace, null);
       }
     }
@@ -68,6 +71,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
     if (selectedPlace && apifyBusinessResult) {
       const locationText = selectedPlace.address || selectedPlace.name || '';
       if (locationText) {
+        // When Apify results are available, pass them along with the selected place
         onSelect(locationText, selectedPlace, apifyBusinessResult);
       }
     }
