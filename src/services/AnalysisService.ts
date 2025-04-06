@@ -2,7 +2,7 @@
 import { CategoryService } from './CategoryService';
 import { BrandService } from './BrandService';
 import { WebhookService } from './WebhookService';
-import { ApifyService } from './ApifyService';
+import { apifyService } from './apify/ApifyService';
 
 // Re-export all types
 export type {
@@ -20,7 +20,6 @@ export const AnalysisService = {
   detectCategory: CategoryService.detectCategory,
   analyzeBrand: BrandService.analyzeBrand,
   sendWebhookData: WebhookService.sendWebhookData,
-  fetchBusinessFromApify: ApifyService.fetchBusinessFromApify,
-  fetchCategoryFromApify: ApifyService.fetchCategoryFromApify,
-  pollApifyRunStatus: ApifyService.pollApifyRunStatus
+  fetchBusinessFromApify: apifyService.fetchBusinessFromApify.bind(apifyService),
+  pollApifyRunStatus: apifyService.pollApifyRunStatus.bind(apifyService)
 };
