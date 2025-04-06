@@ -1,10 +1,9 @@
-
 import { WebhookResponse } from '../types';
 import { normalizeModelToPlatform } from './platformUtils';
 import { processMultiplePlatformResponse } from './responseProcessor';
 import { sendWithNoCors } from './fallbackService';
 import { simulatePlatformResponses } from './simulationService';
-import { getPerplexityRanking } from './perplexityService';
+import { PlatformServicesManager } from './platformServicesManager';
 
 // Define webhook URLs as string type without literal types
 const PRIMARY_WEBHOOK_URL = "https://uberall.app.n8n.cloud/webhook-test/analyze-business-ranking" as string;
@@ -17,32 +16,19 @@ export const WebhookService = {
   normalizeModelToPlatform,
   
   sendWebhookData: async (businessData: any): Promise<WebhookResponse | null> => {
-    // If direct API integration is enabled, try Perplexity API first
+    // If direct API integration is enabled, use all platforms
     if (USE_DIRECT_API) {
-      console.log("🔍 [WebhookService] Using direct API integration");
-      const perplexityResponse = await getPerplexityRanking(businessData);
+      console.log("🔍 [WebhookService] Using direct API integrations");
       
-      if (perplexityResponse) {
-        console.log("✅ [WebhookService] Direct Perplexity API call successful");
-        
-        // Add simulated results for other platforms
-        const simulatedResponse = await simulatePlatformResponses(businessData);
-        
-        // Remove Perplexity from simulated results to avoid duplication
-        const otherPlatforms = simulatedResponse.platforms?.filter(
-          p => p.platform !== "Perplexity" && p.platform !== "perplexity"
-        ) || [];
-        
-        // Combine real Perplexity results with simulated results for other platforms
-        return {
-          platforms: [...perplexityResponse.platforms || [], ...otherPlatforms],
-          status: "success",
-          message: "Combined direct API and simulated results",
-          timestamp: new Date().toISOString()
-        };
+      // Get rankings from all available platforms
+      const platformResponse = await PlatformServicesManager.getAllPlatformRankings(businessData);
+      
+      if (platformResponse && platformResponse.platforms && platformResponse.platforms.length > 0) {
+        console.log(`✅ [WebhookService] Direct API calls successful for ${platformResponse.platforms.length} platforms`);
+        return platformResponse;
       }
       
-      console.log("⚠️ [WebhookService] Direct API call failed, falling back to webhook");
+      console.log("⚠️ [WebhookService] Direct API calls failed, falling back to webhook");
     }
     
     // If direct API call fails or is disabled, continue with webhook approach
