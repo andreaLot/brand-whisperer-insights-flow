@@ -12,6 +12,12 @@ export interface ApifyConfig {
   exportPlaceUrls: boolean;
   reviewsSort?: string;
   reviewsFilterDateFrom?: string;
+  // Added new parameters for review filtering
+  scrapeReviewsSort?: string;
+  scrapeReviewsFilterByDateMin?: string;
+  scrapeReviewsFilterByDateMax?: string;
+  scrapeReviewsFilterByRating?: string;
+  scrapeReviewsFilterByLanguage?: string;
   // Additional fields from the payload
   searchMatching?: string;
   placeMinimumStars?: string;

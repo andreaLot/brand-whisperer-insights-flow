@@ -1,3 +1,4 @@
+
 import { ApifyClient } from './ApifyClient';
 import { ApifyDataProcessor } from './ApifyDataProcessor';
 import { ApifyConfig } from './types';
@@ -45,6 +46,11 @@ export class ApifyService {
         scrapeDirectories: false,
         scrapeContacts: false,
         reviewsSort: "newest", // Using "newest" instead of "newest_first" to match API requirements
+        scrapeReviewsSort: "newest", // Added new parameter
+        scrapeReviewsFilterByDateMin: "2024-01-01", // Added new parameter 
+        scrapeReviewsFilterByDateMax: "", // Added new parameter
+        scrapeReviewsFilterByRating: "", // Added new parameter
+        scrapeReviewsFilterByLanguage: "", // Added new parameter
         reviewsFilterString: "",
         reviewsOrigin: "all",
         scrapeReviewsPersonalData: true,

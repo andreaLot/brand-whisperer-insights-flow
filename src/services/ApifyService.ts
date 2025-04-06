@@ -1,3 +1,4 @@
+
 import { ApifyBusinessResult } from './types';
 
 export const ApifyService = {
@@ -28,7 +29,12 @@ export const ApifyService = {
           includeWebResults: false,
           scrapeDirectories: false,
           scrapeContacts: false,
-          reviewsSort: "newest_first", // Sort by newest first to help with filtering
+          reviewsSort: "newest_first", // This was already correct for this implementation
+          scrapeReviewsSort: "newest", // Added new parameter
+          scrapeReviewsFilterByDateMin: "2024-01-01", // Added new parameter
+          scrapeReviewsFilterByDateMax: "", // Added new parameter
+          scrapeReviewsFilterByRating: "", // Added new parameter
+          scrapeReviewsFilterByLanguage: "", // Added new parameter
           reviewsFilterString: "",
           reviewsOrigin: "all",
           scrapeReviewsPersonalData: true,
