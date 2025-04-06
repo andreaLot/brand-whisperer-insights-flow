@@ -3,7 +3,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Search, MessageSquare, BarChart2, Shield, Sparkles } from "lucide-react";
+import { Search, MessageSquare, BarChart2, Shield, Sparkles, Star } from "lucide-react";
 
 interface PlatformResult {
   platform?: string;
@@ -49,6 +49,14 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
     return "text-orange-500";
   };
   
+  // Get badge class based on rank
+  const getRankBadgeClass = (rank: number) => {
+    if (rank === 1) return "bg-amber-500/30 text-amber-200 ring-1 ring-amber-500/30";
+    if (rank === 2) return "bg-slate-400/30 text-slate-200 ring-1 ring-slate-400/30";
+    if (rank === 3) return "bg-amber-700/30 text-amber-300/80 ring-1 ring-amber-700/30";
+    return "bg-violet-500/20 text-violet-300 ring-1 ring-violet-500/20";
+  };
+  
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -74,7 +82,7 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
 
   return (
     <div className="space-y-6">
-      <Card className="border-violet-500/20 bg-violet-900/10 backdrop-blur-sm">
+      <Card className="border-violet-500/20 bg-violet-900/10 backdrop-blur-sm shadow-lg shadow-violet-900/10">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg font-medium flex items-center gap-2">
             <BarChart2 size={18} className="text-violet-400" />
@@ -101,33 +109,75 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
               </TableHeader>
               <TableBody>
                 {results.sort((a, b) => (a.rank || 999) - (b.rank || 999)).map((result, index) => (
-                  <TableRow key={index} className="border-b border-gray-800">
-                    <motion.td
-                      className="font-mono text-sm text-gray-400"
-                      variants={itemVariants}
-                    >
+                  <motion.tr
+                    key={index}
+                    className="border-b border-gray-800 hover:bg-violet-950/10 transition-colors"
+                    variants={itemVariants}
+                  >
+                    <TableCell className="font-mono text-sm text-gray-400">
                       {index + 1}
-                    </motion.td>
-                    <motion.td variants={itemVariants}>
+                    </TableCell>
+                    <TableCell>
                       <div className="flex items-center gap-2">
-                        {getPlatformIcon(result.platform || result.model)}
-                        <span>{result.platform || result.model || `Platform ${index + 1}`}</span>
+                        <div className="p-1 rounded-full bg-gray-800/50 flex items-center justify-center">
+                          {getPlatformIcon(result.platform || result.model)}
+                        </div>
+                        <span className="font-medium">{result.platform || result.model || `Platform ${index + 1}`}</span>
                       </div>
-                    </motion.td>
-                    <motion.td className={`text-right ${getScoreColorClass(result.score)}`} variants={itemVariants}>
-                      {result.score}/100
-                    </motion.td>
-                    <motion.td className="text-right font-medium" variants={itemVariants}>
+                    </TableCell>
+                    <TableCell className={`text-right font-mono ${getScoreColorClass(result.score)}`}>
+                      <div className="inline-flex items-center gap-1">
+                        <span className="text-lg">{result.score}</span>
+                        <span className="text-xs text-gray-400">/100</span>
+                        
+                        {result.score >= 90 && (
+                          <motion.div
+                            initial={{ rotate: -20, scale: 0 }}
+                            animate={{ rotate: 0, scale: 1 }}
+                            transition={{ delay: 0.3 + (index * 0.1), type: "spring", stiffness: 400 }}
+                          >
+                            <Star size={14} className="text-amber-400 fill-amber-400 ml-1" />
+                          </motion.div>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right font-medium">
                       {result.rank ? (
-                        <span className="px-2 py-1 bg-violet-500/20 rounded text-violet-300 text-xs">
+                        <motion.span 
+                          className={`px-2.5 py-1 rounded-full text-xs ${getRankBadgeClass(result.rank)}`}
+                          initial={{ scale: 0.8 }}
+                          animate={{ scale: 1 }}
+                          transition={{ delay: 0.2 + (index * 0.1), type: "spring" }}
+                        >
                           #{result.rank}
-                        </span>
+                        </motion.span>
                       ) : '-'}
-                    </motion.td>
-                  </TableRow>
+                    </TableCell>
+                  </motion.tr>
                 ))}
               </TableBody>
             </Table>
+          </motion.div>
+          
+          {/* Score legend */}
+          <motion.div 
+            className="mt-4 flex justify-center gap-4 text-xs text-gray-400"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8 }}
+          >
+            <div className="flex items-center gap-1">
+              <div className="w-2 h-2 rounded-full bg-emerald-400"></div>
+              <span>Excellent (90+)</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="w-2 h-2 rounded-full bg-green-400"></div>
+              <span>Good (80-89)</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="w-2 h-2 rounded-full bg-yellow-400"></div>
+              <span>Average (60-79)</span>
+            </div>
           </motion.div>
         </CardContent>
       </Card>
@@ -138,7 +188,8 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
         transition={{ delay: 0.5, duration: 0.5 }}
         className="text-center text-sm text-gray-400"
       >
-        Analysis for {businessName} across major AI platforms. Higher scores indicate better visibility and representation.
+        Analysis for <span className="text-white font-medium">{businessName}</span> across major AI platforms. 
+        <br />Higher scores indicate better visibility and representation in AI responses.
       </motion.div>
     </div>
   );

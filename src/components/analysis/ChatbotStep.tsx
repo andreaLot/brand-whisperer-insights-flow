@@ -24,7 +24,7 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
   const [isTyping, setIsTyping] = useState(false);
   const [isFinalPhase, setIsFinalPhase] = useState(false);
   const [isPanelVisible, setIsPanelVisible] = useState(false);
-  const [introStep, setIntroStep] = useState(0);
+  const [introComplete, setIntroComplete] = useState(false);
   
   const introBubbles = [
     `Hello! I'm analyzing "${businessName}" as a ${primaryCategory || 'business'} in ${location || 'your area'}.`,
@@ -32,27 +32,39 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
     "Would you like to see your current ratings from top AI assistants?",
   ];
   
-  // Add intro bubbles in sequence
+  // Add intro bubbles in sequence - but only once
   useEffect(() => {
-    if (introStep < introBubbles.length) {
-      setIsTyping(true);
+    if (chatHistory.length === 0 && !introComplete) {
+      let delay = 0;
       
-      const timer = setTimeout(() => {
-        setChatHistory(prev => [...prev, { sender: 'bot', text: introBubbles[introStep] }]);
-        setIsTyping(false);
+      introBubbles.forEach((bubble, index) => {
+        delay += 1500 + (index * 300);
         
-        // Show options button after last message
-        if (introStep === introBubbles.length - 1) {
-          setTimeout(() => setShowOptions(true), 500);
-        } else {
-          // Schedule next message
-          setTimeout(() => setIntroStep(introStep + 1), 500);
-        }
-      }, 1500 + (introStep * 300));
+        setTimeout(() => {
+          setChatHistory(prev => [...prev, { sender: 'bot', text: bubble }]);
+          
+          // After the last message is shown, show options and mark intro as complete
+          if (index === introBubbles.length - 1) {
+            setTimeout(() => {
+              setShowOptions(true);
+              setIntroComplete(true);
+            }, 500);
+          }
+        }, delay);
+      });
       
-      return () => clearTimeout(timer);
+      // Set typing indicators between messages
+      introBubbles.forEach((_, index) => {
+        if (index < introBubbles.length) {
+          const typingStartTime = index === 0 ? 0 : 1500 + ((index - 1) * 300);
+          const typingEndTime = 1500 + (index * 300);
+          
+          setTimeout(() => setIsTyping(true), typingStartTime);
+          setTimeout(() => setIsTyping(false), typingEndTime);
+        }
+      });
     }
-  }, [introStep, introBubbles, businessName, primaryCategory, location]);
+  }, [chatHistory.length, introBubbles, businessName, primaryCategory, location, introComplete]);
   
   const sendMessage = (text: string) => {
     // Add user message to chat
@@ -142,7 +154,7 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
       </div>
       
       {/* Quick option buttons */}
-      {showOptions && (
+      {showOptions && !isFinalPhase && (
         <div className="flex flex-wrap gap-2">
           <Button
             variant="outline"
