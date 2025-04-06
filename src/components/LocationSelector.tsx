@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useGooglePlaces, PlaceSelectionResult } from '@/hooks/useGooglePlaces';
-import { injectGooglePlacesStyles, fixPacContainerVisibility, showAutocompleteDropdown } from '@/utils/googlePlacesStyles';
+import { injectGooglePlacesStyles, fixPacContainerVisibility, showAutocompleteDropdown, hideAutocompleteDropdown } from '@/utils/googlePlacesStyles';
 import LocationInput from '@/components/LocationInput';
 import StatusMessage from '@/components/StatusMessage';
 
@@ -55,7 +56,8 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
         
         onSelect(locationText, selectedPlace);
         
-        showAutocompleteDropdown(false);
+        // Hide the dropdown after selection with a reduced z-index
+        hideAutocompleteDropdown();
       }
     }
   }, [selectedPlace, onSelect]);
@@ -73,7 +75,8 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
     
     if (value.includes(',') && !selectedPlace) {
       onSelect(value);
-      showAutocompleteDropdown(false);
+      // Hide dropdown for manual entries with commas
+      hideAutocompleteDropdown();
     }
   };
 
@@ -83,7 +86,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
   };
 
   return (
-    <div className="relative w-full animate-fade-in" style={{ zIndex: 1000 }}>
+    <div className="relative w-full animate-fade-in" style={{ zIndex: 1 }}>
       <LocationInput
         value={searchTerm}
         onChange={handleSearchTermChange}

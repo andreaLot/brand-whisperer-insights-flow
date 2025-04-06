@@ -1,4 +1,3 @@
-
 // Custom CSS for Google Places Autocomplete dropdown
 // This will be injected once when the component mounts
 export const injectGooglePlacesStyles = () => {
@@ -23,6 +22,12 @@ export const injectGooglePlacesStyles = () => {
         overflow: visible !important;
         opacity: 1 !important;
         visibility: visible !important;
+      }
+      
+      .pac-container.hidden {
+        z-index: -1 !important;
+        visibility: hidden !important;
+        display: none !important;
       }
       
       .pac-item {
@@ -107,6 +112,21 @@ export const showAutocompleteDropdown = (show: boolean = true) => {
     console.log(`${show ? 'Showing' : 'Hiding'} ${containers.length} autocomplete containers`);
     containers.forEach(container => {
       (container as HTMLElement).style.display = show ? 'block' : 'none';
+      // Force reflow to ensure the display change takes effect
+      void (container as HTMLElement).offsetHeight;
+    });
+  }, 50);
+};
+
+// New function to completely hide dropdown with a lower z-index when selected
+export const hideAutocompleteDropdown = () => {
+  setTimeout(() => {
+    const containers = document.querySelectorAll('.pac-container');
+    console.log(`Hiding ${containers.length} autocomplete containers with reduced z-index`);
+    containers.forEach(container => {
+      (container as HTMLElement).style.zIndex = '-1'; // Put it behind everything
+      (container as HTMLElement).style.display = 'none';
+      (container as HTMLElement).style.visibility = 'hidden';
       // Force reflow to ensure the display change takes effect
       void (container as HTMLElement).offsetHeight;
     });
