@@ -52,7 +52,10 @@ const ChatbotContent: React.FC<ChatbotContentProps> = ({
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.4 }}
         >
-          <CompetitorsPanel analysisResult={analysisResult} apifyBusinessResult={apifyBusinessResult} />
+          <CompetitorsPanel 
+            analysisResult={analysisResult} 
+            apifyBusinessResult={apifyBusinessResult} 
+          />
         </motion.div>
       )}
       
@@ -64,7 +67,9 @@ const ChatbotContent: React.FC<ChatbotContentProps> = ({
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.4 }}
         >
-          <SeoPanel analysisResult={analysisResult} />
+          <SeoPanel 
+            analysisResult={analysisResult} 
+          />
         </motion.div>
       )}
       
@@ -76,7 +81,9 @@ const ChatbotContent: React.FC<ChatbotContentProps> = ({
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.4 }}
         >
-          <ContentPanel analysisResult={analysisResult} />
+          <ContentPanel 
+            analysisResult={analysisResult} 
+          />
         </motion.div>
       )}
     </AnimatePresence>
