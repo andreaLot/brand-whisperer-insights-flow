@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Table, TableHeader, TableRow, TableHead, TableBody } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart2, AlertTriangle, ArrowDown } from "lucide-react";
+import { BarChart2, AlertTriangle, ArrowDown, RefreshCw } from "lucide-react";
 import PlatformTableRow from './PlatformTableRow';
 import ScoreLegend from './ScoreLegend';
 import TableFooter from './TableFooter';
@@ -32,7 +32,8 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
   const results = Array.isArray(platformResults) ? platformResults : [];
   
   useEffect(() => {
-    console.log("RatingsTable received platformResults:", results);
+    console.log("🎯 [RatingsTable] Received platformResults:", JSON.stringify(results, null, 2));
+    console.log(`🎯 [RatingsTable] Number of platform results: ${results.length}`);
     
     // Reset animation states
     setVisibleRows([]);
@@ -114,6 +115,15 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
                     <CardTitle className="text-lg font-medium flex items-center gap-2 text-white">
                       <BarChart2 size={18} className="text-violet-400" />
                       AI Platform Rankings
+                      {isLoading && (
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                          className="ml-2"
+                        >
+                          <RefreshCw size={16} className="text-violet-400/70" />
+                        </motion.div>
+                      )}
                     </CardTitle>
                   </motion.div>
                 )}
@@ -165,7 +175,7 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
                     {isLoading ? (
                       <>
                         <p className="text-gray-300">Retrieving AI platform rankings...</p>
-                        <p className="text-gray-400 text-sm mt-1">Results will appear shortly.</p>
+                        <p className="text-gray-400 text-sm mt-1">Receiving data from multiple AI platforms.</p>
                       </>
                     ) : (
                       <>
@@ -187,7 +197,12 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
           </Card>
           
           <AnimatePresence>
-            {footerVisible && <TableFooter businessName={businessName} />}
+            {footerVisible && (
+              <TableFooter 
+                businessName={businessName} 
+                platformCount={sortedResults.length}
+              />
+            )}
           </AnimatePresence>
         </motion.div>
       )}

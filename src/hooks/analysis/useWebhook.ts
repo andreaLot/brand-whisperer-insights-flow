@@ -13,7 +13,12 @@ export const useWebhook = () => {
 
   const sendWebhookData = async (name: string, loc: string, cat: string, placeData?: PlaceSelectionResult) => {
     if (name && loc) {
-      console.log("Sending webhook data for platform rankings");
+      console.log("📤 [useWebhook] Sending webhook data for platform rankings:", {
+        businessName: name,
+        location: loc,
+        category: cat
+      });
+      
       setWebhookAttempts(prev => prev + 1);
       
       const webhookData = {
@@ -27,14 +32,21 @@ export const useWebhook = () => {
         const response = await WebhookService.sendWebhookData(webhookData);
         
         if (response) {
-          console.log("Webhook data sent and response received:", response);
+          console.log("📥 [useWebhook] Webhook response received:", JSON.stringify(response, null, 2));
+          
+          // Check if we have platform results
+          const platformCount = response.platforms?.length || 0;
+          console.log(`📊 [useWebhook] Received rankings from ${platformCount} AI platforms`);
+          
           setWebhookSent(true);
           setWebhookResponse(response);
           
           // Show a toast notification for platforms
           if (response.platforms && response.platforms.length > 0) {
             // Show toast for the highest-ranking platform
-            const topPlatform = response.platforms.sort((a, b) => a.estimatedRank - b.estimatedRank)[0];
+            const topPlatform = response.platforms.sort((a, b) => 
+              (a.estimatedRank || 999) - (b.estimatedRank || 999))[0];
+              
             toast({
               title: "Rankings Retrieved",
               description: `${topPlatform.platform} ranks your business at #${topPlatform.estimatedRank}`,
@@ -44,7 +56,7 @@ export const useWebhook = () => {
             if (response.platforms.length > 1) {
               setTimeout(() => {
                 toast({
-                  title: "Multiple Rankings",
+                  title: `${response.platforms?.length} AI Rankings`,
                   description: `Retrieved rankings from ${response.platforms?.length} AI platforms`,
                 });
               }, 1500);
@@ -61,7 +73,7 @@ export const useWebhook = () => {
           
           return response;
         } else {
-          console.warn("Failed to send webhook data or receive response");
+          console.warn("⚠️ [useWebhook] Failed to send webhook data or receive response");
           toast({
             title: "Webhook Error",
             description: "Could not retrieve ranking data. Please try again.",
@@ -70,7 +82,7 @@ export const useWebhook = () => {
           return null;
         }
       } catch (error) {
-        console.error("Error in webhook communication:", error);
+        console.error("❌ [useWebhook] Error in webhook communication:", error);
         toast({
           title: "Error",
           description: "Failed to analyze rankings. Please try again later.",
@@ -87,7 +99,7 @@ export const useWebhook = () => {
     
     if (!webhookSent && webhookAttempts > 0 && webhookAttempts < 3) {
       retryTimer = setTimeout(() => {
-        console.log(`Retry attempt ${webhookAttempts + 1} to send webhook data`);
+        console.log(`🔄 [useWebhook] Retry attempt ${webhookAttempts + 1} to send webhook data`);
       }, 3000); // Retry every 3 seconds, up to 3 times
     }
     
