@@ -50,14 +50,12 @@ const AnalyzingVideoPanel: React.FC = () => {
             ease: [0.19, 1.0, 0.22, 1.0], // Expo easing for smoother motion
             delay: 0.2
           }}
-          className="relative w-full aspect-video rounded-xl overflow-hidden shadow-2xl"
+          className="relative w-full aspect-video rounded-xl overflow-hidden shadow-2xl bg-brand-black"
           style={{
             boxShadow: '0 20px 80px -10px rgba(0, 82, 204, 0.5)',
             transform: 'perspective(1000px)'
           }}
         >
-          {/* Remove the gradient div that was causing the black bar */}
-          
           {isVisible && (
             <motion.iframe 
               src="https://share.synthesia.io/embeds/videos/9081a83c-bb4a-4314-ae81-f3e227152744" 
@@ -70,6 +68,7 @@ const AnalyzingVideoPanel: React.FC = () => {
               animate={{ opacity: isReady ? 1 : 0 }}
               transition={{ duration: 0.5 }}
               onLoad={() => setIsReady(true)}
+              style={{ zIndex: 5 }}
             />
           )}
           
@@ -79,6 +78,7 @@ const AnalyzingVideoPanel: React.FC = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: isVisible && !isReady ? 1 : 0 }}
               transition={{ duration: 0.3 }}
+              style={{ zIndex: 4 }}
             >
               <motion.div
                 animate={{ rotate: 360 }}
