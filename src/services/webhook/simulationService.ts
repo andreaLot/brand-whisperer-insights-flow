@@ -7,9 +7,11 @@ export const simulatePlatformResponses = async (businessData: any): Promise<Webh
   console.log("🔮 [SimulationService] Generating simulated platform responses");
   
   // Generate realistic platform rankings based on business name
-  const businessNameHash = businessData.businessName && typeof businessData.businessName === 'string'
-    ? Array.from(businessData.businessName).reduce((acc, char) => acc + char.charCodeAt(0), 0)
-    : 0;
+  const businessNameString = typeof businessData.businessName === 'string' 
+    ? businessData.businessName 
+    : String(businessData.businessName || "Unknown Business");
+  
+  const businessNameHash = Array.from(businessNameString).reduce((acc, char) => acc + char.charCodeAt(0), 0);
   
   // Add some randomness, but keep it consistent for the same business name
   const randomSeed = businessNameHash ? (businessNameHash % 100) / 100 : Math.random();

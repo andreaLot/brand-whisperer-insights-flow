@@ -33,15 +33,32 @@ export const getPerplexityRanking = async (businessData: any): Promise<WebhookRe
     console.log("🔍 [PerplexityService] Sending direct request to Perplexity API");
     
     // Create prompt for business analysis
-    const systemPrompt = `You are an expert in local business SEO and brand ranking analysis.`;
+    const systemPrompt = `You are a search engine analyst who specializes in determining local business rankings. Your ONLY job is to provide the estimated ranking of a business in search results. Your response must be EXACTLY in this format: 'Estimated Rank: X' where X is a number between 1 and 10. If you feel uncertain or unable to determine a specific rank for any reason, you MUST use rank 10.`;
     
-    const userPrompt = `Analyze the position of this business in search engines and AI platforms:
-Business Name: ${businessName}
-Location: ${location}
-Category: ${category}
+    const userPrompt = `I need you to analyze the local search ranking position for a business with these details:
 
-Provide the estimated search ranking position (a number between 1-20) for this business.
-Only respond with the text "Estimated Rank: X" where X is your numerical estimate.`;
+- Business Name: ${businessName}
+- Location: ${location}
+- Category/Industry: ${category}
+
+Your task:
+1. Simulate searching for "Best ${category} in ${location} within a 2km radius"
+2. Based on the search simulation, determine the position where ${businessName} would likely appear in the results
+
+Key ranking factors to consider:
+- Query relevance
+- Online reputation (ratings & review volume)
+- Business prominence (citations, backlinks, mentions)
+- Website content and structure (keywords, freshness, trust signals)
+- Accuracy and completeness of listings
+- User engagement and brand recognition
+
+Ranking Rules:
+1. If the business would appear in positions 1-9, provide that exact number (1-9)
+2. If the business would appear at position 10 OR would not appear in the top 10 at all, provide the number 10
+3. If you feel uncertain or unable to determine a specific rank for any reason, you MUST use rank 10
+
+Your response must be EXACTLY in this format: 'Estimated Rank: X' where X is a number between 1 and 10. Do not include any other text, explanations, or formatting.`;
 
     // Call Perplexity API
     const response = await fetch('https://api.perplexity.ai/chat/completions', {

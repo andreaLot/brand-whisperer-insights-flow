@@ -29,13 +29,13 @@ export const WebhookService = {
         const simulatedResponse = await simulatePlatformResponses(businessData);
         
         // Remove Perplexity from simulated results to avoid duplication
-        const otherPlatforms = simulatedResponse.platforms.filter(
+        const otherPlatforms = simulatedResponse.platforms?.filter(
           p => p.platform !== "Perplexity" && p.platform !== "perplexity"
-        );
+        ) || [];
         
         // Combine real Perplexity results with simulated results for other platforms
         return {
-          platforms: [...perplexityResponse.platforms, ...otherPlatforms],
+          platforms: [...perplexityResponse.platforms || [], ...otherPlatforms],
           status: "success",
           message: "Combined direct API and simulated results",
           timestamp: new Date().toISOString()
