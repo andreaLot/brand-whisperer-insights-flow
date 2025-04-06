@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SeoPanel from './SeoPanel';
@@ -138,17 +139,8 @@ const ChatbotContent: React.FC<ChatbotContentProps> = ({
     );
   }
 
-  return (
-    <motion.div 
-      className="bg-brand-gray-dark rounded-lg p-6 border border-gray-700 flex items-center justify-center min-h-[200px]"
-      initial="hidden"
-      animate="visible"
-      exit="exit"
-      variants={contentVariants}
-    >
-      <p className="text-gray-400 text-center">Select an option from the chatbot to see relevant insights</p>
-    </motion.div>
-  );
+  // Return empty div instead of the "Select an option" message
+  return null;
 };
 
 export default ChatbotContent;
