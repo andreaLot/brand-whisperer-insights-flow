@@ -3,8 +3,6 @@ import React, { useEffect } from 'react';
 import { AnimatePresence } from "framer-motion";
 import ChatMessages from './components/ChatMessages';
 import QuickOptions from './components/QuickOptions';
-import ChatInput from './components/ChatInput';
-import CompletionButton from './components/CompletionButton';
 import { useChatbotState } from './hooks/useChatbotState';
 import { useIntroSequence } from './hooks/useIntroSequence';
 
@@ -22,8 +20,6 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
   // Use the chat state hook
   const chatState = useChatbotState({ businessName });
   const {
-    message,
-    setMessage,
     chatHistory,
     setChatHistory,
     showOptions,
@@ -60,7 +56,6 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
     setChatHistory(prev => [...prev, { sender: 'user', text, id: userMessageId }]);
     
     // Clear input and show typing indicator
-    setMessage('');
     setShowOptions(false);
     setIsTyping(true);
     
@@ -73,42 +68,25 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
       const botMessageId = `bot-${Date.now()}`;
       
       // Show ratings panel
-      if (text.toLowerCase().includes('ratings') || text.toLowerCase().includes('see ratings')) {
-        responseText = `Here are the current ratings for ${businessName} across different AI platforms:`;
-        // Post an event for the iframe to receive and show ratings panel
-        window.postMessage({ type: 'chatbot-selection', message: 'ratings' }, '*');
-        setIsFinalPhase(true);
-      } else {
-        responseText = `I'll show you the AI platform ratings for ${businessName}.`;
-        window.postMessage({ type: 'chatbot-selection', message: 'ratings' }, '*');
-        setIsFinalPhase(true);
-      }
+      responseText = `Here are the current ratings for ${businessName} across different AI platforms:`;
+      // Post an event for the iframe to receive and show ratings panel
+      window.postMessage({ type: 'chatbot-selection', message: 'ratings' }, '*');
+      setIsFinalPhase(true);
       
       // Add bot response to chat
       setChatHistory(prev => [...prev, { sender: 'bot', text: responseText, id: botMessageId }]);
       setIsTyping(false);
+      
+      // Automatically complete the chat process
+      setTimeout(() => {
+        onChatComplete();
+      }, 1000);
     }, 1500); // 1.5 second typing delay
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (message.trim()) {
-      sendMessage(message.trim());
-    }
-  };
-
-  // When "View Results" is clicked, show the platform ratings
-  const handleViewResults = () => {
-    // Show the ratings panel
-    window.postMessage({ type: 'chatbot-selection', message: 'ratings' }, '*');
-    // Signal that panel should be visible
-    setIsPanelVisible(true);
-    onChatComplete();
   };
 
   return (
     <div className="flex flex-col space-y-4 w-full">
-      <h2 className="text-xl font-normal">
+      <h2 className="text-2xl font-bold">
         AI Platform <span className="text-brand-blue-light">Analysis</span>
       </h2>
       
@@ -122,21 +100,8 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
           showOptions={showOptions} 
           isFinalPhase={isFinalPhase} 
           onOptionClick={sendMessage} 
+          forceShow={introComplete && !isFinalPhase}
         />
-      </AnimatePresence>
-      
-      {/* Message input form */}
-      <ChatInput
-        message={message}
-        setMessage={setMessage}
-        onSubmit={handleSubmit}
-      />
-      
-      {/* Show complete button after sufficient interaction */}
-      <AnimatePresence>
-        {(introComplete && !isFinalPhase) && (
-          <CompletionButton onAnalysisComplete={handleViewResults} />
-        )}
       </AnimatePresence>
       
       {/* Export panel visibility state so it can be accessed by parent components */}

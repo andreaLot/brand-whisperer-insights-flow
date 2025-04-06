@@ -7,14 +7,16 @@ interface QuickOptionsProps {
   showOptions: boolean;
   isFinalPhase: boolean;
   onOptionClick: (message: string) => void;
+  forceShow?: boolean;
 }
 
 const QuickOptions: React.FC<QuickOptionsProps> = ({ 
   showOptions, 
   isFinalPhase, 
-  onOptionClick 
+  onOptionClick,
+  forceShow = false
 }) => {
-  if (!showOptions || isFinalPhase) return null;
+  if ((!showOptions && !forceShow) || isFinalPhase) return null;
 
   return (
     <motion.div
