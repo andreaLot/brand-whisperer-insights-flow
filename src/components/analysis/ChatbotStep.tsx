@@ -57,25 +57,33 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
     
     // Clear options and show typing indicator
     setShowOptions(false);
+    setIsTyping(true);
     
     // Show the side panel immediately
     setIsPanelVisible(true);
     
-    // Show ratings panel immediately
-    const botMessageId = `bot-${Date.now()}`;
-    const responseText = `Here are the current ratings for ${businessName} across different AI platforms:`;
-    
-    // Add bot response to chat
-    setChatHistory(prev => [...prev, { sender: 'bot', text: responseText, id: botMessageId }]);
-    
-    // Post an event for the iframe to receive and show ratings panel
-    window.postMessage({ type: 'chatbot-selection', message: 'ratings' }, '*');
-    setIsFinalPhase(true);
-    
-    // Automatically complete the chat process after giving user time to see the ratings
+    // After a small delay to simulate typing
     setTimeout(() => {
-      onChatComplete();
-    }, 5000); // Extended time to 5 seconds so user has more time to see the ratings
+      setIsTyping(false);
+      
+      // Show ratings panel with bot response
+      const botMessageId = `bot-${Date.now()}`;
+      const responseText = `Here are the current ratings for ${businessName} across different AI platforms:`;
+      
+      // Add bot response to chat
+      setChatHistory(prev => [...prev, { sender: 'bot', text: responseText, id: botMessageId }]);
+      
+      // Post an event for the iframe to receive and show ratings panel
+      window.postMessage({ type: 'chatbot-selection', message: 'ratings' }, '*');
+      
+      // Mark the interaction as in final phase
+      setIsFinalPhase(true);
+      
+      // Delay the complete a bit longer to give user time to see ratings
+      setTimeout(() => {
+        onChatComplete();
+      }, 8000); // Extended time to 8 seconds so user has more time to see the ratings
+    }, 800);
   };
 
   return (

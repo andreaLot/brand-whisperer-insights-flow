@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import ResultCard from "@/components/ResultCard";
@@ -27,6 +28,7 @@ interface ResultsStepProps {
 const ResultsStep: React.FC<ResultsStepProps> = ({ analysisResult, onStartOver }) => {
   const [activeTab, setActiveTab] = useState("results");
   const [showSummary, setShowSummary] = useState(false);
+  const [visibleCards, setVisibleCards] = useState<number[]>([]);
   
   useEffect(() => {
     // Show summary with slight delay for animation effect
@@ -34,8 +36,15 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ analysisResult, onStartOver }
       setShowSummary(true);
     }, 400); // Reduced delay for smoother experience
     
+    // Animate cards one by one
+    analysisResult.platformResults.forEach((_, index) => {
+      setTimeout(() => {
+        setVisibleCards(prev => [...prev, index]);
+      }, 600 + (index * 300)); // 300ms delay between each card
+    });
+    
     return () => clearTimeout(timer);
-  }, []);
+  }, [analysisResult.platformResults.length]);
 
   // Render platform icon based on name
   const renderPlatformIcon = (platform: string) => {
@@ -172,19 +181,22 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ analysisResult, onStartOver }
               <CarouselContent className="-ml-2 md:-ml-4">
                 {analysisResult.platformResults.map((result, index) => (
                   <CarouselItem key={index} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1, duration: 0.5, type: "spring" }}
-                    >
-                      <ResultCard 
-                        key={index} 
-                        platform={result.platform} 
-                        score={result.score} 
-                        rank={result.rank} 
-                        icon={renderPlatformIcon(result.platform || result.model)} 
-                      />
-                    </motion.div>
+                    <AnimatePresence>
+                      {visibleCards.includes(index) && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.5, type: "spring" }}
+                        >
+                          <ResultCard 
+                            platform={result.platform} 
+                            score={result.score} 
+                            rank={result.rank} 
+                            icon={renderPlatformIcon(result.platform || result.model)} 
+                          />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </CarouselItem>
                 ))}
               </CarouselContent>

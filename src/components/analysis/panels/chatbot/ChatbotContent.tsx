@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SeoPanel from './SeoPanel';
 import ContentPanel from './ContentPanel';
@@ -124,12 +124,14 @@ const ChatbotContent: React.FC<ChatbotContentProps> = ({
   }
 
   if (visibleSnippet === 'ratings') {
+    console.log("Rendering ratings table with data:", analysisResult?.platformResults || []);
     return (
       <motion.div
         initial="hidden"
         animate="visible"
         exit="exit"
         variants={contentVariants}
+        className="w-full"
       >
         <RatingsTable 
           businessName={analysisResult?.businessName || apifyBusinessResult?.name || "Your Business"} 
