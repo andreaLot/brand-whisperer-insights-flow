@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Tables } from '@/types/supabase';
 import RankBadge from './RankBadge';
 
 interface RanksDisplayProps {
