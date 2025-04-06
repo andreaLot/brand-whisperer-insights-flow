@@ -23,16 +23,16 @@ const AnalysisWelcome: React.FC<AnalysisWelcomeProps> = ({
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3, duration: 0.7 }}
       >
-        Let's get started!
+        <span className="font-bold">Let's get started!</span>
         <br />
         <br />
         Simply enter your <motion.span 
-          className="text-violet-500 font-bold"
+          className="text-violet-500 font-tiempos font-bold"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6, duration: 0.7 }}
         >business name</motion.span> and <motion.span 
-          className="text-brand-blue-light"
+          className="text-brand-blue-light font-tiempos font-bold"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.9, duration: 0.7 }}
