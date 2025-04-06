@@ -79,13 +79,20 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
       // Mark the interaction as in final phase
       setIsFinalPhase(true);
       
-      // Delay the complete a bit longer to give user time to see ratings
-      setTimeout(() => {
-        // We don't want to call onChatComplete() here as it causes the panel to disappear
-        // onChatComplete();
-      }, 8000); // Extended time to 8 seconds so user has more time to see the ratings
+      // IMPORTANT: We're commenting this out to prevent the panel from disappearing
+      // onChatComplete();
     }, 800);
   };
+  
+  // Immediately show the ratings after component mount if we're already in final phase
+  useEffect(() => {
+    if (isFinalPhase) {
+      // Make sure the panel is visible
+      setIsPanelVisible(true);
+      // Explicitly trigger the ratings panel to appear
+      window.postMessage({ type: 'chatbot-selection', message: 'ratings' }, '*');
+    }
+  }, [isFinalPhase, setIsPanelVisible]);
 
   return (
     <div className="flex flex-col space-y-4 w-full">

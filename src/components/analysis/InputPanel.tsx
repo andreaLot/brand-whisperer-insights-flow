@@ -34,21 +34,25 @@ const InputPanel: React.FC<InputPanelProps> = ({
   apifyBusinessResult,
   apifyLoading = false
 }) => {
-  // Track which snippet is being shown during chatbot interaction
-  const [visibleSnippet, setVisibleSnippet] = useState<'none' | 'competitors' | 'seo' | 'content' | 'ratings'>('none');
+  // Default to ratings in chatbot step
+  const [visibleSnippet, setVisibleSnippet] = useState<'none' | 'competitors' | 'seo' | 'content' | 'ratings'>(
+    step === 'chatbot' ? 'ratings' : 'none'
+  );
   
   // Listen for message changes in ChatbotStep
   useEffect(() => {
     const handleChatbotMessage = (event: MessageEvent) => {
       if (event.data && event.data.type === 'chatbot-selection') {
-        if (event.data.message.includes('competitors')) {
+        console.log("Received message event:", event.data);
+        if (event.data.message.includes('ratings')) {
+          console.log("Setting visible snippet to ratings");
+          setVisibleSnippet('ratings');
+        } else if (event.data.message.includes('competitors')) {
           setVisibleSnippet('competitors');
         } else if (event.data.message.includes('SEO')) {
           setVisibleSnippet('seo');
         } else if (event.data.message.includes('Content')) {
           setVisibleSnippet('content');
-        } else if (event.data.message.includes('ratings')) {
-          setVisibleSnippet('ratings');
         }
       }
     };
@@ -61,7 +65,10 @@ const InputPanel: React.FC<InputPanelProps> = ({
 
   // Monitor step changes and reset snippet visibility when appropriate
   useEffect(() => {
-    if (step !== 'chatbot') {
+    if (step === 'chatbot') {
+      // Default to showing ratings in chatbot step
+      setVisibleSnippet('ratings');
+    } else {
       setVisibleSnippet('none');
     }
   }, [step]);
@@ -132,7 +139,7 @@ const InputPanel: React.FC<InputPanelProps> = ({
           </motion.div>
         )}
         
-        {/* Chatbot-triggered content snippets */}
+        {/* Chatbot-triggered content snippets - always show in chatbot step */}
         {step === 'chatbot' && (
           <motion.div
             key="chatbot"

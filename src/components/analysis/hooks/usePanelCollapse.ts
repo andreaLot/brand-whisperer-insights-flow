@@ -21,28 +21,23 @@ export const usePanelCollapse = ({ step, initialCollapsed = false }: PanelCollap
     if (step !== 'chatbot') {
       setIsPanelCollapsed(false);
     }
+    
+    // Auto-collapse panel when in chatbot step to show ratings
+    if (step === 'chatbot') {
+      // Short delay before auto-collapsing to ensure smooth transition
+      const timer = setTimeout(() => {
+        setIsPanelCollapsed(true);
+      }, 500);
+      
+      return () => clearTimeout(timer);
+    }
   }, [step]);
 
   // Function to animate panel collapse
   const animatePanelTransition = () => {
     if (step === 'chatbot') {
-      // When a selection is made in chatbot, transition the panel over 3 seconds
-      const transitionDuration = 3000; // 3 seconds
-      let startTime: number;
-      
-      const animate = (timestamp: number) => {
-        if (!startTime) startTime = timestamp;
-        const elapsed = timestamp - startTime;
-        const progress = Math.min(elapsed / transitionDuration, 1);
-        
-        if (progress < 1) {
-          requestAnimationFrame(animate);
-        } else {
-          setIsPanelCollapsed(true);
-        }
-      };
-      
-      requestAnimationFrame(animate);
+      // Set collapsed to true immediately to show the ratings panel
+      setIsPanelCollapsed(true);
     }
   };
   
@@ -65,6 +60,9 @@ export const usePanelCollapse = ({ step, initialCollapsed = false }: PanelCollap
       if (chatbotContainer) {
         observer.observe(chatbotContainer, { attributes: true, subtree: true });
       }
+      
+      // Also observe the document body for the hidden input that tracks panel visibility
+      observer.observe(document.body, { attributes: true, subtree: true });
     }
     
     return () => {

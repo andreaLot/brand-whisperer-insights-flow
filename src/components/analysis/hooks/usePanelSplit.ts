@@ -49,16 +49,16 @@ export const usePanelSplit = (step: Step, isPanelCollapsed: boolean): PanelSplit
         requestAnimationFrame(animate);
       } else if (step === 'chatbot') {
         if (isPanelCollapsed) {
-          // After selection, transition to 40/60
+          // After selection, show 40/60 split for chat and ratings
           setPanelSplitRatio({
             conversation: '40%',
             input: '60%'
           });
         } else {
-          // Initially full width for chatbot
+          // Initially 50/50 split for chatbot before selection
           setPanelSplitRatio({
-            conversation: '100%',
-            input: '0%'
+            conversation: '50%',
+            input: '50%'
           });
         }
       }

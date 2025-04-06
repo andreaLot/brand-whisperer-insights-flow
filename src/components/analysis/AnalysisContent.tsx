@@ -52,9 +52,6 @@ const AnalysisContent: React.FC<AnalysisContentProps> = ({
   const { isPanelCollapsed, setIsPanelCollapsed } = usePanelCollapse({ step });
   const panelSplitRatio = usePanelSplit(step, isPanelCollapsed);
   
-  // Force the input panel to be visible when in chatbot step
-  const forceShowInputPanel = step === 'chatbot';
-  
   return (
     <motion.div 
       className="w-full max-w-7xl flex flex-col md:flex-row gap-8"
@@ -78,46 +75,21 @@ const AnalysisContent: React.FC<AnalysisContentProps> = ({
         />
       </PanelContainer>
       
-      {/* Input Panel - always show for chatbot step */}
-      <AnimatePresence>
-        {/* Always show input panel for chatbot step */}
-        {forceShowInputPanel && (
-          <PanelContainer width={panelSplitRatio.input}>
-            <AnimatedInputContent>
-              <InputPanel
-                step={step}
-                businessName={businessName}
-                analysisResult={analysisResult}
-                suggestedCategories={suggestedCategories}
-                setBusinessName={setBusinessName}
-                handleBusinessNameSubmit={() => {}}
-                handleLocationSelect={handleLocationSelect}
-                handleStartOver={handleStartOver}
-                apifyBusinessResult={apifyBusinessResult}
-                apifyLoading={apifyLoading}
-              />
-            </AnimatedInputContent>
-          </PanelContainer>
-        )}
-        
-        {/* Show input panel for non-chatbot steps */}
-        {!forceShowInputPanel && (
-          <PanelContainer width={panelSplitRatio.input}>
-            <InputPanel
-              step={step}
-              businessName={businessName}
-              analysisResult={analysisResult}
-              suggestedCategories={suggestedCategories}
-              setBusinessName={setBusinessName}
-              handleBusinessNameSubmit={() => {}}
-              handleLocationSelect={handleLocationSelect}
-              handleStartOver={handleStartOver}
-              apifyBusinessResult={apifyBusinessResult}
-              apifyLoading={apifyLoading}
-            />
-          </PanelContainer>
-        )}
-      </AnimatePresence>
+      {/* Input Panel - always render in the DOM, use conditional styling */}
+      <PanelContainer width={panelSplitRatio.input}>
+        <InputPanel
+          step={step}
+          businessName={businessName}
+          analysisResult={analysisResult}
+          suggestedCategories={suggestedCategories}
+          setBusinessName={setBusinessName}
+          handleBusinessNameSubmit={() => {}}
+          handleLocationSelect={handleLocationSelect}
+          handleStartOver={handleStartOver}
+          apifyBusinessResult={apifyBusinessResult}
+          apifyLoading={apifyLoading}
+        />
+      </PanelContainer>
     </motion.div>
   );
 };
