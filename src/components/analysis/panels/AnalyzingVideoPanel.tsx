@@ -25,12 +25,13 @@ const AnalyzingVideoPanel: React.FC = () => {
   }, []);
 
   return (
-    <div className="flex items-center justify-center h-full">
+    <div className="flex items-center justify-center h-full relative" style={{ zIndex: 50 }}>
       <motion.div 
-        className="w-full max-w-4xl mx-auto"
+        className="w-full max-w-4xl mx-auto relative"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.7 }}
+        style={{ zIndex: 50 }}
       >
         <motion.div 
           initial={{ 
@@ -53,7 +54,8 @@ const AnalyzingVideoPanel: React.FC = () => {
           className="relative w-full aspect-video rounded-xl overflow-hidden shadow-2xl bg-brand-black"
           style={{
             boxShadow: '0 20px 80px -10px rgba(0, 82, 204, 0.5)',
-            transform: 'perspective(1000px)'
+            transform: 'perspective(1000px)',
+            zIndex: 50
           }}
         >
           {isVisible && (
@@ -68,7 +70,7 @@ const AnalyzingVideoPanel: React.FC = () => {
               animate={{ opacity: isReady ? 1 : 0 }}
               transition={{ duration: 0.5 }}
               onLoad={() => setIsReady(true)}
-              style={{ zIndex: 5 }}
+              style={{ zIndex: 55 }}
             />
           )}
           
@@ -78,7 +80,7 @@ const AnalyzingVideoPanel: React.FC = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: isVisible && !isReady ? 1 : 0 }}
               transition={{ duration: 0.3 }}
-              style={{ zIndex: 4 }}
+              style={{ zIndex: 54 }}
             >
               <motion.div
                 animate={{ rotate: 360 }}
