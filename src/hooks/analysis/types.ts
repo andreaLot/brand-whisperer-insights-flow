@@ -3,10 +3,10 @@ import { Step } from '@/components/analysis/ConversationPanel';
 import { 
   AnalysisResult, 
   BusinessCategory, 
-  ApifyBusinessResult
-} from "@/services/AnalysisService";
+  ApifyBusinessResult,
+  WebhookResponse
+} from "@/services/types";
 import { PlaceSelectionResult } from '@/hooks/useGooglePlaces';
-import { WebhookResponse } from '@/services/WebhookService';
 
 export interface AnalysisState {
   step: Step;

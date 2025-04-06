@@ -1,7 +1,8 @@
 
 import { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
-import { WebhookService, WebhookResponse } from '@/services/WebhookService';
+import { WebhookService } from '@/services/WebhookService';
+import { WebhookResponse } from '@/services/types';
 import { PlaceSelectionResult } from '@/hooks/useGooglePlaces';
 
 export const useWebhook = () => {

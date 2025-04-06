@@ -10,10 +10,9 @@ export type {
   PlatformResult,
   AnalysisResult,
   ApifyBusinessResult,
-  ApifyCategoryResult
+  ApifyCategoryResult,
+  WebhookResponse
 } from './types';
-
-export type { WebhookResponse } from './WebhookService';
 
 // Combine all services into the main AnalysisService
 export const AnalysisService = {

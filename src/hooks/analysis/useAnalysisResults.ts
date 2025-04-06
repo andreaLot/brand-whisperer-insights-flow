@@ -6,7 +6,8 @@ import {
   AnalysisResult,
   PlatformResult
 } from "@/services/AnalysisService";
-import { WebhookResponse, normalizeModelToPlatform } from '@/services/WebhookService';
+import { WebhookResponse } from '@/services/types';
+import { normalizeModelToPlatform } from '@/services/WebhookService';
 
 export const useAnalysisResults = () => {
   const { toast } = useToast();
