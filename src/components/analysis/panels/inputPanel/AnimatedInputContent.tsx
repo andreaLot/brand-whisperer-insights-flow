@@ -3,7 +3,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 interface AnimatedInputContentProps {
-  children?: React.ReactNode; // Make children optional
+  children: React.ReactNode;
 }
 
 const AnimatedInputContent: React.FC<AnimatedInputContentProps> = ({ children }) => {

@@ -1,10 +1,10 @@
-
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import AnimatedInputContent from './panels/inputPanel/AnimatedInputContent';
 import CategoryDetectionPanel from './panels/CategoryDetectionPanel';
 import AnalyzingVideoPanel from './panels/AnalyzingVideoPanel';
 import ChatbotContent from './panels/chatbot/ChatbotContent';
+import SearchInput from '@/components/SearchInput';
 import { AnalysisResult, BusinessCategory, ApifyBusinessResult } from "@/services/AnalysisService";
 import { Step } from './ConversationPanel';
 
@@ -23,10 +23,13 @@ interface InputPanelProps {
 
 const InputPanel: React.FC<InputPanelProps> = ({
   step,
+  businessName,
   analysisResult,
   suggestedCategories,
   apifyBusinessResult,
   apifyLoading,
+  setBusinessName,
+  handleBusinessNameSubmit,
   ...props
 }) => {
   const [visibleSnippet, setVisibleSnippet] = useState<'none' | 'competitors' | 'seo' | 'content' | 'ratings' | 'profile'>('none');
@@ -58,8 +61,12 @@ const InputPanel: React.FC<InputPanelProps> = ({
         exit={{ opacity: 0 }}
       >
         <AnimatedInputContent>
-          {/* Placeholder content */}
-          <div className="p-4">Welcome content goes here</div>
+          {/* Welcome content */}
+          <div className="p-4 h-full flex items-center justify-center">
+            <h3 className="text-xl text-center text-gray-300">
+              Enter your business details to see how it performs online
+            </h3>
+          </div>
         </AnimatedInputContent>
       </motion.div>
     );
@@ -74,8 +81,21 @@ const InputPanel: React.FC<InputPanelProps> = ({
         exit={{ opacity: 0 }}
       >
         <AnimatedInputContent>
-          {/* Placeholder content */}
-          <div className="p-4">Business name input content goes here</div>
+          <div className="p-6 space-y-6">
+            <h2 className="text-xl font-normal">
+              Enter your <span className="text-brand-violet-500">business name</span>
+            </h2>
+            <p className="text-gray-300 text-sm">
+              We'll use this to analyze your online presence.
+            </p>
+            
+            <SearchInput 
+              placeholder="Enter your business name" 
+              value={businessName}
+              onChange={setBusinessName}
+              onSubmit={handleBusinessNameSubmit}
+            />
+          </div>
         </AnimatedInputContent>
       </motion.div>
     );
