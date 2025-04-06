@@ -10,34 +10,8 @@ export function processMultiplePlatformResponse(responses: any[]): WebhookRespon
     console.log(`🔍 [WebhookService] Processing platform result ${index + 1}:`, 
                 JSON.stringify(response, null, 2));
     
-    // Handle the new Perplexity format
+    // Handle modern API formats with choices array (Perplexity, DeepSeek, Mistral, etc)
     if (response.model && response.choices && response.choices.length > 0) {
-      const content = response.choices[0].message?.content;
-      const model = response.model;
-      
-      // Extract rank from content (e.g. "Estimated Rank: 3")
-      let estimatedRank: number | undefined;
-      if (content) {
-        const rankMatch = content.match(/Estimated Rank:\s*(\d+)/i);
-        if (rankMatch && rankMatch[1]) {
-          estimatedRank = parseInt(rankMatch[1], 10);
-          console.log(`🔍 [WebhookService] Extracted rank from content for ${model}: ${estimatedRank}`);
-        }
-      }
-      
-      // Only add if we found a rank
-      if (estimatedRank !== undefined && model) {
-        const platform = normalizeModelToPlatform(model);
-        platforms.push({
-          platform,
-          model,
-          estimatedRank
-        });
-        console.log(`✅ [WebhookService] Added platform ${platform} with rank ${estimatedRank}`);
-      }
-    } 
-    // Handle the old response format
-    else if (response.choices && response.choices.length > 0) {
       const content = response.choices[0].message?.content;
       const model = response.model;
       

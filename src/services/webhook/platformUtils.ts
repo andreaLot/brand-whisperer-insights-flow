@@ -10,6 +10,8 @@ export const modelToPlatformMap: Record<string, string> = {
   
   // Perplexity models
   "llama-3.1-sonar-small-128k-online": "Perplexity",
+  "llama-3.1-sonar-large-128k-online": "Perplexity",
+  "llama-3.1-sonar-huge-128k-online": "Perplexity",
   "llama-3.1-sonar": "Perplexity",
   "llama-3.1": "Perplexity", 
   "llama-3": "Perplexity",
@@ -18,10 +20,12 @@ export const modelToPlatformMap: Record<string, string> = {
   // Mistral models
   "mistral-large": "Mistral",
   "mistral-medium": "Mistral",
+  "mistral-small": "Mistral",
   "mistral": "Mistral",
   
   // DeepSeek models
   "deepseek-chat": "DeepSeek",
+  "deepseek-coder": "DeepSeek",
   "deepseek": "DeepSeek",
   
   // Gemini models

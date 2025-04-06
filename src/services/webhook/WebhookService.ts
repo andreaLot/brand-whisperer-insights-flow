@@ -5,9 +5,9 @@ import { processMultiplePlatformResponse } from './responseProcessor';
 import { sendWithNoCors } from './fallbackService';
 import { simulatePlatformResponses } from './simulationService';
 
-// Define webhook URLs as string type
-const PRIMARY_WEBHOOK_URL = "https://uberall.app.n8n.cloud/webhook-test/analyze-business-ranking";
-const BACKUP_WEBHOOK_URL = "https://uberall-app.n8n.cloud/webhook-test/analyze-business-ranking"; // Slight variation as backup
+// Define webhook URLs as string type without literal types
+const PRIMARY_WEBHOOK_URL = "https://uberall.app.n8n.cloud/webhook-test/analyze-business-ranking" as string;
+const BACKUP_WEBHOOK_URL = "https://uberall-app.n8n.cloud/webhook-test/analyze-business-ranking" as string;
 
 export const WebhookService = {
   normalizeModelToPlatform,
@@ -63,17 +63,17 @@ async function tryFetchWebhook(webhookUrl: string, businessData: any): Promise<W
         console.log("📊 [WebhookService] N8N Response Summary:");
         console.log("--------------------------------------------------");
         
-        // Handle array of results (multiple platforms) - this now handles the Perplexity response format
+        // Handle array of results (multiple platforms) - this now handles all response formats
         if (Array.isArray(rawResponseData)) {
           console.log(`🔍 [WebhookService] Detected array response with ${rawResponseData.length} platform results`);
           
           rawResponseData.forEach((item, index) => {
-            // Handle both older format and the new Perplexity format
+            // Handle both older format and the new formats
             const model = item.model || 'Unknown';
             const platform = item.model ? normalizeModelToPlatform(item.model) : 'Unknown Platform';
             console.log(`📌 Platform ${index + 1}: ${platform} (${model})`);
             
-            // Handle Perplexity format with choices array
+            // Handle response format with choices array
             if (item.choices && item.choices.length > 0) {
               const content = item.choices[0].message?.content;
               console.log(`   Content: ${content || 'No content'}`);
@@ -194,3 +194,4 @@ async function tryFetchWebhook(webhookUrl: string, businessData: any): Promise<W
     return await sendWithNoCors(businessData, webhookUrl);
   }
 }
+
