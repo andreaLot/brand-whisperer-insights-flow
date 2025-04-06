@@ -52,6 +52,9 @@ const AnalysisContent: React.FC<AnalysisContentProps> = ({
   const { isPanelCollapsed, setIsPanelCollapsed } = usePanelCollapse({ step });
   const panelSplitRatio = usePanelSplit(step, isPanelCollapsed);
   
+  // Force the input panel to be visible when in chatbot step
+  const forceShowInputPanel = step === 'chatbot';
+  
   return (
     <motion.div 
       className="w-full max-w-7xl flex flex-col md:flex-row gap-8"
@@ -75,10 +78,10 @@ const AnalysisContent: React.FC<AnalysisContentProps> = ({
         />
       </PanelContainer>
       
-      {/* Input Panel - conditionally rendered based on step and collapse state */}
+      {/* Input Panel - always show for chatbot step */}
       <AnimatePresence>
-        {/* Show input panel for chatbot when collapsed */}
-        {(step === 'chatbot' && isPanelCollapsed) && (
+        {/* Always show input panel for chatbot step */}
+        {forceShowInputPanel && (
           <PanelContainer width={panelSplitRatio.input}>
             <AnimatedInputContent>
               <InputPanel
@@ -97,8 +100,8 @@ const AnalysisContent: React.FC<AnalysisContentProps> = ({
           </PanelContainer>
         )}
         
-        {/* Show input panel for non-chatbot steps or when not collapsed */}
-        {(!isPanelCollapsed || step !== 'chatbot') && step !== 'chatbot' && (
+        {/* Show input panel for non-chatbot steps */}
+        {(!forceShowInputPanel && step !== 'chatbot') && (
           <PanelContainer width={panelSplitRatio.input}>
             <InputPanel
               step={step}

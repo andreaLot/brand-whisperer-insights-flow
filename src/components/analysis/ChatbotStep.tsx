@@ -81,7 +81,8 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
       
       // Delay the complete a bit longer to give user time to see ratings
       setTimeout(() => {
-        onChatComplete();
+        // We don't want to call onChatComplete() here as it causes the panel to disappear
+        // onChatComplete();
       }, 8000); // Extended time to 8 seconds so user has more time to see the ratings
     }, 800);
   };
