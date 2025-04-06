@@ -68,6 +68,7 @@ export const useAnalysisState = (): UseAnalysisStateResult => {
       }
     }
 
+    // Fetch business data from Apify (which now also gets competitor data)
     const businessResult = await fetchApifyBusinessData(businessName, selectedLocation);
     
     if (businessResult && !primaryCategory && businessResult.category) {
@@ -116,6 +117,11 @@ export const useAnalysisState = (): UseAnalysisStateResult => {
     setCategory('');
     setPrimaryCategory(undefined);
     setSuggestedCategories([]);
+    
+    // Clear cached competitor results
+    if ((window as any).apifyCategoryResults) {
+      delete (window as any).apifyCategoryResults;
+    }
   };
 
   return {

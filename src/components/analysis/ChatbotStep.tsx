@@ -1,9 +1,8 @@
 
-import React, { useState, useEffect } from 'react';
-import { Button } from "@/components/ui/button";
-import { MessageSquareMore, Bot, ArrowRight } from 'lucide-react';
-import { AnalysisService } from "@/services/AnalysisService";
-import { motion } from "framer-motion";
+import React, { useEffect, useState } from 'react';
+import { Loader2 } from 'lucide-react';
+import CompletionButton from './components/CompletionButton';
+import { ApifyService } from '@/services/AnalysisService';
 
 interface ChatbotStepProps {
   primaryCategory?: string;
@@ -12,119 +11,133 @@ interface ChatbotStepProps {
   onChatComplete: () => void;
 }
 
-const ChatbotStep: React.FC<ChatbotStepProps> = ({ 
-  primaryCategory, 
+const ChatbotStep: React.FC<ChatbotStepProps> = ({
+  primaryCategory,
   location,
   businessName,
-  onChatComplete 
+  onChatComplete
 }) => {
-  const [step, setStep] = useState(0);
-  const [webhookSent, setWebhookSent] = useState(false);
-  const [buttonEnabled, setButtonEnabled] = useState(false);
-
+  const [chatMessages, setChatMessages] = useState<string[]>([
+    "Let me help you learn more about your ranking analysis. What would you like to know?"
+  ]);
+  
+  const [isLoadingMessage, setIsLoadingMessage] = useState(false);
+  const [isFetchingCompetitors, setIsFetchingCompetitors] = useState(false);
+  
   useEffect(() => {
-    // Progress through chatbot steps with visual animation
-    const timer = setTimeout(() => {
-      setStep(1);
-      setButtonEnabled(true);
-    }, 2000);
+    // Check if we already have category results cached from the business search
+    const hasCompetitorData = (window as any).apifyCategoryResults && 
+                            (window as any).apifyCategoryResults.length > 0;
+                            
+    console.log("Checking for cached competitor data:", hasCompetitorData);
     
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    // Send webhook data when the component mounts
-    const sendData = async () => {
-      if (!webhookSent && businessName && location) {
-        try {
-          const success = await AnalysisService.sendWebhookData({
-            businessName,
-            location: location || "Unknown Location",
-            category: primaryCategory || "Unknown Category"
-          });
-          
-          if (success) {
-            console.log("Webhook data sent from ChatbotStep");
-            setWebhookSent(true);
+    // If competitors were already fetched during the business search, no need to fetch again
+    if (!hasCompetitorData && primaryCategory && location) {
+      setIsFetchingCompetitors(true);
+      
+      ApifyService.fetchCategoryFromApify(primaryCategory, location)
+        .then((results) => {
+          if (results.length > 0) {
+            console.log("Fetched competitor data for chatbot:", results);
+            // Cache the results if not already cached
+            if (!(window as any).apifyCategoryResults) {
+              (window as any).apifyCategoryResults = results;
+            }
           }
-        } catch (error) {
-          console.error("Error sending webhook data from ChatbotStep:", error);
-        }
-      }
-    };
+        })
+        .catch((error) => console.error("Error fetching competitors:", error))
+        .finally(() => setIsFetchingCompetitors(false));
+    }
+  }, [primaryCategory, location]);
+  
+  const handleChatOptionClick = (option: string) => {
+    // Add the selected option to chat
+    setChatMessages(prev => [...prev, `You: ${option}`]);
+    setIsLoadingMessage(true);
     
-    sendData();
-  }, [businessName, location, primaryCategory, webhookSent]);
-
+    // Simulate response after a delay
+    setTimeout(() => {
+      let response = "";
+      
+      if (option.includes('competitors')) {
+        response = `Here's a comparison with your top competitors in ${location || 'your area'}.`;
+        // Notify parent components to show the competitors panel
+        window.postMessage({ type: 'chatbot-selection', message: 'competitors' }, '*');
+      } else if (option.includes('SEO')) {
+        response = `Here are some SEO tips for ${businessName} as a ${primaryCategory || 'business'}.`;
+        window.postMessage({ type: 'chatbot-selection', message: 'SEO' }, '*');
+      } else if (option.includes('Content')) {
+        response = `Here are content strategy recommendations for a ${primaryCategory || 'business'} in ${location || 'your area'}.`;
+        window.postMessage({ type: 'chatbot-selection', message: 'Content' }, '*');
+      }
+      
+      setChatMessages(prev => [...prev, response]);
+      setIsLoadingMessage(false);
+    }, 1000);
+  };
+  
   return (
-    <div className="space-y-8">
-      <div>
-        <h2 className="text-xl font-medium text-brand-blue-light flex items-center gap-2 mb-2">
-          <Bot size={22} />
-          AI Brand Analysis
-        </h2>
-        <p className="text-sm text-gray-400">
-          We've gathered insights on your business's online presence
-        </p>
-      </div>
+    <div className="space-y-4 animate-in fade-in slide-in-from-top-4">
+      <h2 className="text-2xl font-bold">AI Recommendations</h2>
       
       <div className="space-y-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="bg-gradient-to-br from-brand-gray-dark to-brand-blue-dark/30 p-4 rounded-xl border border-gray-700"
-        >
-          <div className="flex items-start gap-3">
-            <div className="bg-brand-blue/20 p-1.5 rounded-full mt-0.5">
-              <MessageSquareMore size={16} className="text-brand-blue-light" />
-            </div>
-            <p className="text-sm">
-              Analyzing <span className="font-semibold text-brand-blue-light">{businessName}</span> in {location || "your location"}...
-            </p>
-          </div>
-        </motion.div>
-        
-        {step >= 1 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="bg-gradient-to-br from-brand-gray-dark to-brand-blue-dark/30 p-4 rounded-xl border border-gray-700"
+        {chatMessages.map((message, i) => (
+          <div 
+            key={i} 
+            className={`${
+              message.startsWith("You:") 
+                ? "bg-gray-700 ml-auto" 
+                : "bg-brand-primary"
+            } p-3 rounded-lg max-w-[80%] ${
+              message.startsWith("You:") ? "ml-auto" : ""
+            }`}
           >
-            <div className="flex items-start gap-3">
-              <div className="bg-brand-blue/20 p-1.5 rounded-full mt-0.5">
-                <Bot size={16} className="text-brand-blue-light" />
-              </div>
-              <div className="space-y-2">
-                <p className="text-sm">
-                  Analysis of <span className="text-brand-blue-light">{primaryCategory}</span> businesses is complete.
-                </p>
-                <p className="text-xs text-gray-400">
-                  Ready to view your comprehensive brand analysis
-                </p>
-              </div>
-            </div>
-          </motion.div>
+            {message}
+          </div>
+        ))}
+        
+        {isLoadingMessage && (
+          <div className="bg-brand-primary p-3 rounded-lg max-w-[80%] flex items-center space-x-2">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <span>Processing...</span>
+          </div>
+        )}
+        
+        {isFetchingCompetitors && (
+          <div className="bg-brand-primary p-3 rounded-lg max-w-[80%] flex items-center space-x-2">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <span>Finding competitors...</span>
+          </div>
         )}
       </div>
       
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1 }}
-      >
-        <Button 
-          onClick={onChatComplete}
-          disabled={!buttonEnabled}
-          variant="dynamic"
-          size="lg"
-          className="w-full transition-all duration-500 flex items-center justify-center gap-2"
-        >
-          Continue to Results 
-          <ArrowRight size={16} />
-        </Button>
-      </motion.div>
+      {!isLoadingMessage && (
+        <div className="space-y-2">
+          <button
+            onClick={() => handleChatOptionClick("How do I compare to my competitors?")}
+            className="bg-gray-800 hover:bg-gray-700 w-full p-2 rounded text-left"
+          >
+            How do I compare to my competitors?
+          </button>
+          <button
+            onClick={() => handleChatOptionClick("What SEO improvements can I make?")}
+            className="bg-gray-800 hover:bg-gray-700 w-full p-2 rounded text-left"
+          >
+            What SEO improvements can I make?
+          </button>
+          <button
+            onClick={() => handleChatOptionClick("What Content should I create?")}
+            className="bg-gray-800 hover:bg-gray-700 w-full p-2 rounded text-left"
+          >
+            What Content should I create?
+          </button>
+        </div>
+      )}
+      
+      <CompletionButton 
+        onClick={onChatComplete}
+        text="View Full Analysis"
+      />
     </div>
   );
 };

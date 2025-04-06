@@ -13,9 +13,9 @@ export const ApifyService = {
         },
         body: JSON.stringify({
           searchString: `${businessName} ${location}`,
-          maxPlaces: 1,
+          maxPlaces: 3, // Fetch up to 3 places to get both the main business and competitors
           language: "en",
-          maxCrawledPlaces: 1,
+          maxCrawledPlaces: 3,
           includeReviews: true,
           includeImages: true,
           includePopularTimes: false,
@@ -30,7 +30,7 @@ export const ApifyService = {
       }
       
       const data = await response.json();
-      console.log("Apify business run started:", data);
+      console.log("Apify run started:", data);
       
       // Get the run ID to check results later
       const runId = data.data.id;
@@ -38,9 +38,13 @@ export const ApifyService = {
       // Wait for the run to complete (poll the status)
       const result = await ApifyService.pollApifyRunStatus(runId);
       
-      if (result && result.items && result.items.length > 0) {
-        const place = result.items[0];
-        
+      if (!result || !result.items || result.items.length === 0) {
+        console.log("No places found in Apify results");
+        return null;
+      }
+      
+      // Process all results
+      const allPlaces = result.items.map((place: any) => {
         // Filter reviews to only include those from 2025 onwards
         const filteredReviews = place.reviews ? place.reviews.filter((review: any) => {
           const reviewDate = review.publishedAtDate ? new Date(review.publishedAtDate) : null;
@@ -48,7 +52,7 @@ export const ApifyService = {
         }) : [];
         
         return {
-          name: place.name || businessName,
+          name: place.name || "Unknown",
           rating: place.rating,
           reviewsCount: place.reviewsCount,
           address: place.address,
@@ -57,19 +61,35 @@ export const ApifyService = {
           reviews: filteredReviews,
           images: place.imageUrls || []
         };
-      }
+      });
       
-      return null;
+      // The first result should be the main business
+      const mainBusiness = allPlaces[0] as ApifyBusinessResult;
+      
+      // Store competitor results in a global variable for later use
+      (window as any).apifyCategoryResults = allPlaces.slice(1) as ApifyCategoryResult[];
+      console.log("Competitors stored:", (window as any).apifyCategoryResults);
+      
+      return mainBusiness;
     } catch (error) {
-      console.error("Error fetching business from Apify:", error);
+      console.error("Error fetching from Apify:", error);
       return null;
     }
   },
   
+  // This function will now use the cached results from the business search
+  // if available, otherwise it will make a new request
   fetchCategoryFromApify: async (category: string, location: string): Promise<ApifyCategoryResult[]> => {
+    // Check if we already have competitor results from a previous business search
+    if ((window as any).apifyCategoryResults && (window as any).apifyCategoryResults.length > 0) {
+      console.log("Using cached competitor results instead of making a new Apify request");
+      return (window as any).apifyCategoryResults;
+    }
+    
+    // If no cached results, make a new request (this should be rare now)
     // Format the query as "Category City" (e.g., "Data recovery service Austin")
     const searchQuery = `${category} ${location}`;
-    console.log(`Fetching category data from Apify with query: ${searchQuery}`);
+    console.log(`No cached results found. Fetching category data from Apify with query: ${searchQuery}`);
     
     try {
       const response = await fetch("https://api.apify.com/v2/acts/compass~crawler-google-places/runs?token=apify_api_vVFGRJajjdx3IDfdn86ww9hiyIKDGR25Jod1", {
