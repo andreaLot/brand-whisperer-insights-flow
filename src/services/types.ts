@@ -38,6 +38,7 @@ export interface ApifyBusinessResult {
   address?: string;
   category?: string;
   website?: string;
+  phoneNumber?: string; // Added phone number field
   reviews?: ApifyReview[];
   images?: string[];
 }

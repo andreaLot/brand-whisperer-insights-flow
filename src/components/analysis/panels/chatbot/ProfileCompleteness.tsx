@@ -17,13 +17,15 @@ const ProfileCompleteness: React.FC<ProfileCompletenessProps> = ({ apifyBusiness
   
   useEffect(() => {
     if (apifyBusinessResult) {
+      console.log("Calculating completeness from Apify data:", apifyBusinessResult);
+      
       // Fields to check for completeness based on Apify data
       const fieldsToCheck = [
         { field: 'Name', present: !!apifyBusinessResult.name },
         { field: 'Address', present: !!apifyBusinessResult.address },
         { field: 'Category', present: !!apifyBusinessResult.category },
         { field: 'Website', present: !!apifyBusinessResult.website },
-        { field: 'Phone Number', present: false }, // Default since we don't have phone in current data
+        { field: 'Phone Number', present: !!apifyBusinessResult.phoneNumber }, // Added phone number check
         { field: 'Reviews', present: !!apifyBusinessResult.reviews && apifyBusinessResult.reviews.length > 0 },
       ];
       

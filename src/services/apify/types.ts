@@ -42,6 +42,7 @@ export interface ApifyRawResult {
   address?: string;
   category?: string;
   website?: string;
+  phoneNumber?: string; // Added phone number field
   reviews?: Array<{
     text: string;
     stars: number;

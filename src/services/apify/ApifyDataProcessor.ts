@@ -18,6 +18,7 @@ export class ApifyDataProcessor {
       address: place.address,
       category: place.category,
       website: place.website,
+      phoneNumber: place.phoneNumber, // Add phone number to the result
       reviews: filteredReviews,
       images: place.imageUrls || []
     };
