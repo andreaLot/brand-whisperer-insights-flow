@@ -9,6 +9,7 @@ export interface PlatformResult {
   score: number;
   rank?: number;
   details?: string[];
+  model?: string;
 }
 
 export interface AnalysisResult {
@@ -20,6 +21,7 @@ export interface AnalysisResult {
   strengths: string[];
   weaknesses: string[];
   recommendations: string[];
+  model?: string;
 }
 
 export interface ApifyReview {

@@ -21,21 +21,44 @@ export const useAnalysisResults = () => {
       let result = await AnalysisService.analyzeBrand(businessName, location, category);
       
       // Enhance results with webhook response data if available
-      if (webhookResponse && webhookResponse.estimatedRank) {
-        const enhancedPlatformResults = result.platformResults.map((platform, index) => {
-          if (index === 0 && !platform.rank && webhookResponse.estimatedRank) {
-            return {
-              ...platform,
-              rank: webhookResponse.estimatedRank
-            };
-          }
-          return platform;
-        });
+      if (webhookResponse) {
+        // Add model information if available
+        if (webhookResponse.model) {
+          result = {
+            ...result,
+            model: webhookResponse.model
+          };
+        }
         
-        result = {
-          ...result,
-          platformResults: enhancedPlatformResults
-        };
+        // Update platform results with rank information if available
+        if (webhookResponse.estimatedRank) {
+          const enhancedPlatformResults = result.platformResults.map((platform, index) => {
+            if (index === 0 && !platform.rank) {
+              return {
+                ...platform,
+                rank: webhookResponse.estimatedRank,
+                // If the platform doesn't have a name but we have a model, use that
+                platform: platform.platform || webhookResponse.model || 'AI Analysis'
+              };
+            }
+            return platform;
+          });
+          
+          // If no platforms exist yet, create one from the webhook data
+          if (enhancedPlatformResults.length === 0 && webhookResponse.estimatedRank) {
+            enhancedPlatformResults.push({
+              platform: webhookResponse.model || 'AI Analysis',
+              score: 75, // Default score
+              rank: webhookResponse.estimatedRank,
+              model: webhookResponse.model
+            });
+          }
+          
+          result = {
+            ...result,
+            platformResults: enhancedPlatformResults
+          };
+        }
       }
       
       setAnalysisResult(result);

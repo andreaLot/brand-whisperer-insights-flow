@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import ResultCard from "@/components/ResultCard";
 import SummaryBox from "@/components/SummaryBox";
 import { AnalysisResult } from "@/services/AnalysisService";
-import { Search, MessageSquare, BarChart2, ArrowRightCircle } from "lucide-react";
+import { Search, MessageSquare, BarChart2, ArrowRightCircle, Info } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Carousel,
@@ -13,6 +13,12 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface ResultsStepProps {
   analysisResult: AnalysisResult;
@@ -43,6 +49,9 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ analysisResult, onStartOver }
         return <BarChart2 size={16} className="text-red-400" />;
       case 'searchgpt':
         return <Search size={16} className="text-green-400" />;
+      case 'gpt-4o':
+      case 'gpt-4o-2024-08-06':
+        return <MessageSquare size={16} className="text-green-500" />;
       default:
         return null;
     }
@@ -96,7 +105,25 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ analysisResult, onStartOver }
               </span>
               <span className="font-medium">
                 {item === "location" && analysisResult.location}
-                {item === "category" && analysisResult.category}
+                {item === "category" && (
+                  <div className="flex items-center gap-1">
+                    {analysisResult.category}
+                    {analysisResult.model && (
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="cursor-help">
+                              <Info size={12} className="text-brand-blue-light" />
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Analysis by {analysisResult.model}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    )}
+                  </div>
+                )}
                 {item === "score" && `${analysisResult.overallScore}/100`}
               </span>
             </motion.div>
@@ -156,7 +183,7 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ analysisResult, onStartOver }
                         platform={result.platform} 
                         score={result.score} 
                         rank={result.rank} 
-                        icon={renderPlatformIcon(result.platform)} 
+                        icon={renderPlatformIcon(result.platform || result.model)} 
                       />
                     </motion.div>
                   </CarouselItem>

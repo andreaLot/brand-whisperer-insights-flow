@@ -5,6 +5,7 @@ export interface WebhookResponse {
   message?: string;
   status?: string;
   timestamp?: string;
+  model?: string;
 }
 
 export const WebhookService = {
@@ -32,9 +33,34 @@ export const WebhookService = {
       // Process the response
       if (response.ok) {
         try {
-          const responseData: WebhookResponse = await response.json();
-          console.log("Webhook response received:", responseData);
-          return responseData;
+          const rawResponseData = await response.json();
+          console.log("Webhook response received:", rawResponseData);
+          
+          // Extract data from OpenAI format
+          if (rawResponseData.choices && rawResponseData.choices.length > 0) {
+            const content = rawResponseData.choices[0].message?.content;
+            const model = rawResponseData.model;
+            
+            // Extract rank from content (e.g. "Estimated Rank: 3")
+            let estimatedRank: number | undefined;
+            if (content) {
+              const rankMatch = content.match(/Estimated Rank:\s*(\d+)/i);
+              if (rankMatch && rankMatch[1]) {
+                estimatedRank = parseInt(rankMatch[1], 10);
+              }
+            }
+            
+            return {
+              estimatedRank,
+              model,
+              status: "success",
+              message: content || "Analysis complete",
+              timestamp: new Date().toISOString()
+            };
+          }
+          
+          // Fallback to the old format if OpenAI format is not detected
+          return rawResponseData as WebhookResponse;
         } catch (parseError) {
           console.log("Webhook responded but couldn't parse JSON:", parseError);
           return { status: "received", message: "Response received but couldn't be parsed" };

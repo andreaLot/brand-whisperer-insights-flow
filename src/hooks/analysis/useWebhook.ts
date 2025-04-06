@@ -33,7 +33,7 @@ export const useWebhook = () => {
         if (response.estimatedRank) {
           toast({
             title: "Rank Estimate Received",
-            description: `Your business has an estimated rank of #${response.estimatedRank} in its category`,
+            description: `Your business has an estimated rank of #${response.estimatedRank} ${response.model ? `(via ${response.model})` : ''}`,
           });
         }
       } else {
