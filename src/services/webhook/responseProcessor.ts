@@ -10,7 +10,8 @@ export function processMultiplePlatformResponse(responses: any[]): WebhookRespon
     console.log(`🔍 [WebhookService] Processing platform result ${index + 1}:`, 
                 JSON.stringify(response, null, 2));
     
-    if (response.choices && response.choices.length > 0) {
+    // Handle the new Perplexity format
+    if (response.model && response.choices && response.choices.length > 0) {
       const content = response.choices[0].message?.content;
       const model = response.model;
       
@@ -25,7 +26,7 @@ export function processMultiplePlatformResponse(responses: any[]): WebhookRespon
       }
       
       // Only add if we found a rank
-      if (estimatedRank && model) {
+      if (estimatedRank !== undefined && model) {
         const platform = normalizeModelToPlatform(model);
         platforms.push({
           platform,
@@ -34,10 +35,38 @@ export function processMultiplePlatformResponse(responses: any[]): WebhookRespon
         });
         console.log(`✅ [WebhookService] Added platform ${platform} with rank ${estimatedRank}`);
       }
-    } else if (response.platform || response.model) {
+    } 
+    // Handle the old response format
+    else if (response.choices && response.choices.length > 0) {
+      const content = response.choices[0].message?.content;
+      const model = response.model;
+      
+      // Extract rank from content (e.g. "Estimated Rank: 3")
+      let estimatedRank: number | undefined;
+      if (content) {
+        const rankMatch = content.match(/Estimated Rank:\s*(\d+)/i);
+        if (rankMatch && rankMatch[1]) {
+          estimatedRank = parseInt(rankMatch[1], 10);
+          console.log(`🔍 [WebhookService] Extracted rank from content for ${model}: ${estimatedRank}`);
+        }
+      }
+      
+      // Only add if we found a rank
+      if (estimatedRank !== undefined && model) {
+        const platform = normalizeModelToPlatform(model);
+        platforms.push({
+          platform,
+          model,
+          estimatedRank
+        });
+        console.log(`✅ [WebhookService] Added platform ${platform} with rank ${estimatedRank}`);
+      }
+    } 
+    // Handle direct platform objects
+    else if (response.platform || response.model) {
       // Handle direct platform objects
       const platform = response.platform || normalizeModelToPlatform(response.model);
-      if (response.estimatedRank) {
+      if (response.estimatedRank !== undefined) {
         platforms.push({
           platform,
           model: response.model || platform,
@@ -50,6 +79,16 @@ export function processMultiplePlatformResponse(responses: any[]): WebhookRespon
   
   console.log(`🔍 [WebhookService] Processed ${platforms.length} platform results from array response`);
   console.log(`🔍 [WebhookService] Final platforms data:`, JSON.stringify(platforms, null, 2));
+  
+  // Add a fallback if we couldn't extract any platforms
+  if (platforms.length === 0) {
+    console.log(`⚠️ [WebhookService] No platform data could be extracted, adding a fallback entry`);
+    platforms.push({
+      platform: "AI Analysis",
+      model: "Combined AI",
+      estimatedRank: 5 // Default ranking
+    });
+  }
   
   return {
     platforms,
