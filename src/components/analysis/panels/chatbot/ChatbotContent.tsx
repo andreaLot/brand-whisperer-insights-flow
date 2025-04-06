@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SeoPanel from './SeoPanel';
 import ContentPanel from './ContentPanel';
 import { ApifyBusinessResult } from "@/services/AnalysisService";
-import RatingsTable from './RatingsTable';
+import RatingsTable from './ratings/RatingsTable';
 
 interface ChatbotContentProps {
   visibleSnippet: 'none' | 'competitors' | 'seo' | 'content' | 'ratings';
