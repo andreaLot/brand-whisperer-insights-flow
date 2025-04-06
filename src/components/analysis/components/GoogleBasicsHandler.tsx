@@ -17,6 +17,7 @@ const GoogleBasicsHandler: React.FC<GoogleBasicsHandlerProps> = ({
       
       // After 2 seconds, also trigger the Google basics panel
       setTimeout(() => {
+        console.log("ChatbotStep: Triggering Google basics panel after delay");
         window.postMessage({ type: 'chatbot-selection', message: 'google-basics' }, '*');
       }, 2000);
     }
@@ -28,11 +29,9 @@ const GoogleBasicsHandler: React.FC<GoogleBasicsHandlerProps> = ({
     window.postMessage({ type: 'chatbot-selection', message: 'google-basics' }, '*');
   }, []);
 
-  // Return null as this component doesn't render anything visible
-  // but make the handler function available via React.Children.only in the parent
+  // Return handler function via a hidden element's data attribute
   return (
     <div style={{ display: 'none' }}>
-      {/* This is an invisible component that exports its handler function */}
       <input type="hidden" data-show-basics={handleShowBasics} />
     </div>
   );

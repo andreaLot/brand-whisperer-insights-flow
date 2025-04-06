@@ -17,16 +17,14 @@ const ProfileCompleteness: React.FC<ProfileCompletenessProps> = ({ apifyBusiness
   
   useEffect(() => {
     if (apifyBusinessResult) {
-      // Fields to check for completeness
+      // Fields to check for completeness based on Apify data
       const fieldsToCheck = [
         { field: 'Name', present: !!apifyBusinessResult.name },
         { field: 'Address', present: !!apifyBusinessResult.address },
         { field: 'Category', present: !!apifyBusinessResult.category },
         { field: 'Website', present: !!apifyBusinessResult.website },
-        // We don't have phone or claim status in our current data
-        // So we'll set default values
-        { field: 'Phone Number', present: false },
-        { field: 'Claim Status', present: false },
+        { field: 'Phone Number', present: false }, // Default since we don't have phone in current data
+        { field: 'Reviews', present: !!apifyBusinessResult.reviews && apifyBusinessResult.reviews.length > 0 },
       ];
       
       // Calculate score (each field is worth ~16.67 points)
@@ -70,7 +68,7 @@ const ProfileCompleteness: React.FC<ProfileCompletenessProps> = ({ apifyBusiness
     >
       <Card className="border-violet-500/20 bg-violet-900/10 backdrop-blur-sm shadow-lg shadow-violet-900/10">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-medium flex items-center gap-2">
+          <CardTitle className="text-lg font-medium flex items-center gap-2 text-white">
             <BarChart2 size={18} className="text-violet-400" />
             Google Business Profile Completeness
           </CardTitle>
