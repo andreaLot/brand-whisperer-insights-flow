@@ -1,18 +1,35 @@
-
 import { WebhookResponse } from './types';
 
-// Map of model identifiers to platform names for better display
+// Enhanced map of model identifiers to platform names for better display
 const modelToPlatformMap: Record<string, string> = {
+  // OpenAI models
+  "gpt-4o": "OpenAI",
+  "gpt-4": "OpenAI",
+  "gpt-3.5": "OpenAI",
   "gpt": "OpenAI",
   "openai": "OpenAI",
-  "gpt-4": "OpenAI",
-  "gpt4": "OpenAI",
+  
+  // Perplexity models
+  "llama-3.1": "Perplexity", 
+  "llama-3": "Perplexity",
   "perplexity": "Perplexity",
+  
+  // Mistral models
+  "mistral-large": "Mistral",
+  "mistral-medium": "Mistral",
+  "mistral": "Mistral",
+  
+  // DeepSeek models
+  "deepseek-chat": "DeepSeek",
+  "deepseek": "DeepSeek",
+  
+  // Gemini models
   "gemini": "Gemini",
   "bard": "Gemini",
+  "palm": "Gemini",
+  
+  // Others
   "claude": "Anthropic",
-  "deepseek": "DeepSeek",
-  "mistral": "Mistral",
 };
 
 // Function to normalize model names to platform names

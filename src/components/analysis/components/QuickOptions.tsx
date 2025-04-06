@@ -23,7 +23,7 @@ const QuickOptions: React.FC<QuickOptionsProps> = ({
     // Immediately post the message to show ratings panel before sending the message
     window.postMessage({ type: 'chatbot-selection', message: 'ratings' }, '*');
     // Then send the user message
-    onOptionClick("View my ratings");
+    onOptionClick("Show me the current AI platform rankings");
   };
 
   return (
@@ -42,7 +42,7 @@ const QuickOptions: React.FC<QuickOptionsProps> = ({
         data-testid="view-ratings-button"
       >
         <BarChart2 size={18} className="text-violet-300" />
-        View AI Search Rankings
+        View AI Platform Rankings
       </Button>
     </motion.div>
   );

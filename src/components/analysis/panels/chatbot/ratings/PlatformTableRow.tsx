@@ -50,7 +50,12 @@ const PlatformTableRow: React.FC<PlatformTableRowProps> = ({
               <div className="p-1 rounded-full bg-gray-800/50 flex items-center justify-center">
                 <PlatformIcon platform={result.platform || result.model} />
               </div>
-              <span className="font-medium text-white">{result.platform || result.model || `Platform ${index + 1}`}</span>
+              <div className="flex flex-col">
+                <span className="font-medium text-white">{result.platform || result.model || `AI Platform ${index + 1}`}</span>
+                {result.model && result.platform !== result.model && (
+                  <span className="text-xs text-gray-400">{result.model}</span>
+                )}
+              </div>
             </motion.div>
           </TableCell>
           <TableCell className="text-right font-mono">

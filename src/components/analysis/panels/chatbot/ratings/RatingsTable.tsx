@@ -26,6 +26,7 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
   const [titleVisible, setTitleVisible] = useState(false);
   const [legendVisible, setLegendVisible] = useState(false);
   const [footerVisible, setFooterVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Important: Make sure we have an array, even if empty
   const results = Array.isArray(platformResults) ? platformResults : [];
@@ -45,6 +46,18 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
     setTimeout(() => {
       startAnimations(results);
     }, 100);
+    
+    // Mark as no longer loading if we have results or after 5 seconds
+    if (results.length > 0) {
+      setIsLoading(false);
+    } else {
+      // If no results yet, set a timeout to stop showing the loading state after 5 seconds
+      const loadingTimeout = setTimeout(() => {
+        setIsLoading(false);
+      }, 5000);
+      
+      return () => clearTimeout(loadingTimeout);
+    }
   }, [platformResults]);
   
   const startAnimations = (results: PlatformResult[]) => {
@@ -105,7 +118,7 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
                   >
                     <CardTitle className="text-lg font-medium flex items-center gap-2 text-white">
                       <BarChart2 size={18} className="text-violet-400" />
-                      AI Platform Ratings
+                      AI Platform Rankings
                     </CardTitle>
                   </motion.div>
                 )}
@@ -144,21 +157,34 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
                       transition={{ duration: 0.5 }}
                       className="flex items-center justify-center py-4"
                     >
-                      <div className="animate-pulse flex space-x-2">
-                        <div className="h-2 w-2 bg-violet-400 rounded-full"></div>
-                        <div className="h-2 w-2 bg-violet-400 rounded-full animation-delay-200"></div>
-                        <div className="h-2 w-2 bg-violet-400 rounded-full animation-delay-400"></div>
-                      </div>
+                      {isLoading ? (
+                        <div className="animate-pulse flex space-x-2">
+                          <div className="h-2 w-2 bg-violet-400 rounded-full"></div>
+                          <div className="h-2 w-2 bg-violet-400 rounded-full animation-delay-200"></div>
+                          <div className="h-2 w-2 bg-violet-400 rounded-full animation-delay-400"></div>
+                        </div>
+                      ) : (
+                        <AlertTriangle size={24} className="text-amber-400" />
+                      )}
                     </motion.div>
-                    <p className="text-gray-300">Loading platform rankings...</p>
-                    <p className="text-gray-400 text-sm mt-1">Platform results will appear shortly.</p>
+                    {isLoading ? (
+                      <>
+                        <p className="text-gray-300">Fetching AI platform rankings...</p>
+                        <p className="text-gray-400 text-sm mt-1">Results will appear shortly.</p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-gray-300">No ranking data available</p>
+                        <p className="text-gray-400 text-sm mt-1">Try running the analysis again to retrieve AI platform rankings.</p>
+                      </>
+                    )}
                   </div>
                 )}
               </div>
               
               {/* Score legend */}
               <AnimatePresence>
-                {legendVisible && <ScoreLegend />}
+                {legendVisible && sortedResults.length > 0 && <ScoreLegend />}
               </AnimatePresence>
             </CardContent>
           </Card>

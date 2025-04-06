@@ -68,7 +68,7 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
       
       // Show ratings panel with bot response
       const botMessageId = `bot-${Date.now()}`;
-      const responseText = `Here are the current ratings for ${businessName} across different AI platforms:`;
+      const responseText = `Here are the current AI platform rankings for ${businessName}:`;
       
       // Add bot response to chat
       setChatHistory(prev => [...prev, { sender: 'bot', text: responseText, id: botMessageId }]);
@@ -81,7 +81,7 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
     }, 800);
   };
   
-  // Fix the dependency array to prevent infinite loops
+  // Send message to show ratings panel when we're in final phase
   useEffect(() => {
     if (isFinalPhase) {
       // Explicitly trigger the ratings panel to appear
@@ -92,7 +92,7 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
   return (
     <div className="flex flex-col space-y-4 w-full">
       <h2 className="text-3xl font-bold">
-        AI Platform <span className="text-brand-blue-light">Analysis</span>
+        AI Platform <span className="text-brand-blue-light">Rankings</span>
       </h2>
       
       <div className="flex-1 overflow-auto p-4 bg-brand-black/50 rounded-lg h-[300px] overflow-y-auto">
