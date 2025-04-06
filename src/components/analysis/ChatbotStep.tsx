@@ -20,27 +20,40 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
 }) => {
   const [message, setMessage] = useState('');
   const [chatHistory, setChatHistory] = useState<Array<{ sender: 'user' | 'bot', text: string }>>([]);
-  const [showOptions, setShowOptions] = useState(true);
+  const [showOptions, setShowOptions] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [isFinalPhase, setIsFinalPhase] = useState(false);
   const [isPanelVisible, setIsPanelVisible] = useState(false);
+  const [introStep, setIntroStep] = useState(0);
   
-  const chatOptions = [
-    "Tell me about my competitors",
-    "What about SEO for my business?",
-    "Content ideas for my business",
+  const introBubbles = [
+    `Hello! I'm analyzing "${businessName}" as a ${primaryCategory || 'business'} in ${location || 'your area'}.`,
+    "I can help you understand how your business appears across different AI platforms.",
+    "Would you like to see your current ratings from top AI assistants?",
   ];
-
-  // Add initial bot message as soon as the component renders
+  
+  // Add intro bubbles in sequence
   useEffect(() => {
-    setChatHistory([
-      {
-        sender: 'bot',
-        text: `Hi there! I can help provide insights about "${businessName}" as a ${primaryCategory} in ${location}. What would you like to know?`
-      }
-    ]);
-  }, [businessName, primaryCategory, location]);
-
+    if (introStep < introBubbles.length) {
+      setIsTyping(true);
+      
+      const timer = setTimeout(() => {
+        setChatHistory(prev => [...prev, { sender: 'bot', text: introBubbles[introStep] }]);
+        setIsTyping(false);
+        
+        // Show options button after last message
+        if (introStep === introBubbles.length - 1) {
+          setTimeout(() => setShowOptions(true), 500);
+        } else {
+          // Schedule next message
+          setTimeout(() => setIntroStep(introStep + 1), 500);
+        }
+      }, 1500 + (introStep * 300));
+      
+      return () => clearTimeout(timer);
+    }
+  }, [introStep, introBubbles, businessName, primaryCategory, location]);
+  
   const sendMessage = (text: string) => {
     // Add user message to chat
     setChatHistory(prev => [...prev, { sender: 'user', text }]);
@@ -57,31 +70,20 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
     setTimeout(() => {
       let responseText = '';
       
-      // Customize responses based on user message
-      if (text.toLowerCase().includes('competitor')) {
-        responseText = `I'll analyze the top competitors for ${businessName} in ${location} as a ${primaryCategory} business.`;
-        // Post an event for the iframe to receive and show competitors panel
-        window.postMessage({ type: 'chatbot-selection', message: 'competitors' }, '*');
-      } else if (text.toLowerCase().includes('seo')) {
-        responseText = `Here are some SEO opportunities for ${businessName} as a ${primaryCategory} business in ${location}:`;
-        // Post an event to show SEO panel
-        window.postMessage({ type: 'chatbot-selection', message: 'SEO' }, '*');
-      } else if (text.toLowerCase().includes('content')) {
-        responseText = `I'll suggest some content ideas for ${businessName} as a ${primaryCategory} business:`;
-        // Post an event to show content panel
-        window.postMessage({ type: 'chatbot-selection', message: 'Content' }, '*'); 
+      // Show ratings panel
+      if (text.toLowerCase().includes('ratings') || text.toLowerCase().includes('see ratings')) {
+        responseText = `Here are the current ratings for ${businessName} across different AI platforms:`;
+        // Post an event for the iframe to receive and show ratings panel
+        window.postMessage({ type: 'chatbot-selection', message: 'ratings' }, '*');
+        setIsFinalPhase(true);
       } else {
-        responseText = `I understand you're interested in ${text} for ${businessName}. Let me analyze that for you.`;
+        responseText = `I'll show you the AI platform ratings for ${businessName}.`;
+        window.postMessage({ type: 'chatbot-selection', message: 'ratings' }, '*');
+        setIsFinalPhase(true);
       }
       
       // Add bot response to chat
       setChatHistory(prev => [...prev, { sender: 'bot', text: responseText }]);
-      
-      // Show completion option after a few interactions
-      if (chatHistory.length >= 3) {
-        setIsFinalPhase(true);
-      }
-      
       setIsTyping(false);
     }, 1500); // 1.5 second typing delay
   };
@@ -119,7 +121,7 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
   return (
     <div className="flex flex-col space-y-4">
       <h2 className="text-xl font-normal">
-        Ask me about <span className="text-brand-blue-light">your business</span>
+        AI Platform <span className="text-brand-blue-light">Analysis</span>
       </h2>
       
       <div className="flex-1 overflow-auto p-4 bg-brand-black/50 rounded-lg h-[300px] overflow-y-auto">
@@ -142,17 +144,14 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
       {/* Quick option buttons */}
       {showOptions && (
         <div className="flex flex-wrap gap-2">
-          {chatOptions.map((option, index) => (
-            <Button
-              key={index}
-              variant="outline"
-              size="sm"
-              className="text-xs"
-              onClick={() => sendMessage(option)}
-            >
-              {option}
-            </Button>
-          ))}
+          <Button
+            variant="outline"
+            size="sm"
+            className="text-xs bg-violet-500/20 border-violet-400 text-violet-100 hover:bg-violet-500/30"
+            onClick={() => sendMessage("Show my ratings across AI platforms")}
+          >
+            See my ratings
+          </Button>
         </div>
       )}
       

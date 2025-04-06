@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 interface ConversationBubbleProps {
@@ -12,7 +13,7 @@ const ConversationBubble: React.FC<ConversationBubbleProps> = ({
   className 
 }) => {
   return (
-    <div 
+    <motion.div 
       className={cn(
         "px-8 py-12 min-h-[500px] flex flex-col justify-between rounded-xl border border-gray-700/50 shadow-xl text-white animate-fade-in w-full max-w-4xl",
         "bg-gradient-to-br from-brand-gray-dark/90 to-brand-blue-dark/30",
@@ -20,9 +21,19 @@ const ConversationBubble: React.FC<ConversationBubbleProps> = ({
         "shadow-[0_8px_32px_rgba(0,0,0,0.3),inset_0_1px_1px_rgba(255,255,255,0.07)]",
         className
       )}
+      initial={{ opacity: 0, y: 20, boxShadow: "0 8px 12px rgba(0,0,0,0.1)" }}
+      animate={{ 
+        opacity: 1, 
+        y: 0, 
+        boxShadow: "0 16px 40px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.07)"
+      }}
+      transition={{ 
+        duration: 0.7,
+        ease: [0.19, 1.0, 0.22, 1.0] // Nice easing curve for elegant motion
+      }}
     >
       {children}
-    </div>
+    </motion.div>
   );
 };
 

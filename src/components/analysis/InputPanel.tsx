@@ -36,7 +36,7 @@ const InputPanel: React.FC<InputPanelProps> = ({
   apifyLoading = false
 }) => {
   // Track which snippet is being shown during chatbot interaction
-  const [visibleSnippet, setVisibleSnippet] = useState<'none' | 'competitors' | 'seo' | 'content'>('none');
+  const [visibleSnippet, setVisibleSnippet] = useState<'none' | 'competitors' | 'seo' | 'content' | 'ratings'>('none');
   
   // Listen for message changes in ChatbotStep
   useEffect(() => {
@@ -48,6 +48,8 @@ const InputPanel: React.FC<InputPanelProps> = ({
           setVisibleSnippet('seo');
         } else if (event.data.message.includes('Content')) {
           setVisibleSnippet('content');
+        } else if (event.data.message.includes('ratings')) {
+          setVisibleSnippet('ratings');
         }
       }
     };

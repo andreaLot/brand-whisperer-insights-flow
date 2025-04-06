@@ -1,12 +1,12 @@
-
 import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SeoPanel from './SeoPanel';
 import ContentPanel from './ContentPanel';
 import { ApifyBusinessResult } from "@/services/AnalysisService";
+import RatingsTable from './RatingsTable';
 
 interface ChatbotContentProps {
-  visibleSnippet: 'none' | 'competitors' | 'seo' | 'content';
+  visibleSnippet: 'none' | 'competitors' | 'seo' | 'content' | 'ratings';
   analysisResult?: any;
   apifyBusinessResult?: ApifyBusinessResult | null;
 }
@@ -118,6 +118,22 @@ const ChatbotContent: React.FC<ChatbotContentProps> = ({
         variants={contentVariants}
       >
         <ContentPanel category={analysisResult?.category || apifyBusinessResult?.category} />
+      </motion.div>
+    );
+  }
+
+  if (visibleSnippet === 'ratings') {
+    return (
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        exit="exit"
+        variants={contentVariants}
+      >
+        <RatingsTable 
+          businessName={analysisResult?.businessName || apifyBusinessResult?.name || "Your Business"} 
+          platformResults={analysisResult?.platformResults || []}
+        />
       </motion.div>
     );
   }
