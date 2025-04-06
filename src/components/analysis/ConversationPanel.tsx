@@ -1,16 +1,15 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ConversationBubble from "@/components/ConversationBubble";
 import AnalysisWelcome from './AnalysisWelcome';
 import BusinessNameStep from './BusinessNameStep';
 import AnalyzingStep from './AnalyzingStep';
-import ResultsStep from './ResultsStep';
 import ChatbotStep from './ChatbotStep';
 import { BusinessCategory, AnalysisResult } from "@/services/AnalysisService";
 import { PlaceSelectionResult } from '@/hooks/useGooglePlaces';
 
-export type Step = 'welcome' | 'business-name' | 'category-detection' | 'analyzing' | 'chatbot' | 'results';
+export type Step = 'welcome' | 'business-name' | 'category-detection' | 'analyzing' | 'chatbot';
 
 interface ConversationPanelProps {
   step: Step;
@@ -72,10 +71,6 @@ const ConversationPanel: React.FC<ConversationPanelProps> = ({
                 onChatComplete={onChatComplete}
               />
             </div>
-          )}
-          
-          {step === 'results' && analysisResult && (
-            <ResultsStep analysisResult={analysisResult} onStartOver={onStartOver} />
           )}
         </AnimatePresence>
       </ConversationBubble>

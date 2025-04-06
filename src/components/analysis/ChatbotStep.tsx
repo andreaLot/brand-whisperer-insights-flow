@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Send, ArrowRightCircle } from "lucide-react";
+import { Send } from "lucide-react";
 import CompletionButton from './components/CompletionButton';
 
 interface ChatbotStepProps {
@@ -131,6 +131,15 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
     }
   };
 
+  // When "View Results" is clicked, show the platform ratings
+  const handleViewResults = () => {
+    // Show the ratings panel
+    window.postMessage({ type: 'chatbot-selection', message: 'ratings' }, '*');
+    // Signal that panel should be visible
+    setIsPanelVisible(true);
+    onChatComplete();
+  };
+
   // Render chat messages with animations
   const renderChatMessages = () => {
     return chatHistory.map((msg) => (
@@ -226,13 +235,13 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
       
       {/* Show complete button after sufficient interaction */}
       <AnimatePresence>
-        {isFinalPhase && (
+        {(introComplete && !isFinalPhase) && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <CompletionButton onAnalysisComplete={onChatComplete} />
+            <CompletionButton onAnalysisComplete={handleViewResults} />
           </motion.div>
         )}
       </AnimatePresence>

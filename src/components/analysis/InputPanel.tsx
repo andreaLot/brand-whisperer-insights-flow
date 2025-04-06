@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import ResultsStep from './ResultsStep';
 import { AnalysisResult, BusinessCategory, ApifyBusinessResult } from "@/services/AnalysisService";
 import { PlaceSelectionResult } from '@/hooks/useGooglePlaces';
 import { Step } from './ConversationPanel';
@@ -147,21 +146,6 @@ const InputPanel: React.FC<InputPanelProps> = ({
               visibleSnippet={visibleSnippet}
               analysisResult={analysisResult}
               apifyBusinessResult={apifyBusinessResult}
-            />
-          </motion.div>
-        )}
-        
-        {step === 'results' && analysisResult && (
-          <motion.div
-            key="results"
-            variants={panelVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-          >
-            <ResultsStep
-              analysisResult={analysisResult}
-              onStartOver={handleStartOver}
             />
           </motion.div>
         )}
