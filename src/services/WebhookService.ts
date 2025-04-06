@@ -10,7 +10,7 @@ export interface WebhookResponse {
 
 export const WebhookService = {
   sendWebhookData: async (businessData: any): Promise<WebhookResponse | null> => {
-    const webhookUrl = "https://uberall.app.n8n.cloud/webhook-test/analyze-business-ranking";
+    const webhookUrl = "https://uberall.app.n8n.cloud/webhook/analyze-business-ranking";
     
     try {
       console.log(`Sending detailed data to webhook: ${JSON.stringify(businessData)}`);
@@ -139,7 +139,7 @@ async function pollForWebhookResults(businessData: any): Promise<WebhookResponse
   console.log("Polling for webhook results...");
   
   // Create a polling endpoint URL (in production, this would be a real endpoint)
-  const pollingUrl = "https://uberall.app.n8n.cloud/webhook-test/status";
+  const pollingUrl = "https://uberall.app.n8n.cloud/webhook/status";
   
   try {
     // Simulate polling with a timeout
