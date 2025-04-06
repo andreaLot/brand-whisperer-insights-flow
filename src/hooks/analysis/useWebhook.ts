@@ -49,7 +49,7 @@ export const useWebhook = () => {
               
             toast({
               title: "Rankings Retrieved",
-              description: `${topPlatform.platform} ranks your business at #${topPlatform.estimatedRank}`,
+              description: `${topPlatform.platform || WebhookService.normalizeModelToPlatform(topPlatform.model)} ranks your business at #${topPlatform.estimatedRank}`,
             });
             
             // If we have multiple platforms, show another toast

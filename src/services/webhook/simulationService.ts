@@ -1,70 +1,75 @@
-
 import { WebhookResponse } from '../types';
 
-// Poll for results using a separate endpoint
-export async function simulatePlatformResponses(businessData: any): Promise<WebhookResponse> {
-  // In a real implementation, you would have a status endpoint to poll
-  // For now, we're simulating a response with multiple platforms
-  console.log("🔍 [WebhookService] Polling for webhook results... (simulated)");
-  console.log("🔍 [WebhookService] Business data:", businessData);
+/**
+ * Simulates platform responses when the webhook fails or for testing
+ */
+export const simulatePlatformResponses = async (businessData: any): Promise<WebhookResponse> => {
+  console.log("🔮 [SimulationService] Generating simulated platform responses");
   
-  // Simulate polling with a timeout and multiple platform results
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      // Use business name in simulation if available
-      const businessName = businessData.businessName || "Unknown Business";
-      console.log(`🔍 [WebhookService] Simulating platform responses for: ${businessName}`);
-      
-      // Generate six platform results to simulate responses from all major AI platforms
-      const platformResults = [
-        {
-          platform: "OpenAI", 
-          model: "gpt-4o",
-          estimatedRank: Math.floor(Math.random() * 3) + 1, // Random rank 1-3
-          score: Math.floor(Math.random() * 10) + 85,      // Random score 85-94
-        },
-        {
-          platform: "Perplexity",
-          model: "llama-3.1-sonar",
-          estimatedRank: Math.floor(Math.random() * 3) + 1, // Random rank 1-3
-          score: Math.floor(Math.random() * 10) + 85,      // Random score 85-94
-        },
-        {
-          platform: "Mistral", 
-          model: "mistral-large",
-          estimatedRank: Math.floor(Math.random() * 3) + 2, // Random rank 2-4
-          score: Math.floor(Math.random() * 10) + 75,      // Random score 75-84
-        },
-        {
-          platform: "DeepSeek",
-          model: "deepseek-coder",
-          estimatedRank: Math.floor(Math.random() * 3) + 2, // Random rank 2-4
-          score: Math.floor(Math.random() * 10) + 75,      // Random score 75-84
-        },
-        {
-          platform: "Gemini",
-          model: "gemini-1.5-pro",
-          estimatedRank: Math.floor(Math.random() * 3) + 3, // Random rank 3-5
-          score: Math.floor(Math.random() * 10) + 70,      // Random score 70-79
-        },
-        {
-          platform: "Anthropic",
-          model: "claude-3-opus",
-          estimatedRank: Math.floor(Math.random() * 3) + 2, // Random rank 2-4
-          score: Math.floor(Math.random() * 10) + 80,      // Random score 80-89
-        }
-      ];
-      
-      console.log(`🔍 [WebhookService] Generated ${platformResults.length} simulated platform responses`);
-      console.log(`🔍 [WebhookService] Simulated platform results:`, JSON.stringify(platformResults, null, 2));
-      
-      resolve({
-        platforms: platformResults,
-        confidence: 0.85,
-        status: "success",
-        message: "Multi-platform analysis complete",
-        timestamp: new Date().toISOString()
-      });
-    }, 1000);
-  });
-}
+  // Generate realistic platform rankings based on business name
+  const businessNameHash = businessData.businessName
+    ? Array.from(businessData.businessName).reduce((acc, char) => acc + char.charCodeAt(0), 0)
+    : 0;
+  
+  // Add some randomness, but keep it consistent for the same business name
+  const randomSeed = (businessNameHash % 100) / 100;
+  
+  // Generate a base rank that will be adjusted for each platform
+  const baseRank = Math.max(1, Math.min(10, Math.ceil(randomSeed * 10)));
+  
+  // Function to create a rank with some variation around the base
+  const varyRank = (adjustment: number) => {
+    return Math.max(1, Math.min(20, baseRank + adjustment));
+  };
+  
+  // Create platform responses
+  const platforms = [
+    {
+      platform: "OpenAI",
+      model: "gpt-4o",
+      estimatedRank: varyRank(0) // Base rank
+    },
+    {
+      platform: "Perplexity",
+      model: "llama-3.1-sonar-small-128k-online",
+      estimatedRank: varyRank(-1) // Slightly higher rank (lower number)
+    },
+    {
+      platform: "Gemini",
+      model: "gemini-2.0-flash",
+      estimatedRank: varyRank(1) // Slightly lower rank (higher number)
+    },
+    {
+      platform: "DeepSeek",
+      model: "deepseek-chat",
+      estimatedRank: varyRank(2) // Lower rank
+    },
+    {
+      platform: "Mistral",
+      model: "mistral-medium",
+      estimatedRank: varyRank(-2) // Higher rank
+    },
+    {
+      platform: "Anthropic",
+      model: "claude-3-opus",
+      estimatedRank: varyRank(3) // Even lower rank
+    }
+  ];
+
+  // Get a random success message
+  const messages = [
+    "Generated simulated rankings for testing",
+    "Virtual platform analysis complete",
+    "Demo rankings created based on business profile",
+    "Simulated AI platform rankings ready"
+  ];
+  
+  const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+  
+  return {
+    platforms,
+    status: "success",
+    message: randomMessage,
+    timestamp: new Date().toISOString()
+  };
+};

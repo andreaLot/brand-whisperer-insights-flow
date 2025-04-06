@@ -44,7 +44,7 @@ export function processMultiplePlatformResponse(responses: any[]): WebhookRespon
       const text = response.candidates[0].content.parts[0].text;
       const modelVersion = response.modelVersion || "gemini";
       
-      console.log(`🔍 [WebhookService] Processing Gemini format with model ${modelVersion}`);
+      console.log(`🔍 [WebhookService] Processing Gemini format with model: ${modelVersion}`);
       
       // Extract rank from content (e.g. "Estimated Rank: 3")
       let estimatedRank: number | undefined;

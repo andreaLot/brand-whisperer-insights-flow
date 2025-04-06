@@ -48,7 +48,7 @@ export const useAnalysisResults = () => {
       
       // Only use webhook response data if available
       if (webhookResponse) {
-        console.log("Processing webhook data for platform results:", webhookResponse);
+        console.log("Processing webhook data for platform results:", JSON.stringify(webhookResponse, null, 2));
         
         // Clear existing platform results to avoid duplicates
         result.platformResults = [];
@@ -59,6 +59,9 @@ export const useAnalysisResults = () => {
           
           // Process each platform in the response
           webhookResponse.platforms.forEach(platformData => {
+            // Get the normalized platform name
+            const platformName = normalizeModelToPlatform(platformData.model || platformData.platform);
+            
             // Generate a score based on the rank (higher ranks get lower scores)
             const baseScore = platformData.estimatedRank 
               ? Math.max(60, 95 - ((platformData.estimatedRank - 1) * 5))
@@ -66,13 +69,13 @@ export const useAnalysisResults = () => {
             
             // Add the platform to the results
             result.platformResults.push({
-              platform: platformData.platform,
+              platform: platformName,
               score: Math.round(baseScore), // Round to whole number
               rank: platformData.estimatedRank,
               model: platformData.model
             });
             
-            console.log(`Added platform ${platformData.platform} with rank ${platformData.estimatedRank} from webhook`);
+            console.log(`Added platform ${platformName} with rank ${platformData.estimatedRank} from webhook`);
           });
         } 
         // Handle legacy single platform format
@@ -106,15 +109,31 @@ export const useAnalysisResults = () => {
         }
       }
       
-      // If we don't have any platforms from webhook, use some synthetic ones for testing
+      // If we still don't have any platforms from webhook, use simulated ones
+      // We'll always have platforms now due to simulation service
       if (result.platformResults.length === 0) {
-        result.platformResults = [
-          { platform: 'OpenAI', score: 85, rank: 2, model: 'gpt-4o' },
-          { platform: 'Perplexity', score: 90, rank: 1, model: 'llama-3.1-sonar' },
-          { platform: 'Gemini', score: 82, rank: 3, model: 'gemini-1.5-flash' },
-          { platform: 'DeepSeek', score: 78, rank: 4, model: 'deepseek-chat' },
-          { platform: 'Mistral', score: 75, rank: 5, model: 'mistral-medium' }
-        ];
+        console.log("No platform results from webhook, using simulation");
+        const simulatedResponse = await AnalysisService.sendWebhookData({
+          businessName,
+          location,
+          category
+        });
+        
+        if (simulatedResponse && simulatedResponse.platforms) {
+          simulatedResponse.platforms.forEach(platformData => {
+            const platformName = normalizeModelToPlatform(platformData.model || platformData.platform);
+            const baseScore = platformData.estimatedRank 
+              ? Math.max(60, 95 - ((platformData.estimatedRank - 1) * 5))
+              : 85;
+            
+            result.platformResults.push({
+              platform: platformName,
+              score: Math.round(baseScore),
+              rank: platformData.estimatedRank,
+              model: platformData.model
+            });
+          });
+        }
       }
       
       // Sort the platforms by rank (if available)
@@ -146,17 +165,40 @@ export const useAnalysisResults = () => {
         variant: "destructive"
       });
       
-      // Return demo results on error
+      // Use simulated data on error
+      const simulatedResponse = await AnalysisService.sendWebhookData({
+        businessName,
+        location,
+        category
+      });
+      
+      const platformResults: PlatformResult[] = [];
+      
+      if (simulatedResponse && simulatedResponse.platforms) {
+        simulatedResponse.platforms.forEach(platformData => {
+          const platformName = normalizeModelToPlatform(platformData.model || platformData.platform);
+          const baseScore = platformData.estimatedRank 
+            ? Math.max(60, 95 - ((platformData.estimatedRank - 1) * 5))
+            : 85;
+          
+          platformResults.push({
+            platform: platformName,
+            score: Math.round(baseScore),
+            rank: platformData.estimatedRank,
+            model: platformData.model
+          });
+        });
+      }
+      
+      // Create error result with simulated data
       const errorResult: AnalysisResult = {
         businessName: businessName || "Your Business",
         location: location || "",
         category: category || "",
-        overallScore: 85,
-        platformResults: [
-          { platform: 'OpenAI', score: 85, rank: 2, model: 'gpt-4o' },
-          { platform: 'Perplexity', score: 90, rank: 1, model: 'llama-3.1-sonar' },
-          { platform: 'Gemini', score: 82, rank: 3, model: 'gemini-1.5-flash' }
-        ],
+        overallScore: platformResults.length > 0 
+          ? Math.round(platformResults.reduce((sum, p) => sum + p.score, 0) / platformResults.length)
+          : 85,
+        platformResults,
         strengths: [],
         weaknesses: [],
         recommendations: []
