@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from "framer-motion";
 import ResultCard from "@/components/ResultCard";
-import { Search, MessageSquare, BarChart2, Info } from "lucide-react";
+import { Search, MessageSquare, BarChart2, Shield } from "lucide-react";
 import {
   Carousel,
   CarouselContent,
@@ -36,16 +36,17 @@ const ResultsTabContent: React.FC<ResultsTabContentProps> = ({ platformResults }
   const renderPlatformIcon = (platform: string) => {
     switch (platform.toLowerCase()) {
       case 'perplexity':
-        return <Search size={16} className="text-purple-400" />;
+        return <Search size={16} className="text-white" />;
       case 'gemini':
-        return <MessageSquare size={16} className="text-blue-400" />;
-      case 'grok':
-        return <BarChart2 size={16} className="text-red-400" />;
-      case 'searchgpt':
-        return <Search size={16} className="text-green-400" />;
+        return <MessageSquare size={16} className="text-white" />;
+      case 'deepseek':
+        return <Shield size={16} className="text-white" />;
+      case 'mistral':
+        return <BarChart2 size={16} className="text-white" />;
       case 'gpt-4o':
       case 'gpt-4o-2024-08-06':
-        return <MessageSquare size={16} className="text-green-500" />;
+      case 'openai':
+        return <MessageSquare size={16} className="text-white" />;
       default:
         return null;
     }

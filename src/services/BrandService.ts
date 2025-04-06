@@ -15,10 +15,10 @@ export const BrandService = {
     // Calculate some mock scores
     const perplexityScore = Math.min(100, Math.max(40, baseScore + Math.floor(Math.random() * 15)));
     const geminiScore = Math.min(100, Math.max(40, baseScore - 5 + Math.floor(Math.random() * 20)));
-    const grokScore = Math.min(100, Math.max(40, baseScore + 10 + Math.floor(Math.random() * 10) - 10));
-    const searchGptScore = Math.min(100, Math.max(40, baseScore - 10 + Math.floor(Math.random() * 15)));
+    const mistralScore = Math.min(100, Math.max(40, baseScore + 10 + Math.floor(Math.random() * 10) - 10));
+    const deepseekScore = Math.min(100, Math.max(40, baseScore - 10 + Math.floor(Math.random() * 15)));
     
-    const overallScore = Math.floor((perplexityScore + geminiScore + grokScore + searchGptScore) / 4);
+    const overallScore = Math.floor((perplexityScore + geminiScore + mistralScore + deepseekScore) / 4);
     
     // Mock strengths, weaknesses and recommendations
     const strengths = [];
@@ -39,14 +39,14 @@ export const BrandService = {
       recommendations.push('Improve your SEO strategy to increase visibility on Google.');
     }
     
-    if (grokScore > 70) {
+    if (mistralScore > 70) {
       strengths.push('Positive sentiment in social media discussions.');
     } else {
       weaknesses.push('Mixed sentiment detected in online conversations.');
       recommendations.push('Engage more with your audience on social platforms to improve sentiment.');
     }
     
-    if (searchGptScore > 70) {
+    if (deepseekScore > 70) {
       strengths.push('Clear positioning in your market category.');
     } else {
       weaknesses.push('Unclear market positioning compared to competitors.');
@@ -84,13 +84,13 @@ export const BrandService = {
           rank: Math.floor(Math.random() * 10) + 1
         },
         {
-          platform: 'Grok',
-          score: grokScore,
+          platform: 'Mistral',
+          score: mistralScore,
           rank: Math.floor(Math.random() * 10) + 1
         },
         {
-          platform: 'SearchGPT',
-          score: searchGptScore,
+          platform: 'Deepseek',
+          score: deepseekScore,
           rank: Math.floor(Math.random() * 10) + 1
         }
       ],

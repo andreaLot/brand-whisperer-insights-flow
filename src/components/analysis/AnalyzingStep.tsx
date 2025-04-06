@@ -26,10 +26,11 @@ const AnalyzingStep: React.FC<AnalyzingStepProps> = ({
   
   // Define platforms with their specific colors
   const platforms = [
-    { name: "Gemini", color: "#33C3F0" },      // Ocean blue
-    { name: "OpenAI", color: "#8B5CF6" },      // Vivid purple
-    { name: "Perplexity", color: "#F97316" },  // Bright orange
-    { name: "Grok", color: "#ea384c" }         // Red
+    { name: "Gemini", color: "#FFFFFF" },       // White
+    { name: "OpenAI", color: "#FFFFFF" },       // White  
+    { name: "Perplexity", color: "#FFFFFF" },   // White
+    { name: "Deepseek", color: "#FFFFFF" },     // White
+    { name: "Mistral", color: "#FFFFFF" }       // White
   ];
   
   const [textOpacity, setTextOpacity] = useState(0);
@@ -60,10 +61,10 @@ const AnalyzingStep: React.FC<AnalyzingStepProps> = ({
         transition={{ duration: 1.2 }}
       >
         <motion.h2 
-          className="text-3xl font-tiempos mb-8 tracking-tight leading-relaxed"
+          className="text-3xl font-tiempos mb-8 tracking-tight leading-relaxed text-white"
         >
           We are looking how you perform in{' '}
-          <span className="text-brand-blue-light font-semibold">{categoryText}</span>
+          <span className="text-white font-semibold">{categoryText}</span>
           {' '}in your area
         </motion.h2>
         
