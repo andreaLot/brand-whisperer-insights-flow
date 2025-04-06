@@ -26,7 +26,7 @@ const AnalysisWelcome: React.FC<AnalysisWelcomeProps> = ({
         <span className="font-bold">Let's get started!</span>
         <br />
         <br />
-        Simply enter your <motion.span 
+        <span className="text-2xl">Simply enter your <motion.span 
           className="text-violet-500 font-tiempos font-bold"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -36,7 +36,7 @@ const AnalysisWelcome: React.FC<AnalysisWelcomeProps> = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.9, duration: 0.7 }}
-        >select a location</motion.span> you'd like to analyze<span className="typewriter-cursor"></span>
+        >select a location</motion.span> you'd like to analyze</span><span className="typewriter-cursor"></span>
       </motion.h2>
       
       <motion.div 
