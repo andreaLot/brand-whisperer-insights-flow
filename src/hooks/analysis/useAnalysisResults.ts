@@ -21,11 +21,7 @@ export const useAnalysisResults = () => {
         location: "",
         category: "",
         overallScore: 85,
-        platformResults: [
-          { platform: 'Gemini', score: 87, rank: 3 },
-          { platform: 'GPT-4o', score: 92, rank: 1 },
-          { platform: 'Perplexity', score: 89, rank: 2 },
-        ], 
+        platformResults: [],
         strengths: [],
         weaknesses: [],
         recommendations: []
@@ -63,16 +59,15 @@ export const useAnalysisResults = () => {
           
           // Process each platform in the response
           webhookResponse.platforms.forEach(platformData => {
-            // Generate a realistic score based on the rank (higher ranks get higher scores)
+            // Generate a score based on the rank (higher ranks get lower scores)
             const baseScore = platformData.estimatedRank 
-              ? 95 - ((platformData.estimatedRank - 1) * 3)
+              ? Math.max(60, 95 - ((platformData.estimatedRank - 1) * 5))
               : 85;
-            const score = Math.max(60, Math.min(95, baseScore + (Math.random() * 4 - 2))); // Add some randomness
             
             // Add the platform to the results
             result.platformResults.push({
               platform: platformData.platform,
-              score: Math.round(score), // Round to whole number
+              score: Math.round(baseScore), // Round to whole number
               rank: platformData.estimatedRank,
               model: platformData.model
             });
@@ -93,16 +88,15 @@ export const useAnalysisResults = () => {
             const platformName = normalizeModelToPlatform(webhookResponse.model);
             console.log(`Normalized model ${webhookResponse.model} to platform ${platformName}`);
             
-            // Generate a realistic score based on the rank (higher ranks get higher scores)
+            // Generate a score based on the rank (higher ranks get lower scores)
             const baseScore = webhookResponse.estimatedRank 
-              ? 95 - ((webhookResponse.estimatedRank - 1) * 3)
+              ? Math.max(60, 95 - ((webhookResponse.estimatedRank - 1) * 5))
               : 85;
-            const score = Math.max(60, Math.min(95, baseScore + (Math.random() * 4 - 2))); // Add some randomness
             
             // Create the entry for this platform with the webhook rank
             result.platformResults.push({
               platform: platformName,
-              score: Math.round(score), // Round to whole number
+              score: Math.round(baseScore), // Round to whole number
               rank: webhookResponse.estimatedRank,
               model: webhookResponse.model
             });
@@ -112,22 +106,15 @@ export const useAnalysisResults = () => {
         }
       }
       
-      // If we still don't have enough platforms (at least 3), add some synthetic ones
-      if (result.platformResults.length < 3) {
-        // Fill in missing major platforms
-        const availablePlatforms = result.platformResults.map(p => p.platform);
-        
-        if (!availablePlatforms.includes("OpenAI")) {
-          addPlatformWithRank(result.platformResults, "OpenAI", "gpt-4o");
-        }
-        
-        if (!availablePlatforms.includes("Perplexity")) {
-          addPlatformWithRank(result.platformResults, "Perplexity", "llama-3.1-sonar");
-        }
-        
-        if (!availablePlatforms.includes("Gemini")) {
-          addPlatformWithRank(result.platformResults, "Gemini", "gemini-1.5-flash");
-        }
+      // If we don't have any platforms from webhook, use some synthetic ones for testing
+      if (result.platformResults.length === 0) {
+        result.platformResults = [
+          { platform: 'OpenAI', score: 85, rank: 2, model: 'gpt-4o' },
+          { platform: 'Perplexity', score: 90, rank: 1, model: 'llama-3.1-sonar' },
+          { platform: 'Gemini', score: 82, rank: 3, model: 'gemini-1.5-flash' },
+          { platform: 'DeepSeek', score: 78, rank: 4, model: 'deepseek-chat' },
+          { platform: 'Mistral', score: 75, rank: 5, model: 'mistral-medium' }
+        ];
       }
       
       // Sort the platforms by rank (if available)
@@ -141,7 +128,13 @@ export const useAnalysisResults = () => {
       });
       
       // Log final platform results
-      console.log("Final platform results:", JSON.stringify(result.platformResults));
+      console.log("Final platform results:", JSON.stringify(result.platformResults, null, 2));
+      
+      // Update overall score based on average of platform scores
+      if (result.platformResults.length > 0) {
+        const avgScore = result.platformResults.reduce((sum, platform) => sum + platform.score, 0) / result.platformResults.length;
+        result.overallScore = Math.round(avgScore);
+      }
       
       setAnalysisResult(result);
       return result;
@@ -160,9 +153,9 @@ export const useAnalysisResults = () => {
         category: category || "",
         overallScore: 85,
         platformResults: [
-          { platform: 'Gemini', score: 87, rank: 3 },
-          { platform: 'GPT-4o', score: 92, rank: 1 },
-          { platform: 'Perplexity', score: 89, rank: 2 },
+          { platform: 'OpenAI', score: 85, rank: 2, model: 'gpt-4o' },
+          { platform: 'Perplexity', score: 90, rank: 1, model: 'llama-3.1-sonar' },
+          { platform: 'Gemini', score: 82, rank: 3, model: 'gemini-1.5-flash' }
         ],
         strengths: [],
         weaknesses: [],
@@ -171,39 +164,6 @@ export const useAnalysisResults = () => {
       
       setAnalysisResult(errorResult);
       return errorResult;
-    }
-  };
-
-  // Helper function to add a platform with a unique rank
-  const addPlatformWithRank = (
-    platformResults: PlatformResult[], 
-    platform: string, 
-    model: string
-  ) => {
-    // Skip if this platform is already in the results
-    if (platformResults.some(p => p.platform === platform)) {
-      return;
-    }
-    
-    // Find an unused rank between 1-5
-    const usedRanks = platformResults.map(p => p.rank).filter(r => r !== undefined) as number[];
-    let rank = 1;
-    while (usedRanks.includes(rank) && rank <= 5) {
-      rank++;
-    }
-    
-    // Only add if we found an available rank
-    if (rank <= 5) {
-      const score = Math.max(60, Math.min(95, 95 - ((rank - 1) * 3) + (Math.random() * 4 - 2)));
-      
-      platformResults.push({
-        platform,
-        model,
-        score: Math.round(score),
-        rank
-      });
-      
-      console.log(`Added synthetic platform ${platform} with assigned rank ${rank}`);
     }
   };
 

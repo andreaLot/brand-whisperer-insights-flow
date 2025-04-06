@@ -29,13 +29,16 @@ const ResultsTabContent: React.FC<ResultsTabContentProps> = ({ platformResults }
   useEffect(() => {
     console.log("ResultsTabContent received platformResults:", results);
     
+    // Reset visible cards when results change
+    setVisibleCards([]);
+    
     // Animate cards one by one
     results.forEach((_, index) => {
       setTimeout(() => {
         setVisibleCards(prev => [...prev, index]);
-      }, 600 + (index * 300)); // 300ms delay between each card
+      }, 300 + (index * 200)); // 200ms delay between each card
     });
-  }, [results.length]);
+  }, [results]);
 
   if (results.length === 0) {
     return (

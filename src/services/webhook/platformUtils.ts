@@ -29,6 +29,9 @@ export const modelToPlatformMap: Record<string, string> = {
   "deepseek": "DeepSeek",
   
   // Gemini models
+  "gemini-2.0-flash": "Gemini",
+  "gemini-1.5-flash": "Gemini",
+  "gemini-1.5-pro": "Gemini",
   "gemini": "Gemini",
   "bard": "Gemini",
   "palm": "Gemini",

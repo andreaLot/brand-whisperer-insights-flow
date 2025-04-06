@@ -35,7 +35,7 @@ const PlatformIcon: React.FC<PlatformIconProps> = ({ platform }) => {
     );
   }
   
-  if (name.includes('perplexity')) {
+  if (name.includes('perplexity') || name.includes('llama')) {
     return (
       <div className="flex items-center justify-center">
         <img 
