@@ -39,50 +39,11 @@ const ConversationPanel: React.FC<ConversationPanelProps> = ({
   handleLocationSelect,
   businessName
 }) => {
-  const [isPanelExpanded, setIsPanelExpanded] = useState(true);
-  
-  // Watch for chatbot interactions to collapse panel
-  useEffect(() => {
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.type === 'attributes' && mutation.attributeName === 'data-panel-visible') {
-          const chatbotEl = document.querySelector('[data-panel-visible="true"]');
-          if (chatbotEl) {
-            setIsPanelExpanded(false);
-          }
-        }
-      });
-    });
-    
-    const chatbotStep = document.querySelector('.chatbot-step-container');
-    if (chatbotStep) {
-      observer.observe(chatbotStep, { attributes: true, subtree: true });
-    }
-    
-    return () => {
-      observer.disconnect();
-    };
-  }, [step]);
-  
-  // Reset panel expansion when step changes
-  useEffect(() => {
-    if (step !== 'chatbot') {
-      setIsPanelExpanded(true);
-    }
-  }, [step]);
-
-  // Panel animation variants
-  const panelVariants = {
-    expanded: { width: '100%' },
-    collapsed: { width: '40%' }
-  };
-
   return (
     <motion.div 
-      className="flex flex-col gap-6"
-      variants={panelVariants}
-      animate={isPanelExpanded || step !== 'chatbot' ? 'expanded' : 'collapsed'}
-      transition={{ duration: 0.8, ease: [0.19, 1.0, 0.22, 1.0] }} // Ease animation for elegance
+      className="flex flex-col gap-6 w-full"
+      layout
+      transition={{ duration: 0.8, ease: [0.19, 1.0, 0.22, 1.0] }}
     >
       <ConversationBubble>
         <AnimatePresence mode="wait">

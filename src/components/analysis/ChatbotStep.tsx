@@ -25,6 +25,7 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
   const [isFinalPhase, setIsFinalPhase] = useState(false);
   const [isPanelVisible, setIsPanelVisible] = useState(false);
   const [introComplete, setIntroComplete] = useState(false);
+  const [processedIntroMessages, setProcessedIntroMessages] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   const introBubbles = [
@@ -38,13 +39,23 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
       let delay = 0;
       const messageDelay = 1000; // 1 second between messages
       
+      // Clear any existing messages first to prevent duplicates
+      setChatHistory([]);
+      setProcessedIntroMessages([]);
+      
       introBubbles.forEach((bubble, index) => {
-        const messageId = `intro-${index}-${Date.now()}`;
+        // Skip if this message has already been processed to prevent duplicates
+        if (processedIntroMessages.includes(bubble)) return;
+        
+        const messageId = `intro-${index}-${Date.now() + index}`; // Ensure unique IDs
         delay += messageDelay;
         
         setTimeout(() => {
+          // Add to processed messages to prevent duplicates
+          setProcessedIntroMessages(prev => [...prev, bubble]);
+          
           setChatHistory(prev => {
-            // Check if this message already exists to prevent duplicates
+            // Double check this exact message doesn't exist already
             if (prev.some(msg => msg.text === bubble)) return prev;
             return [...prev, { sender: 'bot', text: bubble, id: messageId }];
           });
@@ -70,7 +81,7 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
         }
       });
     }
-  }, [chatHistory.length, introBubbles, businessName, introComplete]);
+  }, [chatHistory.length, introBubbles, businessName, introComplete, processedIntroMessages]);
   
   // Auto-scroll to bottom when new messages appear
   useEffect(() => {

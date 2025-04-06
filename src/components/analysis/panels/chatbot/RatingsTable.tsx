@@ -57,13 +57,14 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
     return "bg-violet-500/20 text-violet-300 ring-1 ring-violet-500/20";
   };
   
-  // Animation variants
+  // Animation variants with staggered children for a cascade effect
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1
+        staggerChildren: 0.12, // Makes children appear one after another
+        delayChildren: 0.3 // Initial delay before first child appears
       }
     }
   };
@@ -75,7 +76,20 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
       y: 0,
       transition: { 
         type: "spring",
-        stiffness: 100
+        stiffness: 100,
+        duration: 0.6
+      }
+    }
+  };
+
+  const titleVariants = {
+    hidden: { opacity: 0, y: -10 },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      transition: { 
+        delay: 0.1,
+        duration: 0.5
       }
     }
   };
@@ -84,10 +98,12 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
     <div className="space-y-6">
       <Card className="border-violet-500/20 bg-violet-900/10 backdrop-blur-sm shadow-lg shadow-violet-900/10">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-medium flex items-center gap-2">
-            <BarChart2 size={18} className="text-violet-400" />
-            AI Platform Ratings
-          </CardTitle>
+          <motion.div variants={titleVariants} initial="hidden" animate="visible">
+            <CardTitle className="text-lg font-medium flex items-center gap-2">
+              <BarChart2 size={18} className="text-violet-400" />
+              AI Platform Ratings
+            </CardTitle>
+          </motion.div>
         </CardHeader>
         <CardContent>
           <motion.div 
@@ -118,15 +134,25 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
                       {index + 1}
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-2">
+                      <motion.div 
+                        className="flex items-center gap-2"
+                        initial={{ x: -5, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        transition={{ delay: 0.3 + (index * 0.1), duration: 0.5 }}
+                      >
                         <div className="p-1 rounded-full bg-gray-800/50 flex items-center justify-center">
                           {getPlatformIcon(result.platform || result.model)}
                         </div>
                         <span className="font-medium">{result.platform || result.model || `Platform ${index + 1}`}</span>
-                      </div>
+                      </motion.div>
                     </TableCell>
                     <TableCell className={`text-right font-mono ${getScoreColorClass(result.score)}`}>
-                      <div className="inline-flex items-center gap-1">
+                      <motion.div 
+                        className="inline-flex items-center gap-1"
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ delay: 0.4 + (index * 0.1), duration: 0.5 }}
+                      >
                         <span className="text-lg">{result.score}</span>
                         <span className="text-xs text-gray-400">/100</span>
                         
@@ -134,20 +160,20 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
                           <motion.div
                             initial={{ rotate: -20, scale: 0 }}
                             animate={{ rotate: 0, scale: 1 }}
-                            transition={{ delay: 0.3 + (index * 0.1), type: "spring", stiffness: 400 }}
+                            transition={{ delay: 0.5 + (index * 0.1), type: "spring", stiffness: 400 }}
                           >
                             <Star size={14} className="text-amber-400 fill-amber-400 ml-1" />
                           </motion.div>
                         )}
-                      </div>
+                      </motion.div>
                     </TableCell>
                     <TableCell className="text-right font-medium">
                       {result.rank ? (
                         <motion.span 
                           className={`px-2.5 py-1 rounded-full text-xs ${getRankBadgeClass(result.rank)}`}
-                          initial={{ scale: 0.8 }}
-                          animate={{ scale: 1 }}
-                          transition={{ delay: 0.2 + (index * 0.1), type: "spring" }}
+                          initial={{ scale: 0.8, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          transition={{ delay: 0.5 + (index * 0.1), duration: 0.5 }}
                         >
                           #{result.rank}
                         </motion.span>
@@ -164,7 +190,7 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
             className="mt-4 flex justify-center gap-4 text-xs text-gray-400"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.8 }}
+            transition={{ delay: 0.8, duration: 0.7 }}
           >
             <div className="flex items-center gap-1">
               <div className="w-2 h-2 rounded-full bg-emerald-400"></div>
@@ -185,7 +211,7 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5, duration: 0.5 }}
+        transition={{ delay: 1, duration: 0.7 }}
         className="text-center text-sm text-gray-400"
       >
         Analysis for <span className="text-white font-medium">{businessName}</span> across major AI platforms. 
