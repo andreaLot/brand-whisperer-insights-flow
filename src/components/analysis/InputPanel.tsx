@@ -57,7 +57,10 @@ const InputPanel: React.FC<InputPanelProps> = ({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
       >
-        <AnimatedInputContent />
+        <AnimatedInputContent>
+          {/* Placeholder content */}
+          <div className="p-4">Welcome content goes here</div>
+        </AnimatedInputContent>
       </motion.div>
     );
   }
@@ -70,7 +73,10 @@ const InputPanel: React.FC<InputPanelProps> = ({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
       >
-        <AnimatedInputContent />
+        <AnimatedInputContent>
+          {/* Placeholder content */}
+          <div className="p-4">Business name input content goes here</div>
+        </AnimatedInputContent>
       </motion.div>
     );
   }

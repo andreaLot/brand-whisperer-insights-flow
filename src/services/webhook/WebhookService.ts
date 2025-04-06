@@ -156,7 +156,6 @@ async function tryFetchWebhook(webhookUrl: string, businessData: any): Promise<W
             }],
             estimatedRank,
             model,
-            platform,
             status: "success",
             message: content || "Analysis complete",
             timestamp: new Date().toISOString()

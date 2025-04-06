@@ -1,5 +1,5 @@
-import { StrengthCategory } from "./BrandService";
 
+// Remove reference to non-existent StrengthCategory
 export interface WebhookResponse {
   model?: string;
   platforms?: PlatformWebhookResult[];

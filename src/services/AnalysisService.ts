@@ -10,7 +10,6 @@ export type {
   PlatformResult,
   AnalysisResult,
   ApifyBusinessResult,
-  ApifyCategoryResult,
   WebhookResponse
 } from './types';
 
