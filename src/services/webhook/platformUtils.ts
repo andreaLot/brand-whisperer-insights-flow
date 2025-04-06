@@ -3,6 +3,7 @@
 export const modelToPlatformMap: Record<string, string> = {
   // OpenAI models
   "gpt-4o": "OpenAI",
+  "gpt-4o-mini": "OpenAI",
   "gpt-4": "OpenAI",
   "gpt-3.5": "OpenAI",
   "gpt": "OpenAI",

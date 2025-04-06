@@ -1,8 +1,10 @@
+
 import { WebhookResponse } from '../types';
 import { getPerplexityRanking } from './perplexityService';
 import { getMistralRanking } from './mistralService';
 import { getDeepSeekRanking } from './deepSeekService';
 import { getGeminiRanking } from './geminiService';
+import { getOpenAIRanking } from './openaiService';
 import { simulatePlatformResponses } from './simulationService';
 
 /**
@@ -16,11 +18,12 @@ export const PlatformServicesManager = {
     console.log("🔄 [PlatformManager] Getting rankings from all platforms");
     
     // Try all platforms in parallel
-    const [perplexityResponse, mistralResponse, deepseekResponse, geminiResponse] = await Promise.all([
+    const [perplexityResponse, mistralResponse, deepseekResponse, geminiResponse, openaiResponse] = await Promise.all([
       getPerplexityRanking(businessData).catch(() => null),
       getMistralRanking(businessData).catch(() => null),
       getDeepSeekRanking(businessData).catch(() => null),
-      getGeminiRanking(businessData).catch(() => null)
+      getGeminiRanking(businessData).catch(() => null),
+      getOpenAIRanking(businessData).catch(() => null)
     ]);
     
     // Keep track of successful platforms
@@ -48,12 +51,17 @@ export const PlatformServicesManager = {
       successfulPlatforms.push("Gemini");
     }
     
+    if (openaiResponse && openaiResponse.platforms && openaiResponse.platforms.length > 0) {
+      allPlatforms.push(...openaiResponse.platforms);
+      successfulPlatforms.push("OpenAI");
+    }
+    
     // If we have at least one successful platform
     if (allPlatforms.length > 0) {
       console.log(`✅ [PlatformManager] Retrieved rankings from ${successfulPlatforms.join(", ")}`);
       
       // For platforms that failed, get simulated results
-      if (successfulPlatforms.length < 4) {
+      if (successfulPlatforms.length < 5) {
         const simulatedResponse = await simulatePlatformResponses(businessData);
         
         // Filter out already successful platforms from simulated results
