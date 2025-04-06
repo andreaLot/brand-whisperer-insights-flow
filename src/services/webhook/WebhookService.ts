@@ -17,7 +17,7 @@ export const WebhookService = {
     let response = await tryFetchWebhook(PRIMARY_WEBHOOK_URL, businessData);
     
     // If primary fails, try backup URL
-    if (!response && BACKUP_WEBHOOK_URL !== PRIMARY_WEBHOOK_URL) {
+    if (!response && PRIMARY_WEBHOOK_URL !== BACKUP_WEBHOOK_URL) {
       console.log("🔄 [WebhookService] Primary webhook failed, trying backup URL");
       response = await tryFetchWebhook(BACKUP_WEBHOOK_URL, businessData);
     }
@@ -140,6 +140,34 @@ async function tryFetchWebhook(webhookUrl: string, businessData: any): Promise<W
               estimatedRank: rawResponseData.estimatedRank
             }]
           };
+        }
+        
+        // Check for a simple "OpenAI Rank" format like in the logs
+        if (rawResponseData["OpenAI Rank"]) {
+          const rankText = rawResponseData["OpenAI Rank"];
+          console.log(`🔍 [WebhookService] Detected simple OpenAI Rank format: ${rankText}`);
+          
+          // Try to extract the rank
+          const rankMatch = rankText.match(/Estimated Rank:\s*(\d+)/i);
+          if (rankMatch && rankMatch[1]) {
+            const estimatedRank = parseInt(rankMatch[1], 10);
+            console.log(`   Extracted rank: ${estimatedRank}`);
+            
+            // Create a response with platforms array
+            return {
+              platforms: [{
+                platform: "OpenAI",
+                model: "OpenAI",
+                estimatedRank
+              }],
+              estimatedRank,
+              model: "OpenAI",
+              platform: "OpenAI",
+              status: "success",
+              message: rankText,
+              timestamp: new Date().toISOString()
+            };
+          }
         }
         
         console.log("🔍 [WebhookService] Returning raw response data as is");
