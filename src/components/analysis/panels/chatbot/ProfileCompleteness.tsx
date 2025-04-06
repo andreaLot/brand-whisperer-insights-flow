@@ -65,10 +65,10 @@ const ProfileCompleteness: React.FC<ProfileCompletenessProps> = ({ apifyBusiness
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
+      transition={{ duration: 0.8, ease: [0.19, 1.0, 0.22, 1.0] }}
       className="mt-6"
     >
-      <Card className="border-brand-blue-light/20 bg-gray-800/50 backdrop-blur-sm shadow-lg">
+      <Card className="border-brand-blue-light/20 bg-gradient-to-br from-gray-800/90 to-brand-blue-dark/50 backdrop-blur-sm shadow-lg">
         <CardHeader className="pb-2">
           <CardTitle className="text-lg font-medium flex items-center gap-2 text-white">
             <Info size={18} className="text-brand-blue-light" />
@@ -82,7 +82,7 @@ const ProfileCompleteness: React.FC<ProfileCompletenessProps> = ({ apifyBusiness
               <motion.span 
                 initial={{ scale: 0.8 }}
                 animate={{ scale: animateProgress ? 1 : 0.8 }}
-                transition={{ type: "spring", stiffness: 300 }}
+                transition={{ type: "spring", stiffness: 300, delay: 0.3 }}
                 className={`text-2xl font-bold ${getScoreColor(completenessScore)}`}
               >
                 {completenessScore}%
@@ -96,7 +96,7 @@ const ProfileCompleteness: React.FC<ProfileCompletenessProps> = ({ apifyBusiness
                 transition={{ 
                   duration: 1.5, 
                   ease: "easeOut",
-                  delay: 0.2
+                  delay: 0.5
                 }}
                 className={`absolute top-0 left-0 h-full ${getProgressColor(completenessScore)}`}
               />
@@ -106,10 +106,10 @@ const ProfileCompleteness: React.FC<ProfileCompletenessProps> = ({ apifyBusiness
               {scoreDetails.map((detail, index) => (
                 <motion.div 
                   key={detail.field} 
-                  className="flex items-center bg-gray-700/50 p-2.5 rounded-lg"
+                  className={`flex items-center p-2.5 rounded-lg ${detail.present ? 'bg-brand-blue-dark/40' : 'bg-gray-700/50'}`}
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.2 + (index * 0.1) }}
+                  transition={{ delay: 0.5 + (index * 0.15) }}
                 >
                   {detail.present ? (
                     <CheckCircle className="h-5 w-5 text-green-500 mr-2.5" />
@@ -127,7 +127,7 @@ const ProfileCompleteness: React.FC<ProfileCompletenessProps> = ({ apifyBusiness
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.2 }}
+                transition={{ delay: 1.5 }}
                 className="bg-brand-blue-dark/50 border border-brand-blue-light/20 rounded-lg p-3 text-sm text-gray-200"
               >
                 <p>

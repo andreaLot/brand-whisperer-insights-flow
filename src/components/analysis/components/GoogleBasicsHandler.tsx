@@ -22,9 +22,14 @@ const GoogleBasicsHandler: React.FC<GoogleBasicsHandlerProps> = ({
     window.postMessage({ type: 'chatbot-selection', message: 'google-basics' }, '*');
   }, []);
 
-  return {
-    handleShowBasics
-  };
+  // Return null as this component doesn't render anything visible
+  // but make the handler function available via React.Children.only in the parent
+  return (
+    <div style={{ display: 'none' }}>
+      {/* This is an invisible component that exports its handler function */}
+      <input type="hidden" data-show-basics={handleShowBasics} />
+    </div>
+  );
 };
 
 export default GoogleBasicsHandler;

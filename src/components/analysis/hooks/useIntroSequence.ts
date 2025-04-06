@@ -29,7 +29,7 @@ export const useIntroSequence = ({
   useEffect(() => {
     if (chatHistory.length === 0 && !introComplete) {
       let delay = 0;
-      const messageDelay = 1000; // 1 second between messages
+      const messageDelay = 2000; // 2 seconds between messages (increased from 1s)
       
       // Clear any existing messages first to prevent duplicates
       setChatHistory([]);
@@ -57,7 +57,7 @@ export const useIntroSequence = ({
             setTimeout(() => {
               setShowOptions(true);
               setIntroComplete(true);
-            }, 500);
+            }, 1000); // Wait 1s after last message before showing options
           }
         }, delay);
       });

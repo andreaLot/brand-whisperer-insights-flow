@@ -50,7 +50,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ chatHistory, isTyping, onSh
                   size="sm" 
                   variant="dynamic"
                   onClick={onShowBasics}
-                  className="w-full"
+                  className="w-full bg-brand-blue-light hover:bg-brand-blue text-white"
                 >
                   Show me the basics
                 </Button>

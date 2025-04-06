@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useRef } from 'react';
 import { useChatbotState } from './hooks/useChatbotState';
 import { useIntroSequence } from './hooks/useIntroSequence';
 import { useChatbotMessaging } from './hooks/useChatbotMessaging';
@@ -61,8 +61,26 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
     onChatComplete
   });
   
-  // Get the Google Basics handler
-  const { handleShowBasics } = GoogleBasicsHandler({ isFinalPhase });
+  // Create a ref to store the handler function
+  const showBasicsHandlerRef = useRef<(() => void) | null>(null);
+  
+  // Function to handle showing Google Basics
+  const handleGoogleBasicsClick = () => {
+    if (showBasicsHandlerRef.current) {
+      showBasicsHandlerRef.current();
+    }
+  };
+  
+  // Function to capture the handler from GoogleBasicsHandler
+  const handleGoogleBasicsRef = (element: React.ReactElement) => {
+    // Extract the handler from the data attribute
+    if (element && element.props && element.props.children) {
+      const inputElement = React.Children.toArray(element.props.children)[0] as React.ReactElement;
+      if (inputElement && inputElement.props && inputElement.props["data-show-basics"]) {
+        showBasicsHandlerRef.current = inputElement.props["data-show-basics"];
+      }
+    }
+  };
 
   return (
     <>
@@ -73,7 +91,7 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
         introComplete={introComplete}
         isFinalPhase={isFinalPhase}
         onOptionClick={sendMessage}
-        onShowBasics={handleShowBasics}
+        onShowBasics={handleGoogleBasicsClick}
       />
       
       {/* Export panel visibility state so it can be accessed by parent components */}
@@ -82,6 +100,9 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
         introComplete={introComplete}
         setIsPanelVisible={setIsPanelVisible}
       />
+      
+      {/* Render GoogleBasicsHandler but capture its function via ref */}
+      {React.createElement(GoogleBasicsHandler, { isFinalPhase }, null)}
     </>
   );
 };
