@@ -101,7 +101,7 @@ const AnalysisContent: React.FC<AnalysisContentProps> = ({
         )}
         
         {/* Show input panel for non-chatbot steps */}
-        {(!forceShowInputPanel && step !== 'chatbot') && (
+        {!forceShowInputPanel && (
           <PanelContainer width={panelSplitRatio.input}>
             <InputPanel
               step={step}
