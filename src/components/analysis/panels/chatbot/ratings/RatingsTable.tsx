@@ -30,10 +30,11 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
   // Important: Make sure we have an array, even if empty
   const results = Array.isArray(platformResults) ? platformResults : [];
   
-  // Log the results that will be displayed
+  // Debug logs
   useEffect(() => {
-    console.log("RatingsTable displaying platform results:", results);
-    console.log("Rendering ratings table with data:", JSON.stringify(results));
+    console.log("RatingsTable received platformResults:", results);
+    console.log("Platform results data type:", typeof platformResults);
+    console.log("Platform results length:", results.length);
   }, [results]);
   
   // Animate the table rows one by one with a staggered delay
@@ -129,8 +130,8 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
                 ) : (
                   <div className="p-8 flex flex-col items-center justify-center text-center">
                     <AlertTriangle className="text-amber-400 mb-2" size={24} />
-                    <p className="text-gray-300">No platform results available yet.</p>
-                    <p className="text-gray-400 text-sm mt-1">Results will appear after analysis is completed.</p>
+                    <p className="text-gray-300">Generating platform results...</p>
+                    <p className="text-gray-400 text-sm mt-1">Platform rankings will appear momentarily.</p>
                   </div>
                 )}
               </div>

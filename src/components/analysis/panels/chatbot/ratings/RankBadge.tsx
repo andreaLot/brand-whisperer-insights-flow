@@ -7,7 +7,17 @@ interface RankBadgeProps {
 }
 
 const RankBadge: React.FC<RankBadgeProps> = ({ rank }) => {
-  if (rank === undefined || rank === null) return null;
+  if (rank === undefined || rank === null) return (
+    <motion.span 
+      className="px-2.5 py-1 rounded-full text-xs bg-gray-500/30 text-gray-300 ring-1 ring-gray-500/30"
+      initial={{ scale: 0.8, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{ delay: 0.4, duration: 0.5 }}
+      title="No rank available"
+    >
+      --
+    </motion.span>
+  );
   
   // Get appropriate CSS classes based on rank
   const getRankBadgeClass = (rank: number) => {

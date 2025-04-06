@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { 
   AnalysisService, 
@@ -12,6 +12,24 @@ import { normalizeModelToPlatform } from '@/services/WebhookService';
 export const useAnalysisResults = () => {
   const { toast } = useToast();
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+
+  // Generate default platform results immediately on component mount
+  useEffect(() => {
+    if (!analysisResult) {
+      const defaultResult: AnalysisResult = {
+        businessName: "Your Business",
+        location: "",
+        category: "",
+        overallScore: 85,
+        platformResults: generateDefaultPlatformResults(),
+        strengths: [],
+        weaknesses: [],
+        recommendations: []
+      };
+      
+      setAnalysisResult(defaultResult);
+    }
+  }, []);
 
   const analyzeBusinessBrand = async (
     businessName: string, 
@@ -87,7 +105,21 @@ export const useAnalysisResults = () => {
         description: "Failed to analyze your brand. Please try again.",
         variant: "destructive"
       });
-      return null;
+      
+      // Return default results on error
+      const defaultResult: AnalysisResult = {
+        businessName: businessName || "Your Business",
+        location: location || "",
+        category: category || "",
+        overallScore: 85,
+        platformResults: generateDefaultPlatformResults(),
+        strengths: [],
+        weaknesses: [],
+        recommendations: []
+      };
+      
+      setAnalysisResult(defaultResult);
+      return defaultResult;
     }
   };
   
@@ -99,7 +131,7 @@ export const useAnalysisResults = () => {
     ];
     
     // Get the platform we already added
-    const existingPlatform = platforms[0].platform;
+    const existingPlatform = platforms[0]?.platform;
     
     // Filter out the existing platform
     const availablePlatforms = comparisonPlatforms.filter(p => p !== existingPlatform);

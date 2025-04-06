@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SeoPanel from './SeoPanel';
 import ContentPanel from './ContentPanel';
@@ -16,6 +17,13 @@ const ChatbotContent: React.FC<ChatbotContentProps> = ({
   analysisResult,
   apifyBusinessResult
 }) => {
+  // Debug logging
+  useEffect(() => {
+    console.log("ChatbotContent visibleSnippet:", visibleSnippet);
+    console.log("ChatbotContent analysisResult:", analysisResult);
+    console.log("Platform results from analysisResult:", analysisResult?.platformResults);
+  }, [visibleSnippet, analysisResult]);
+
   // Animation variants for content transition
   const contentVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -124,6 +132,9 @@ const ChatbotContent: React.FC<ChatbotContentProps> = ({
 
   if (visibleSnippet === 'ratings') {
     console.log("Rendering ratings table with data:", analysisResult?.platformResults || []);
+    const platformResults = analysisResult?.platformResults || [];
+    const businessName = analysisResult?.businessName || apifyBusinessResult?.name || "Your Business";
+    
     return (
       <motion.div
         initial="hidden"
@@ -133,8 +144,8 @@ const ChatbotContent: React.FC<ChatbotContentProps> = ({
         className="w-full"
       >
         <RatingsTable 
-          businessName={analysisResult?.businessName || apifyBusinessResult?.name || "Your Business"} 
-          platformResults={analysisResult?.platformResults || []}
+          businessName={businessName} 
+          platformResults={platformResults}
         />
       </motion.div>
     );

@@ -84,15 +84,14 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
     }, 800);
   };
   
-  // Handle final phase visibility - using a strict dependency array
+  // Handle final phase visibility - using a strict dependency array without state setters
+  // This was causing the infinite update loop
   useEffect(() => {
     if (isFinalPhase) {
-      // Make sure the panel is visible
-      setIsPanelVisible(true);
       // Explicitly trigger the ratings panel to appear
       window.postMessage({ type: 'chatbot-selection', message: 'ratings' }, '*');
     }
-  }, [isFinalPhase]); // Removed setIsPanelVisible from dependency array to prevent infinite loop
+  }, [isFinalPhase]);
 
   return (
     <div className="flex flex-col space-y-4 w-full">
