@@ -40,6 +40,9 @@ export const useAnalysisResults = () => {
           const platformName = normalizeModelToPlatform(webhookResponse.model);
           console.log(`Normalized model ${webhookResponse.model} to platform ${platformName}`);
           
+          // Create a flag to track if we've added the webhook platform
+          let webhookPlatformAdded = false;
+          
           // Check if this platform already exists in our results
           const existingPlatformIndex = result.platformResults.findIndex(
             p => p.platform?.toLowerCase() === platformName.toLowerCase()
@@ -57,7 +60,8 @@ export const useAnalysisResults = () => {
               platform: platformName
             };
             
-            console.log(`Updated platform rank to ${webhookResponse.estimatedRank}`);
+            console.log(`Updated platform ${platformName} rank to ${webhookResponse.estimatedRank}`);
+            webhookPlatformAdded = true;
           } else {
             // If the platform doesn't exist yet, add it
             console.log(`Platform ${platformName} not found, adding new entry with rank ${webhookResponse.estimatedRank}`);
@@ -67,10 +71,25 @@ export const useAnalysisResults = () => {
               rank: webhookResponse.estimatedRank,
               model: webhookResponse.model
             });
+            webhookPlatformAdded = true;
           }
           
           // Log the platform results after webhook updating
           console.log("Platform results after webhook update:", JSON.stringify(result.platformResults));
+          
+          // Make sure the webhook platform has the correct rank
+          if (webhookPlatformAdded) {
+            console.log("Ensuring webhook platform has the correct rank:", webhookResponse.estimatedRank);
+            
+            // Re-check that the platform has the correct rank after sorting
+            const platformWithWebhookRank = result.platformResults.find(
+              p => p.platform?.toLowerCase() === platformName.toLowerCase()
+            );
+            
+            if (platformWithWebhookRank) {
+              platformWithWebhookRank.rank = webhookResponse.estimatedRank;
+            }
+          }
         }
         
         // Sort platforms by rank after update 
@@ -81,8 +100,7 @@ export const useAnalysisResults = () => {
         result.platformResults = assignRanksBasedOnScore(result.platformResults);
       }
       
-      // IMPORTANT: Don't generate default results if we already have platform results
-      // This was causing webhook ranks to be ignored
+      // Only generate default results if we don't have any platforms yet
       if (result.platformResults.length === 0) {
         console.log("No platform results available, generating defaults");
         result.platformResults = generateDefaultPlatformResults();
@@ -149,9 +167,7 @@ export const useAnalysisResults = () => {
     });
     
     // Return the combined and updated platforms array
-    const rankedPlatforms = [...platformsCopy.filter(p => p.rank !== undefined)];
-    console.log("Final ranked platforms:", rankedPlatforms);
-    return rankedPlatforms;
+    return platformsCopy;
   };
   
   // Generate default platform results if no real data available
