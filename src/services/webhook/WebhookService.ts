@@ -9,7 +9,7 @@ export const WebhookService = {
   normalizeModelToPlatform,
   
   sendWebhookData: async (businessData: any): Promise<WebhookResponse | null> => {
-    const webhookUrl = "https://uberall.app.n8n.cloud/webhook/analyze-business-ranking";
+    const webhookUrl = "https://uberall.app.n8n.cloud/webhook-test/analyze-business-ranking";
     
     try {
       console.log(`Sending detailed data to webhook: ${JSON.stringify(businessData)}`);

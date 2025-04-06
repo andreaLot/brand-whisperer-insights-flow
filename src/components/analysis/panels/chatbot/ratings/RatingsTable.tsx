@@ -135,11 +135,6 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
                         </motion.div>
                       )}
                     </CardTitle>
-                    {!hasResults && !isLoading && (
-                      <div className="text-xs text-amber-400 mt-1">
-                        Demo data shown - see explanation below
-                      </div>
-                    )}
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -219,17 +214,6 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
               />
             )}
           </AnimatePresence>
-          
-          {!hasResults && !isLoading && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1, transition: { delay: 1.5 } }}
-              className="text-center text-sm text-amber-400 mt-4 p-3 border border-amber-600/20 rounded-md bg-amber-600/10"
-            >
-              <p>We're showing demo data while we wait for actual AI platform results.</p>
-              <p className="mt-1">For real data, try searching for a business name like "Tesla" or "Apple".</p>
-            </motion.div>
-          )}
         </motion.div>
       )}
     </AnimatePresence>
