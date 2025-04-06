@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { 
@@ -67,29 +68,27 @@ export const useAnalysisResults = () => {
             console.log(`Added platform ${platformName} with rank ${platformData.estimatedRank} from webhook`);
           });
         } 
-        else if (webhookResponse.model || webhookResponse.platform) {
-          if (webhookResponse.model) {
-            result = {
-              ...result,
-              model: webhookResponse.model
-            };
-            
-            const platformName = normalizeModelToPlatform(webhookResponse.model);
-            console.log(`Normalized model ${webhookResponse.model} to platform ${platformName}`);
-            
-            const baseScore = webhookResponse.estimatedRank 
-              ? Math.max(60, 95 - ((webhookResponse.estimatedRank - 1) * 5))
-              : 85;
-            
-            result.platformResults.push({
-              platform: platformName,
-              score: Math.round(baseScore),
-              rank: webhookResponse.estimatedRank,
-              model: webhookResponse.model
-            });
-            
-            console.log(`Added platform ${platformName} with rank ${webhookResponse.estimatedRank} from webhook`);
-          }
+        else if (webhookResponse.model) {
+          result = {
+            ...result,
+            model: webhookResponse.model
+          };
+          
+          const platformName = normalizeModelToPlatform(webhookResponse.model);
+          console.log(`Normalized model ${webhookResponse.model} to platform ${platformName}`);
+          
+          const baseScore = webhookResponse.estimatedRank 
+            ? Math.max(60, 95 - ((webhookResponse.estimatedRank - 1) * 5))
+            : 85;
+          
+          result.platformResults.push({
+            platform: platformName,
+            score: Math.round(baseScore),
+            rank: webhookResponse.estimatedRank,
+            model: webhookResponse.model
+          });
+          
+          console.log(`Added platform ${platformName} with rank ${webhookResponse.estimatedRank} from webhook`);
         }
       }
       
