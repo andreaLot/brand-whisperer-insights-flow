@@ -1,163 +1,86 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import RatingsTable from './ratings/RatingsTable';
+import CompetitorsPanel from './CompetitorsPanel';
 import SeoPanel from './SeoPanel';
 import ContentPanel from './ContentPanel';
-import { ApifyBusinessResult } from "@/services/AnalysisService";
-import RatingsTable from './ratings/RatingsTable';
+import { AnalysisResult, ApifyBusinessResult } from '@/services/types';
 
 interface ChatbotContentProps {
   visibleSnippet: 'none' | 'competitors' | 'seo' | 'content' | 'ratings';
-  analysisResult?: any;
+  analysisResult: AnalysisResult | null;
   apifyBusinessResult?: ApifyBusinessResult | null;
 }
 
-const ChatbotContent: React.FC<ChatbotContentProps> = ({ 
-  visibleSnippet, 
+const ChatbotContent: React.FC<ChatbotContentProps> = ({
+  visibleSnippet,
   analysisResult,
   apifyBusinessResult
 }) => {
-  // Debug logging
-  useEffect(() => {
-    console.log("ChatbotContent visibleSnippet:", visibleSnippet);
-    console.log("ChatbotContent analysisResult:", analysisResult);
-    if (analysisResult?.platformResults) {
-      console.log("Platform results from analysisResult:", JSON.stringify(analysisResult.platformResults));
-    }
-  }, [visibleSnippet, analysisResult]);
-
-  // Animation variants for content transition
-  const contentVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { 
-        duration: 0.5,
-        ease: [0.19, 1.0, 0.22, 1.0]
-      }
-    },
-    exit: { 
-      opacity: 0, 
-      y: -20,
-      transition: { duration: 0.3 }
-    }
-  };
-
-  // For competitors snippet, we'll show business details
-  if (visibleSnippet === 'competitors') {
-    return (
-      <motion.div 
-        className="bg-brand-gray-dark rounded-lg p-6 border border-gray-700"
-        initial="hidden"
-        animate="visible"
-        exit="exit"
-        variants={contentVariants}
-      >
-        <h3 className="text-lg font-medium mb-4">Business Details</h3>
-        {apifyBusinessResult ? (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span>Business Name:</span>
-              <span className="text-brand-blue-light">{apifyBusinessResult.name}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span>Category:</span>
-              <span>{apifyBusinessResult.category || 'Not available'}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span>Rating:</span>
-              <span>{apifyBusinessResult.rating || 'Not available'}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span>Reviews:</span>
-              <span>{apifyBusinessResult.reviewsCount || '0'}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span>Address:</span>
-              <span className="text-sm text-right">{apifyBusinessResult.address || 'Not available'}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span>Website:</span>
-              <span className="text-brand-blue-light text-sm">
-                {apifyBusinessResult.website ? (
-                  <a href={apifyBusinessResult.website} target="_blank" rel="noopener noreferrer">
-                    {apifyBusinessResult.website}
-                  </a>
-                ) : 'Not available'}
-              </span>
-            </div>
-          </div>
-        ) : (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className="flex items-center justify-center py-8"
-          >
-            <div className="animate-pulse flex space-x-2">
-              <div className="h-2 w-2 bg-brand-blue-light rounded-full"></div>
-              <div className="h-2 w-2 bg-brand-blue-light rounded-full"></div>
-              <div className="h-2 w-2 bg-brand-blue-light rounded-full"></div>
-            </div>
-          </motion.div>
-        )}
-      </motion.div>
-    );
+  console.log("ChatbotContent received analysisResult:", analysisResult);
+  console.log("Rendering snippet:", visibleSnippet);
+  
+  if (!analysisResult) {
+    console.log("No analysis result available for ChatbotContent");
+    return null;
   }
 
-  if (visibleSnippet === 'seo') {
-    return (
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        exit="exit"
-        variants={contentVariants}
-      >
-        <SeoPanel />
-      </motion.div>
-    );
-  }
-
-  if (visibleSnippet === 'content') {
-    return (
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        exit="exit"
-        variants={contentVariants}
-      >
-        <ContentPanel category={analysisResult?.category || apifyBusinessResult?.category} />
-      </motion.div>
-    );
-  }
-
-  if (visibleSnippet === 'ratings') {
-    console.log("Rendering ratings table with platform results:", 
-      analysisResult?.platformResults || []);
-    
-    // Always ensure we have platformResults, even if they're empty
-    const platformResults = analysisResult?.platformResults || [];
-    const businessName = analysisResult?.businessName || apifyBusinessResult?.name || "Your Business";
-    
-    return (
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        exit="exit"
-        variants={contentVariants}
-        className="w-full"
-      >
-        <RatingsTable 
-          businessName={businessName} 
-          platformResults={platformResults}
-        />
-      </motion.div>
-    );
-  }
-
-  // Return empty div instead of the "Select an option" message
-  return null;
+  return (
+    <AnimatePresence mode="wait">
+      {visibleSnippet === 'ratings' && (
+        <motion.div
+          key="ratings"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.4 }}
+          className="space-y-4"
+        >
+          <RatingsTable 
+            businessName={analysisResult.businessName} 
+            platformResults={analysisResult.platformResults || []} 
+          />
+        </motion.div>
+      )}
+      
+      {visibleSnippet === 'competitors' && (
+        <motion.div
+          key="competitors"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.4 }}
+        >
+          <CompetitorsPanel analysisResult={analysisResult} apifyBusinessResult={apifyBusinessResult} />
+        </motion.div>
+      )}
+      
+      {visibleSnippet === 'seo' && (
+        <motion.div
+          key="seo"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.4 }}
+        >
+          <SeoPanel analysisResult={analysisResult} />
+        </motion.div>
+      )}
+      
+      {visibleSnippet === 'content' && (
+        <motion.div
+          key="content"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.4 }}
+        >
+          <ContentPanel analysisResult={analysisResult} />
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
 };
 
 export default ChatbotContent;
