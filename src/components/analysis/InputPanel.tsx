@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import ResultsStep from './ResultsStep';
-import { AnalysisResult, BusinessCategory, ApifyBusinessResult, ApifyCategoryResult } from "@/services/AnalysisService";
+import { AnalysisResult, BusinessCategory, ApifyBusinessResult } from "@/services/AnalysisService";
 import { PlaceSelectionResult } from '@/hooks/useGooglePlaces';
 import { Step } from './ConversationPanel';
 import LocationPanel from './panels/LocationPanel';
@@ -19,7 +19,6 @@ interface InputPanelProps {
   handleLocationSelect: (location: string, placeData?: PlaceSelectionResult) => void;
   handleStartOver: () => void;
   apifyBusinessResult?: ApifyBusinessResult | null;
-  apifyCategoryResults?: ApifyCategoryResult[];
   apifyLoading?: boolean;
 }
 
@@ -33,21 +32,10 @@ const InputPanel: React.FC<InputPanelProps> = ({
   handleLocationSelect,
   handleStartOver,
   apifyBusinessResult,
-  apifyCategoryResults = [],
   apifyLoading = false
 }) => {
   // Track which snippet is being shown during chatbot interaction
   const [visibleSnippet, setVisibleSnippet] = useState<'none' | 'competitors' | 'seo' | 'content'>('none');
-  const [cachedCompetitors, setCachedCompetitors] = useState<ApifyCategoryResult[]>([]);
-  
-  // Check if we have cached competitor results from the business search
-  useEffect(() => {
-    const cachedResults = (window as any).apifyCategoryResults;
-    if (cachedResults && cachedResults.length > 0) {
-      console.log("Using cached competitor results in InputPanel:", cachedResults);
-      setCachedCompetitors(cachedResults);
-    }
-  }, [step]); // Check whenever step changes
   
   // Listen for message changes in ChatbotStep
   useEffect(() => {
@@ -76,9 +64,6 @@ const InputPanel: React.FC<InputPanelProps> = ({
     }
   }, [step]);
 
-  // Combine provided apifyCategoryResults with cached results
-  const effectiveCompetitors = cachedCompetitors.length > 0 ? cachedCompetitors : apifyCategoryResults;
-
   return (
     <div className="w-full md:w-[65%]">
       {/* Show location selector in the welcome step */}
@@ -105,7 +90,6 @@ const InputPanel: React.FC<InputPanelProps> = ({
         <div className="space-y-4 animate-fade-in">
           <ChatbotContent 
             visibleSnippet={visibleSnippet}
-            apifyCategoryResults={effectiveCompetitors}
             analysisResult={analysisResult}
             apifyBusinessResult={apifyBusinessResult}
           />

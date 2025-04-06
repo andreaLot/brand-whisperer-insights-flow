@@ -1,8 +1,9 @@
 
-import React, { useEffect, useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Send, ArrowRightCircle } from "lucide-react";
 import CompletionButton from './components/CompletionButton';
-import { ApifyService } from '@/services/AnalysisService';
 
 interface ChatbotStepProps {
   primaryCategory?: string;
@@ -17,127 +18,158 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
   businessName,
   onChatComplete
 }) => {
-  const [chatMessages, setChatMessages] = useState<string[]>([
-    "Let me help you learn more about your ranking analysis. What would you like to know?"
-  ]);
+  const [message, setMessage] = useState('');
+  const [chatHistory, setChatHistory] = useState<Array<{ sender: 'user' | 'bot', text: string }>>([]);
+  const [showOptions, setShowOptions] = useState(true);
+  const [isTyping, setIsTyping] = useState(false);
+  const [isFinalPhase, setIsFinalPhase] = useState(false);
   
-  const [isLoadingMessage, setIsLoadingMessage] = useState(false);
-  const [isFetchingCompetitors, setIsFetchingCompetitors] = useState(false);
-  
+  const chatOptions = [
+    "Tell me about my competitors",
+    "What about SEO for my business?",
+    "Content ideas for my business",
+  ];
+
+  // Add initial bot message as soon as the component renders
   useEffect(() => {
-    // Check if we already have category results cached from the business search
-    const hasCompetitorData = (window as any).apifyCategoryResults && 
-                            (window as any).apifyCategoryResults.length > 0;
-                            
-    console.log("Checking for cached competitor data:", hasCompetitorData);
+    setChatHistory([
+      {
+        sender: 'bot',
+        text: `Hi there! I can help provide insights about "${businessName}" as a ${primaryCategory} in ${location}. What would you like to know?`
+      }
+    ]);
+  }, [businessName, primaryCategory, location]);
+
+  const sendMessage = (text: string) => {
+    // Add user message to chat
+    setChatHistory(prev => [...prev, { sender: 'user', text }]);
     
-    // If competitors were already fetched during the business search, no need to fetch again
-    if (!hasCompetitorData && primaryCategory && location) {
-      setIsFetchingCompetitors(true);
-      
-      ApifyService.fetchCategoryFromApify(primaryCategory, location)
-        .then((results) => {
-          if (results.length > 0) {
-            console.log("Fetched competitor data for chatbot:", results);
-            // Cache the results if not already cached
-            if (!(window as any).apifyCategoryResults) {
-              (window as any).apifyCategoryResults = results;
-            }
-          }
-        })
-        .catch((error) => console.error("Error fetching competitors:", error))
-        .finally(() => setIsFetchingCompetitors(false));
-    }
-  }, [primaryCategory, location]);
-  
-  const handleChatOptionClick = (option: string) => {
-    // Add the selected option to chat
-    setChatMessages(prev => [...prev, `You: ${option}`]);
-    setIsLoadingMessage(true);
+    // Clear input and show typing indicator
+    setMessage('');
+    setShowOptions(false);
+    setIsTyping(true);
     
-    // Simulate response after a delay
+    // Simulate bot response after a short delay
     setTimeout(() => {
-      let response = "";
+      let responseText = '';
       
-      if (option.includes('competitors')) {
-        response = `Here's a comparison with your top competitors in ${location || 'your area'}.`;
-        // Notify parent components to show the competitors panel
+      // Customize responses based on user message
+      if (text.toLowerCase().includes('competitor')) {
+        responseText = `I'll analyze the top competitors for ${businessName} in ${location} as a ${primaryCategory} business.`;
+        // Post an event for the iframe to receive and show competitors panel
         window.postMessage({ type: 'chatbot-selection', message: 'competitors' }, '*');
-      } else if (option.includes('SEO')) {
-        response = `Here are some SEO tips for ${businessName} as a ${primaryCategory || 'business'}.`;
+      } else if (text.toLowerCase().includes('seo')) {
+        responseText = `Here are some SEO opportunities for ${businessName} as a ${primaryCategory} business in ${location}:`;
+        // Post an event to show SEO panel
         window.postMessage({ type: 'chatbot-selection', message: 'SEO' }, '*');
-      } else if (option.includes('Content')) {
-        response = `Here are content strategy recommendations for a ${primaryCategory || 'business'} in ${location || 'your area'}.`;
-        window.postMessage({ type: 'chatbot-selection', message: 'Content' }, '*');
+      } else if (text.toLowerCase().includes('content')) {
+        responseText = `I'll suggest some content ideas for ${businessName} as a ${primaryCategory} business:`;
+        // Post an event to show content panel
+        window.postMessage({ type: 'chatbot-selection', message: 'Content' }, '*'); 
+      } else {
+        responseText = `I understand you're interested in ${text} for ${businessName}. Let me analyze that for you.`;
       }
       
-      setChatMessages(prev => [...prev, response]);
-      setIsLoadingMessage(false);
-    }, 1000);
-  };
-  
-  return (
-    <div className="space-y-4 animate-in fade-in slide-in-from-top-4">
-      <h2 className="text-2xl font-bold">AI Recommendations</h2>
+      // Add bot response to chat
+      setChatHistory(prev => [...prev, { sender: 'bot', text: responseText }]);
       
-      <div className="space-y-4">
-        {chatMessages.map((message, i) => (
-          <div 
-            key={i} 
-            className={`${
-              message.startsWith("You:") 
-                ? "bg-gray-700 ml-auto" 
-                : "bg-brand-primary"
-            } p-3 rounded-lg max-w-[80%] ${
-              message.startsWith("You:") ? "ml-auto" : ""
-            }`}
-          >
-            {message}
-          </div>
-        ))}
+      // Show completion option after a few interactions
+      if (chatHistory.length >= 3) {
+        setIsFinalPhase(true);
+      }
+      
+      setIsTyping(false);
+    }, 1500); // 1.5 second typing delay
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (message.trim()) {
+      sendMessage(message.trim());
+    }
+  };
+
+  // Render chat messages
+  const renderChatMessages = () => {
+    return chatHistory.map((msg, index) => (
+      <motion.div
+        key={index}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'} mb-4`}
+      >
+        <div
+          className={`px-4 py-2 rounded-xl max-w-[80%] ${
+            msg.sender === 'user' 
+              ? 'bg-brand-blue-light text-white rounded-tr-none' 
+              : 'bg-gray-700 text-white rounded-tl-none'
+          }`}
+        >
+          {msg.text}
+        </div>
+      </motion.div>
+    ));
+  };
+
+  return (
+    <div className="flex flex-col space-y-4">
+      <h2 className="text-xl font-normal">
+        Ask me about <span className="text-brand-blue-light">your business</span>
+      </h2>
+      
+      <div className="flex-1 overflow-auto p-4 bg-brand-black/50 rounded-lg h-[300px] overflow-y-auto">
+        {renderChatMessages()}
         
-        {isLoadingMessage && (
-          <div className="bg-brand-primary p-3 rounded-lg max-w-[80%] flex items-center space-x-2">
-            <Loader2 className="h-4 w-4 animate-spin" />
-            <span>Processing...</span>
-          </div>
-        )}
-        
-        {isFetchingCompetitors && (
-          <div className="bg-brand-primary p-3 rounded-lg max-w-[80%] flex items-center space-x-2">
-            <Loader2 className="h-4 w-4 animate-spin" />
-            <span>Finding competitors...</span>
+        {/* Typing indicator */}
+        {isTyping && (
+          <div className="flex justify-start mb-4">
+            <div className="bg-gray-700 text-white rounded-xl rounded-tl-none px-4 py-2">
+              <span className="flex space-x-1">
+                <span className="typing-dot"></span>
+                <span className="typing-dot animation-delay-200"></span>
+                <span className="typing-dot animation-delay-400"></span>
+              </span>
+            </div>
           </div>
         )}
       </div>
       
-      {!isLoadingMessage && (
-        <div className="space-y-2">
-          <button
-            onClick={() => handleChatOptionClick("How do I compare to my competitors?")}
-            className="bg-gray-800 hover:bg-gray-700 w-full p-2 rounded text-left"
-          >
-            How do I compare to my competitors?
-          </button>
-          <button
-            onClick={() => handleChatOptionClick("What SEO improvements can I make?")}
-            className="bg-gray-800 hover:bg-gray-700 w-full p-2 rounded text-left"
-          >
-            What SEO improvements can I make?
-          </button>
-          <button
-            onClick={() => handleChatOptionClick("What Content should I create?")}
-            className="bg-gray-800 hover:bg-gray-700 w-full p-2 rounded text-left"
-          >
-            What Content should I create?
-          </button>
+      {/* Quick option buttons */}
+      {showOptions && (
+        <div className="flex flex-wrap gap-2">
+          {chatOptions.map((option, index) => (
+            <Button
+              key={index}
+              variant="outline"
+              size="sm"
+              className="text-xs"
+              onClick={() => sendMessage(option)}
+            >
+              {option}
+            </Button>
+          ))}
         </div>
       )}
       
-      <CompletionButton 
-        onClick={onChatComplete}
-        text="View Full Analysis"
-      />
+      {/* Message input form */}
+      <form onSubmit={handleSubmit} className="flex items-center space-x-2">
+        <input
+          type="text"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          placeholder="Type your question..."
+          className="flex-1 bg-brand-gray-dark border border-gray-700 rounded-md px-4 py-2 focus:outline-none focus:ring-1 focus:ring-brand-blue-light"
+        />
+        <Button type="submit" variant="default" size="icon" disabled={!message.trim()}>
+          <Send size={16} />
+        </Button>
+      </form>
+      
+      {/* Show complete button after sufficient interaction */}
+      {isFinalPhase && (
+        <CompletionButton onAnalysisComplete={onChatComplete} />
+      )}
     </div>
   );
 };

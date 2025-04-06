@@ -1,5 +1,5 @@
 
-import { ApifyBusinessResult, ApifyCategoryResult } from './types';
+import { ApifyBusinessResult } from './types';
 
 export const ApifyService = {
   fetchBusinessFromApify: async (businessName: string, location: string): Promise<ApifyBusinessResult | null> => {
@@ -13,9 +13,9 @@ export const ApifyService = {
         },
         body: JSON.stringify({
           searchString: `${businessName} ${location}`,
-          maxPlaces: 3, // Fetch up to 3 places to get both the main business and competitors
+          maxPlaces: 1, // Only fetch the main business
           language: "en",
-          maxCrawledPlaces: 3,
+          maxCrawledPlaces: 1,
           includeReviews: true,
           includeImages: true,
           includePopularTimes: false,
@@ -43,112 +43,31 @@ export const ApifyService = {
         return null;
       }
       
-      // Process all results
-      const allPlaces = result.items.map((place: any) => {
-        // Filter reviews to only include those from 2025 onwards
-        const filteredReviews = place.reviews ? place.reviews.filter((review: any) => {
-          const reviewDate = review.publishedAtDate ? new Date(review.publishedAtDate) : null;
-          return reviewDate && reviewDate.getFullYear() >= 2025;
-        }) : [];
-        
-        return {
-          name: place.name || "Unknown",
-          rating: place.rating,
-          reviewsCount: place.reviewsCount,
-          address: place.address,
-          category: place.category,
-          website: place.website,
-          reviews: filteredReviews,
-          images: place.imageUrls || []
-        };
-      });
+      // Get the first (and only) result which should be the main business
+      const place = result.items[0];
       
-      // The first result should be the main business
-      const mainBusiness = allPlaces[0] as ApifyBusinessResult;
+      // Filter reviews to only include those from 2025 onwards
+      const filteredReviews = place.reviews ? place.reviews.filter((review: any) => {
+        const reviewDate = review.publishedAtDate ? new Date(review.publishedAtDate) : null;
+        return reviewDate && reviewDate.getFullYear() >= 2025;
+      }) : [];
       
-      // Store competitor results in a global variable for later use
-      (window as any).apifyCategoryResults = allPlaces.slice(1) as ApifyCategoryResult[];
-      console.log("Competitors stored:", (window as any).apifyCategoryResults);
+      // Create the business result object
+      const mainBusiness: ApifyBusinessResult = {
+        name: place.name || "Unknown",
+        rating: place.rating,
+        reviewsCount: place.reviewsCount,
+        address: place.address,
+        category: place.category,
+        website: place.website,
+        reviews: filteredReviews,
+        images: place.imageUrls || []
+      };
       
       return mainBusiness;
     } catch (error) {
       console.error("Error fetching from Apify:", error);
       return null;
-    }
-  },
-  
-  // This function will now use the cached results from the business search
-  // if available, otherwise it will make a new request
-  fetchCategoryFromApify: async (category: string, location: string): Promise<ApifyCategoryResult[]> => {
-    // Check if we already have competitor results from a previous business search
-    if ((window as any).apifyCategoryResults && (window as any).apifyCategoryResults.length > 0) {
-      console.log("Using cached competitor results instead of making a new Apify request");
-      return (window as any).apifyCategoryResults;
-    }
-    
-    // If no cached results, make a new request (this should be rare now)
-    // Format the query as "Category City" (e.g., "Data recovery service Austin")
-    const searchQuery = `${category} ${location}`;
-    console.log(`No cached results found. Fetching category data from Apify with query: ${searchQuery}`);
-    
-    try {
-      const response = await fetch("https://api.apify.com/v2/acts/compass~crawler-google-places/runs?token=apify_api_vVFGRJajjdx3IDfdn86ww9hiyIKDGR25Jod1", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          searchString: searchQuery,
-          maxPlaces: 3,
-          language: "en",
-          maxCrawledPlaces: 3,
-          includeReviews: true,
-          includeImages: true,
-          includePopularTimes: false,
-          exportPlaceUrls: false,
-          reviewsSort: "newest_first", // Sort by newest first
-          reviewsFilterDateFrom: "2025-01-01", // Only collect reviews from 2025 onwards
-        }),
-      });
-      
-      if (!response.ok) {
-        throw new Error(`API request failed with status ${response.status}`);
-      }
-      
-      const data = await response.json();
-      console.log("Apify category run started:", data);
-      
-      // Get the run ID to check results later
-      const runId = data.data.id;
-      
-      // Wait for the run to complete (poll the status)
-      const result = await ApifyService.pollApifyRunStatus(runId);
-      
-      if (result && result.items && result.items.length > 0) {
-        return result.items.slice(0, 3).map((place: any) => {
-          // Filter reviews to only include those from 2025 onwards
-          const filteredReviews = place.reviews ? place.reviews.filter((review: any) => {
-            const reviewDate = review.publishedAtDate ? new Date(review.publishedAtDate) : null;
-            return reviewDate && reviewDate.getFullYear() >= 2025;
-          }) : [];
-          
-          return {
-            name: place.name || "Unknown",
-            rating: place.rating,
-            reviewsCount: place.reviewsCount,
-            address: place.address,
-            category: place.category,
-            website: place.website,
-            reviews: filteredReviews,
-            images: place.imageUrls || []
-          };
-        });
-      }
-      
-      return [];
-    } catch (error) {
-      console.error("Error fetching category from Apify:", error);
-      return [];
     }
   },
   
