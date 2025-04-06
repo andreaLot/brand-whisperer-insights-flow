@@ -67,18 +67,12 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
     setTimeout(() => {
       setIsTyping(false);
       
-      // Show ratings panel with bot response
-      const botMessageId = `bot-${Date.now()}`;
-      const responseText = `Here are the current AI platform rankings for ${businessName}:`;
-      
-      // Add bot response to chat
-      setChatHistory(prev => [...prev, { sender: 'bot', text: responseText, id: botMessageId }]);
+      // Show ratings panel without any introductory text
+      // We trigger the panel to appear but don't add a text message about it
+      window.postMessage({ type: 'chatbot-selection', message: 'ratings' }, '*');
       
       // Mark the interaction as in final phase
       setIsFinalPhase(true);
-      
-      // Post a message to trigger the ratings panel
-      window.postMessage({ type: 'chatbot-selection', message: 'ratings' }, '*');
       
       // Add a reminder about Google basics after a delay, but don't switch panels automatically
       setTimeout(() => {
