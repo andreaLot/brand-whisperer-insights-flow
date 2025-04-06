@@ -10,7 +10,7 @@ export const injectGooglePlacesStyles = () => {
       .pac-container {
         z-index: 2 !important; /* Lower z-index so it doesn't go above the video */
         position: absolute !important;
-        display: none !important; /* Changed from block to none to hide autocomplete dropdown */
+        display: block !important; /* Changed from none to block to show autocomplete dropdown */
         background-color: #1e1e1e !important;
         color: white !important;
         border: 1px solid #333 !important;
@@ -89,7 +89,7 @@ export const fixPacContainerVisibility = () => {
     containers.forEach(container => {
       (container as HTMLElement).style.zIndex = '2'; // Lower z-index
       (container as HTMLElement).style.position = 'absolute';
-      (container as HTMLElement).style.display = 'none'; // Changed from block to none to hide autocomplete
+      // Don't hide by default, let it be visible when typing
     });
     // Debug check of containers
     checkPacContainers();

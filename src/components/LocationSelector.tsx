@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useGooglePlaces, PlaceSelectionResult } from '@/hooks/useGooglePlaces';
 import { injectGooglePlacesStyles, fixPacContainerVisibility, showAutocompleteDropdown } from '@/utils/googlePlacesStyles';
@@ -40,7 +41,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
     if (isLoaded && inputRef.current) {
       initAutocomplete(inputRef.current);
       
-      // Always hide the dropdown after initialization
+      // Ensure dropdown visibility is properly set
       fixPacContainerVisibility();
     }
     
@@ -71,17 +72,26 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
     setSearchTerm(value);
     console.log('Input changed:', value);
     
+    // Show the dropdown when user is typing
+    if (isLoaded && value) {
+      showAutocompleteDropdown(true);
+    }
+    
     // For manual entries (not from autocomplete)
     if (value.includes(',') && !selectedPlace) {
       onSelect(value);
+      // Hide dropdown for manual entries with commas
+      showAutocompleteDropdown(false);
     }
   };
 
   // Handle input focus
   const handleInputFocus = () => {
     console.log('Input focused');
-    // Keep the dropdown hidden even on focus
-    showAutocompleteDropdown(false);
+    // Show dropdown on focus if there's text
+    if (searchTerm) {
+      showAutocompleteDropdown(true);
+    }
   };
 
   return (
