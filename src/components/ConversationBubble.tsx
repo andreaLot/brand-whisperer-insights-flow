@@ -32,9 +32,10 @@ const ConversationBubble: React.FC<ConversationBubbleProps> = ({
         ease: [0.19, 1.0, 0.22, 1.0] // Nice easing curve for elegant motion
       }}
     >
-      {/* Decorative gradient dots */}
+      {/* Decorative gradient elements */}
       <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-r from-violet-600/10 to-fuchsia-600/5 rounded-full blur-3xl pointer-events-none"></div>
       <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-r from-blue-600/10 to-cyan-600/5 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="absolute top-1/3 left-1/4 w-24 h-24 bg-gradient-to-r from-indigo-600/5 to-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
       
       {/* Main content */}
       <div className="relative z-10 flex-1 flex flex-col">

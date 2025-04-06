@@ -27,8 +27,7 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
   const [introComplete, setIntroComplete] = useState(false);
   
   const introBubbles = [
-    `Hello! I'm analyzing "${businessName}" as a ${primaryCategory || 'business'} in ${location || 'your area'}.`,
-    "I can help you understand how your business appears across different AI platforms.",
+    `Hello! I've just finished analyzing "${businessName}", I can help you understand how your business appears across different AI platforms.`,
     "Would you like to see your current ratings from top AI assistants?",
   ];
   
@@ -64,7 +63,7 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
         }
       });
     }
-  }, [chatHistory.length, introBubbles, businessName, primaryCategory, location, introComplete]);
+  }, [chatHistory.length, introBubbles, businessName, introComplete]);
   
   const sendMessage = (text: string) => {
     // Add user message to chat
