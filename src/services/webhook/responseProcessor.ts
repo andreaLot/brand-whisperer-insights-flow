@@ -35,7 +35,38 @@ export function processMultiplePlatformResponse(responses: any[]): WebhookRespon
         });
         console.log(`✅ [WebhookService] Added platform ${platform} with rank ${estimatedRank}`);
       }
-    } 
+    }
+    // Handle Gemini format (candidates array with parts)
+    else if (response.candidates && response.candidates.length > 0 && 
+             response.candidates[0].content?.parts && 
+             response.candidates[0].content.parts.length > 0) {
+      
+      const text = response.candidates[0].content.parts[0].text;
+      const modelVersion = response.modelVersion || "gemini";
+      
+      console.log(`🔍 [WebhookService] Processing Gemini format with model ${modelVersion}`);
+      
+      // Extract rank from content (e.g. "Estimated Rank: 3")
+      let estimatedRank: number | undefined;
+      if (text) {
+        const rankMatch = text.match(/Estimated Rank:\s*(\d+)/i);
+        if (rankMatch && rankMatch[1]) {
+          estimatedRank = parseInt(rankMatch[1], 10);
+          console.log(`🔍 [WebhookService] Extracted rank from Gemini content: ${estimatedRank}`);
+        }
+      }
+      
+      // Only add if we found a rank
+      if (estimatedRank !== undefined) {
+        const platform = normalizeModelToPlatform(modelVersion);
+        platforms.push({
+          platform,
+          model: modelVersion,
+          estimatedRank
+        });
+        console.log(`✅ [WebhookService] Added platform ${platform} with rank ${estimatedRank}`);
+      }
+    }
     // Handle direct platform objects
     else if (response.platform || response.model) {
       // Handle direct platform objects

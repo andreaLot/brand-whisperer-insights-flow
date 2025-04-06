@@ -69,11 +69,11 @@ async function tryFetchWebhook(webhookUrl: string, businessData: any): Promise<W
           
           rawResponseData.forEach((item, index) => {
             // Handle both older format and the new formats
-            const model = item.model || 'Unknown';
-            const platform = item.model ? normalizeModelToPlatform(item.model) : 'Unknown Platform';
+            const model = item.model || item.modelVersion || 'Unknown';
+            const platform = normalizeModelToPlatform(model);
             console.log(`📌 Platform ${index + 1}: ${platform} (${model})`);
             
-            // Handle response format with choices array
+            // Handle response format with choices array (Perplexity, DeepSeek, Mistral)
             if (item.choices && item.choices.length > 0) {
               const content = item.choices[0].message?.content;
               console.log(`   Content: ${content || 'No content'}`);
@@ -82,7 +82,20 @@ async function tryFetchWebhook(webhookUrl: string, businessData: any): Promise<W
               if (rankMatch && rankMatch[1]) {
                 console.log(`   Rank: ${rankMatch[1]}`);
               }
-            } else if (item.estimatedRank) {
+            } 
+            // Handle Gemini format with candidates
+            else if (item.candidates && item.candidates.length > 0 && 
+                     item.candidates[0].content?.parts && 
+                     item.candidates[0].content.parts.length > 0) {
+              const text = item.candidates[0].content.parts[0].text;
+              console.log(`   Content: ${text || 'No content'}`);
+              
+              const rankMatch = text?.match(/Estimated Rank:\s*(\d+)/i);
+              if (rankMatch && rankMatch[1]) {
+                console.log(`   Rank: ${rankMatch[1]}`);
+              }
+            }
+            else if (item.estimatedRank) {
               console.log(`   Rank: ${item.estimatedRank}`);
             }
           });
@@ -194,4 +207,3 @@ async function tryFetchWebhook(webhookUrl: string, businessData: any): Promise<W
     return await sendWithNoCors(businessData, webhookUrl);
   }
 }
-

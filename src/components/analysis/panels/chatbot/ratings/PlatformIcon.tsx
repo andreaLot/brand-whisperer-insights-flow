@@ -8,7 +8,7 @@ interface PlatformIconProps {
 const PlatformIcon: React.FC<PlatformIconProps> = ({ platform }) => {
   const name = (platform || '').toLowerCase();
   
-  if (name.includes('gemini')) {
+  if (name.includes('gemini') || name.includes('bard') || name.includes('palm')) {
     return (
       <div className="flex items-center justify-center">
         <img 
