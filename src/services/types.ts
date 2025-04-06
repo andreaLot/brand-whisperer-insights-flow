@@ -1,3 +1,40 @@
+import { StrengthCategory } from "./BrandService";
+
+export interface WebhookResponse {
+  model?: string;
+  platforms?: PlatformWebhookResult[];
+  estimatedRank?: number;
+  message?: string;
+  status?: string;
+  timestamp?: string;
+}
+
+export interface PlatformWebhookResult {
+  platform?: string;
+  model?: string;
+  estimatedRank?: number;
+  relevanceScore?: number;
+}
+
+export interface ApifyBusinessResult {
+  name: string;
+  rating?: number;
+  reviewsCount?: number;
+  address?: string;
+  category?: string;
+  website?: string;
+  reviews: ApifyReview[];
+  images: string[];
+  phoneNumber?: string;
+  isClaimed?: boolean;
+}
+
+export interface ApifyReview {
+  text: string;
+  stars: number;
+  publishedAtDate?: string;
+  userName?: string;
+}
 
 export interface BusinessCategory {
   name: string;
@@ -24,50 +61,9 @@ export interface AnalysisResult {
   model?: string;
 }
 
-export interface ApifyReview {
-  text: string;
-  stars: number;
-  publishedAtDate?: string;
-  userName?: string;
-}
-
-export interface ApifyBusinessResult {
-  name: string;
-  rating?: number;
-  reviewsCount?: number;
-  address?: string;
-  category?: string;
-  website?: string;
-  reviews?: ApifyReview[];
-  images?: string[];
-}
-
-export interface ApifyCategoryResult {
-  name: string;
-  rating?: number;
-  reviewsCount?: number;
-  address?: string;
-  category?: string;
-  website?: string;
-  reviews?: ApifyReview[];
-  images?: string[];
-}
-
-// Updated WebhookResponse type to include multiple platforms
 export interface PlatformRanking {
   platform: string;
   model: string;
   estimatedRank: number;
   score?: number;
-}
-
-export interface WebhookResponse {
-  platforms?: PlatformRanking[];
-  estimatedRank?: number;
-  confidence?: number;
-  message?: string;
-  status?: string;
-  timestamp?: string;
-  model?: string;
-  platform?: string;
 }

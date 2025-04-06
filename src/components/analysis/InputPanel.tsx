@@ -1,159 +1,129 @@
 
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { AnalysisResult, BusinessCategory, ApifyBusinessResult } from "@/services/AnalysisService";
-import { PlaceSelectionResult } from '@/hooks/useGooglePlaces';
-import { Step } from './ConversationPanel';
-import LocationPanel from './panels/LocationPanel';
+import React, { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
+import AnimatedInputContent from './panels/inputPanel/AnimatedInputContent';
 import CategoryDetectionPanel from './panels/CategoryDetectionPanel';
 import AnalyzingVideoPanel from './panels/AnalyzingVideoPanel';
 import ChatbotContent from './panels/chatbot/ChatbotContent';
+import { AnalysisResult, BusinessCategory, ApifyBusinessResult } from "@/services/AnalysisService";
+import { Step } from './ConversationPanel';
 
 interface InputPanelProps {
   step: Step;
   businessName: string;
   analysisResult: AnalysisResult | null;
   suggestedCategories: BusinessCategory[];
+  apifyBusinessResult: ApifyBusinessResult | null;
+  apifyLoading: boolean;
   setBusinessName: (name: string) => void;
   handleBusinessNameSubmit: () => void;
-  handleLocationSelect: (location: string, placeData?: PlaceSelectionResult) => void;
+  handleLocationSelect: (location: string, address?: any) => void;
   handleStartOver: () => void;
-  apifyBusinessResult?: ApifyBusinessResult | null;
-  apifyLoading?: boolean;
 }
 
 const InputPanel: React.FC<InputPanelProps> = ({
   step,
-  businessName,
   analysisResult,
   suggestedCategories,
-  setBusinessName,
-  handleBusinessNameSubmit,
-  handleLocationSelect,
-  handleStartOver,
   apifyBusinessResult,
-  apifyLoading = false
+  apifyLoading,
+  ...props
 }) => {
-  // Default to 'none' in chatbot step instead of 'ratings'
-  const [visibleSnippet, setVisibleSnippet] = useState<'none' | 'competitors' | 'seo' | 'content' | 'ratings'>('none');
+  const [visibleSnippet, setVisibleSnippet] = useState<'none' | 'competitors' | 'seo' | 'content' | 'ratings' | 'profile'>('none');
   
-  // Listen for message changes in ChatbotStep
+  // Set up listener for postMessage from chatbot
   useEffect(() => {
-    const handleChatbotMessage = (event: MessageEvent) => {
+    const handleChatbotSelection = (event: MessageEvent) => {
       if (event.data && event.data.type === 'chatbot-selection') {
-        console.log("Received message event:", event.data);
-        if (event.data.message.includes('ratings')) {
-          console.log("Setting visible snippet to ratings");
-          setVisibleSnippet('ratings');
-        } else if (event.data.message.includes('competitors')) {
-          setVisibleSnippet('competitors');
-        } else if (event.data.message.includes('SEO')) {
-          setVisibleSnippet('seo');
-        } else if (event.data.message.includes('content')) {
-          setVisibleSnippet('content');
+        const message = event.data.message;
+        if (['ratings', 'competitors', 'seo', 'content', 'profile'].includes(message)) {
+          setVisibleSnippet(message as any);
         }
       }
     };
     
-    window.addEventListener('message', handleChatbotMessage);
+    window.addEventListener('message', handleChatbotSelection);
+    
     return () => {
-      window.removeEventListener('message', handleChatbotMessage);
+      window.removeEventListener('message', handleChatbotSelection);
     };
   }, []);
+  
+  if (step === 'welcome') {
+    return (
+      <motion.div 
+        className="h-full"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      >
+        <AnimatedInputContent />
+      </motion.div>
+    );
+  }
 
-  // Monitor step changes but don't automatically set ratings as visible
-  useEffect(() => {
-    if (step !== 'chatbot') {
-      setVisibleSnippet('none');
-    }
-  }, [step]);
+  if (step === 'business-name') {
+    return (
+      <motion.div 
+        className="h-full"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      >
+        <AnimatedInputContent />
+      </motion.div>
+    );
+  }
 
-  // Animation variants
-  const panelVariants = {
-    hidden: { opacity: 0, x: 20 },
-    visible: { 
-      opacity: 1, 
-      x: 0,
-      transition: { duration: 0.6, ease: [0.19, 1.0, 0.22, 1.0] }
-    },
-    exit: { 
-      opacity: 0, 
-      x: 20, 
-      transition: { duration: 0.3 }
-    }
-  };
-
-  return (
-    <motion.div
-      className="w-full"
-      variants={panelVariants}
-      initial="hidden"
-      animate="visible"
-      exit="exit"
-    >
-      {/* Show location selector in the welcome step */}
-      <AnimatePresence mode="wait">
-        {step === 'welcome' && (
-          <motion.div
-            key="welcome"
-            variants={panelVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-          >
-            <LocationPanel handleLocationSelect={handleLocationSelect} />
-          </motion.div>
-        )}
-        
-        {step === 'category-detection' && (
-          <motion.div
-            key="category"
-            variants={panelVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-          >
-            <CategoryDetectionPanel 
-              suggestedCategories={suggestedCategories}
-              apifyLoading={apifyLoading}
-            />
-          </motion.div>
-        )}
-        
-        {/* Show video during analyzing step with higher z-index */}
-        {step === 'analyzing' && (
-          <motion.div
-            key="analyzing"
-            variants={panelVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            className="relative z-10"
-          >
-            <AnalyzingVideoPanel />
-          </motion.div>
-        )}
-        
-        {/* Chatbot-triggered content snippets - always show in chatbot step */}
-        {step === 'chatbot' && (
-          <motion.div
-            key="chatbot"
-            variants={panelVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            className="space-y-4"
-          >
-            <ChatbotContent 
-              visibleSnippet={visibleSnippet}
-              analysisResult={analysisResult}
-              apifyBusinessResult={apifyBusinessResult}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
-  );
+  if (step === 'category-detection') {
+    return (
+      <motion.div 
+        className="h-full flex flex-col justify-center items-center py-6"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3 }}
+      >
+        <div className="w-full max-w-lg">
+          <CategoryDetectionPanel 
+            suggestedCategories={suggestedCategories}
+            apifyLoading={apifyLoading}
+          />
+        </div>
+      </motion.div>
+    );
+  }
+  
+  if (step === 'analyzing') {
+    return (
+      <motion.div 
+        className="h-full flex flex-col justify-center items-center"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3 }}
+      >
+        <AnalyzingVideoPanel />
+      </motion.div>
+    );
+  }
+  
+  if (step === 'chatbot') {
+    return (
+      <motion.div 
+        className="h-full p-4 bg-brand-black/30 rounded-lg"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3 }}
+      >
+        <ChatbotContent 
+          visibleSnippet={visibleSnippet} 
+          analysisResult={analysisResult}
+          apifyBusinessResult={apifyBusinessResult}
+        />
+      </motion.div>
+    );
+  }
+  
+  return null;
 };
 
 export default InputPanel;

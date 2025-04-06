@@ -42,6 +42,8 @@ export interface ApifyRawResult {
   address?: string;
   category?: string;
   website?: string;
+  phoneNumber?: string;
+  ownerVerified?: boolean;
   reviews?: Array<{
     text: string;
     stars: number;

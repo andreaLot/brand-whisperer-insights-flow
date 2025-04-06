@@ -19,7 +19,9 @@ export class ApifyDataProcessor {
       category: place.category,
       website: place.website,
       reviews: filteredReviews,
-      images: place.imageUrls || []
+      images: place.imageUrls || [],
+      phoneNumber: place.phoneNumber || undefined,
+      isClaimed: place.ownerVerified
     };
   }
   
