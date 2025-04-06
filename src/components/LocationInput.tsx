@@ -36,6 +36,7 @@ const LocationInput: React.FC<LocationInputProps> = ({
         className="pl-10 py-6 bg-brand-gray-dark text-white border border-gray-700 rounded-md w-full focus:ring-2 focus:ring-violet-500 transition-all"
         autoComplete="off" // Prevent browser's default autocomplete from interfering
         disabled={isLoading}
+        aria-autocomplete="none" // Disable ARIA autocomplete
       />
     </div>
   );

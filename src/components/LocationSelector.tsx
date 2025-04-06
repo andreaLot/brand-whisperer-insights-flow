@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useGooglePlaces, PlaceSelectionResult } from '@/hooks/useGooglePlaces';
-import { injectGooglePlacesStyles, fixPacContainerVisibility } from '@/utils/googlePlacesStyles';
+import { injectGooglePlacesStyles, fixPacContainerVisibility, showAutocompleteDropdown } from '@/utils/googlePlacesStyles';
 import LocationInput from '@/components/LocationInput';
 import StatusMessage from '@/components/StatusMessage';
 
@@ -41,7 +40,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
     if (isLoaded && inputRef.current) {
       initAutocomplete(inputRef.current);
       
-      // Fix visibility after initialization
+      // Always hide the dropdown after initialization
       fixPacContainerVisibility();
     }
     
@@ -60,6 +59,9 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
         
         // When we have a selected place, pass it to the parent
         onSelect(locationText, selectedPlace);
+        
+        // Hide the dropdown after selection
+        showAutocompleteDropdown(false);
       }
     }
   }, [selectedPlace, onSelect]);
@@ -78,7 +80,8 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
   // Handle input focus
   const handleInputFocus = () => {
     console.log('Input focused');
-    fixPacContainerVisibility();
+    // Keep the dropdown hidden even on focus
+    showAutocompleteDropdown(false);
   };
 
   return (
