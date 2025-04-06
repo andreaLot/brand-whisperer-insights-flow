@@ -20,7 +20,10 @@ const CompletionButton: React.FC<CompletionButtonProps> = ({ onAnalysisComplete 
       className="mt-8"
     >
       <Button 
-        onClick={onAnalysisComplete}
+        onClick={(e) => {
+          e.preventDefault();
+          onAnalysisComplete();
+        }}
         variant="dynamic" 
         size="xl" 
         className="w-full md:w-auto relative z-20" // Increased z-index to ensure button is clickable
