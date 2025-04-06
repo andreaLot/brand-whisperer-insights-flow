@@ -25,13 +25,13 @@ const AnalyzingVideoPanel: React.FC = () => {
   }, []);
 
   return (
-    <div className="flex items-center justify-center h-full relative" style={{ zIndex: 50 }}>
+    <div className="flex items-center justify-center h-full relative" style={{ zIndex: 1000 }}>
       <motion.div 
         className="w-full max-w-4xl mx-auto relative"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.7 }}
-        style={{ zIndex: 50 }}
+        style={{ zIndex: 1000 }}
       >
         <motion.div 
           initial={{ 
@@ -55,7 +55,7 @@ const AnalyzingVideoPanel: React.FC = () => {
           style={{
             boxShadow: '0 20px 80px -10px rgba(0, 82, 204, 0.5)',
             transform: 'perspective(1000px)',
-            zIndex: 50
+            zIndex: 1000
           }}
         >
           {isVisible && (
@@ -70,7 +70,7 @@ const AnalyzingVideoPanel: React.FC = () => {
               animate={{ opacity: isReady ? 1 : 0 }}
               transition={{ duration: 0.5 }}
               onLoad={() => setIsReady(true)}
-              style={{ zIndex: 55 }}
+              style={{ zIndex: 1005 }}
             />
           )}
           
@@ -80,7 +80,7 @@ const AnalyzingVideoPanel: React.FC = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: isVisible && !isReady ? 1 : 0 }}
               transition={{ duration: 0.3 }}
-              style={{ zIndex: 54 }}
+              style={{ zIndex: 1004 }}
             >
               <motion.div
                 animate={{ rotate: 360 }}
