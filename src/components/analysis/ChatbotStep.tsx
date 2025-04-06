@@ -73,9 +73,6 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
       // Add bot response to chat
       setChatHistory(prev => [...prev, { sender: 'bot', text: responseText, id: botMessageId }]);
       
-      // Post an event for the iframe to receive and show ratings panel
-      window.postMessage({ type: 'chatbot-selection', message: 'ratings' }, '*');
-      
       // Mark the interaction as in final phase
       setIsFinalPhase(true);
       
@@ -84,14 +81,13 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
     }, 800);
   };
   
-  // Handle final phase visibility - using a strict dependency array without state setters
-  // This was causing the infinite update loop
+  // Fix the dependency array to prevent infinite loops
   useEffect(() => {
     if (isFinalPhase) {
       // Explicitly trigger the ratings panel to appear
       window.postMessage({ type: 'chatbot-selection', message: 'ratings' }, '*');
     }
-  }, [isFinalPhase]);
+  }, [isFinalPhase]); // Only depend on isFinalPhase
 
   return (
     <div className="flex flex-col space-y-4 w-full">

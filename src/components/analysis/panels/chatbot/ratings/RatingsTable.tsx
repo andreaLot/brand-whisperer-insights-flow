@@ -30,38 +30,47 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
   // Important: Make sure we have an array, even if empty
   const results = Array.isArray(platformResults) ? platformResults : [];
   
-  // Debug logs
+  // Reset animation states when platform results change
   useEffect(() => {
-    console.log("RatingsTable received platformResults:", results);
-    console.log("Platform results data type:", typeof platformResults);
-    console.log("Platform results length:", results.length);
-  }, [results]);
+    console.log("RatingsTable received updated platformResults:", results);
+    
+    // Reset animation states
+    setVisibleRows([]);
+    setCardVisible(false);
+    setTitleVisible(false);
+    setLegendVisible(false);
+    setFooterVisible(false);
+    
+    // Start animations on next tick
+    setTimeout(() => {
+      startAnimations(results);
+    }, 100);
+  }, [platformResults]);
   
-  // Animate the table rows one by one with a staggered delay
-  useEffect(() => {
+  const startAnimations = (results: PlatformResult[]) => {
     // First show the card container
-    setTimeout(() => setCardVisible(true), 300);
+    setCardVisible(true);
     
     // Then show the title
-    setTimeout(() => setTitleVisible(true), 800);
+    setTimeout(() => setTitleVisible(true), 500);
     
     // Only start animating rows if we have results
     if (results.length > 0) {
       results.forEach((_, index) => {
         setTimeout(() => {
           setVisibleRows(prev => [...prev, index]);
-        }, 1200 + (index * 600)); // 600ms delay between each row
+        }, 1000 + (index * 300)); // 300ms delay between each row
       });
       
       // Finally show the legend and footer
-      setTimeout(() => setLegendVisible(true), 1200 + (results.length * 600) + 300);
-      setTimeout(() => setFooterVisible(true), 1200 + (results.length * 600) + 800);
+      setTimeout(() => setLegendVisible(true), 1000 + (results.length * 300) + 300);
+      setTimeout(() => setFooterVisible(true), 1000 + (results.length * 300) + 600);
     } else {
       // If no results, show the legend and footer sooner
-      setTimeout(() => setLegendVisible(true), 1200);
-      setTimeout(() => setFooterVisible(true), 1800);
+      setTimeout(() => setLegendVisible(true), 1000);
+      setTimeout(() => setFooterVisible(true), 1500);
     }
-  }, [results.length]);
+  };
 
   // Sort results properly by rank
   const sortedResults = [...results].sort((a, b) => {
@@ -129,9 +138,20 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
                   </Table>
                 ) : (
                   <div className="p-8 flex flex-col items-center justify-center text-center">
-                    <AlertTriangle className="text-amber-400 mb-2" size={24} />
-                    <p className="text-gray-300">Generating platform results...</p>
-                    <p className="text-gray-400 text-sm mt-1">Platform rankings will appear momentarily.</p>
+                    <motion.div 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.5 }}
+                      className="flex items-center justify-center py-4"
+                    >
+                      <div className="animate-pulse flex space-x-2">
+                        <div className="h-2 w-2 bg-violet-400 rounded-full"></div>
+                        <div className="h-2 w-2 bg-violet-400 rounded-full animation-delay-200"></div>
+                        <div className="h-2 w-2 bg-violet-400 rounded-full animation-delay-400"></div>
+                      </div>
+                    </motion.div>
+                    <p className="text-gray-300">Loading platform rankings...</p>
+                    <p className="text-gray-400 text-sm mt-1">Platform results will appear shortly.</p>
                   </div>
                 )}
               </div>

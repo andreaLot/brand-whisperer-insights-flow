@@ -19,6 +19,13 @@ const QuickOptions: React.FC<QuickOptionsProps> = ({
 }) => {
   if ((!showOptions && !forceShow) || isFinalPhase) return null;
 
+  const handleRatingsClick = () => {
+    // Immediately post the message to show ratings panel before sending the message
+    window.postMessage({ type: 'chatbot-selection', message: 'ratings' }, '*');
+    // Then send the user message
+    onOptionClick("View my ratings");
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -31,7 +38,7 @@ const QuickOptions: React.FC<QuickOptionsProps> = ({
         variant="outline"
         size="lg"
         className="text-base bg-violet-500/30 border-violet-400 text-violet-100 hover:bg-violet-500/40 px-6 py-2 flex items-center gap-2"
-        onClick={() => onOptionClick("View my ratings")}
+        onClick={handleRatingsClick}
         data-testid="view-ratings-button"
       >
         <BarChart2 size={18} className="text-violet-300" />

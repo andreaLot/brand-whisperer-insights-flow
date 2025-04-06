@@ -132,6 +132,7 @@ const ChatbotContent: React.FC<ChatbotContentProps> = ({
 
   if (visibleSnippet === 'ratings') {
     console.log("Rendering ratings table with data:", analysisResult?.platformResults || []);
+    // Always ensure we have platformResults, even if they're default ones
     const platformResults = analysisResult?.platformResults || [];
     const businessName = analysisResult?.businessName || apifyBusinessResult?.name || "Your Business";
     
