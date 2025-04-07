@@ -15,7 +15,12 @@ const BusinessNameStep: React.FC<BusinessNameStepProps> = ({ handleLocationSelec
   return (
     <div className="space-y-10">
       <h2 className="text-xl font-normal">
-        Select a <span className="text-brand-blue-light">location</span> to analyze
+        Select a{' '}
+        <span className="relative inline-block">
+          <span className="relative z-10 font-bold text-white">location</span>
+          <span className="absolute inset-0 btn-animate rounded-md opacity-90 -z-10"></span>
+        </span>{' '}
+        to analyze
       </h2>
       <p className="text-gray-300 text-sm">
         This helps us analyze your local presence and competition.

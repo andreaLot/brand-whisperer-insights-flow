@@ -28,13 +28,36 @@ const LocationStep: React.FC = () => {
     return () => clearInterval(intervalId);
   }, []);
 
+  // Find the index of "location" in the rendered text
+  const locationStartIndex = text.indexOf("location");
+  const locationEndIndex = locationStartIndex + "location".length;
+
   return (
     <div className="space-y-10">
       <h2 className="text-xl font-normal">
         {visibleText.map((letter, index) => {
-          // Special styling for the word "location"
-          const isLocationPart = text.indexOf("location") <= index && 
-                                index < text.indexOf("location") + "location".length;
+          // Apply special styling for the word "location"
+          const isLocationPart = index >= locationStartIndex && index < locationEndIndex;
+          
+          if (isLocationPart) {
+            return (
+              <motion.span
+                key={`${letter}-${index}`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ 
+                  duration: 0.5,
+                  delay: index * 0.03 // Stagger the animation
+                }}
+                className="relative inline-block"
+              >
+                <span className="relative z-10 font-bold text-white">{letter}</span>
+                {index === locationStartIndex && (
+                  <span className="absolute inset-0 btn-animate rounded-md opacity-90 -z-10 w-[8ch]"></span>
+                )}
+              </motion.span>
+            );
+          }
           
           return (
             <motion.span
@@ -45,7 +68,6 @@ const LocationStep: React.FC = () => {
                 duration: 0.5,
                 delay: index * 0.03 // Stagger the animation
               }}
-              className={isLocationPart ? "text-brand-blue-light" : ""}
             >
               {letter}
             </motion.span>
