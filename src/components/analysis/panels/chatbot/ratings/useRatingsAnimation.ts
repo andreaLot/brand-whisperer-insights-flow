@@ -20,6 +20,7 @@ interface RatingsAnimationState {
   legendVisible: boolean;
   footerVisible: boolean;
   hasInitialized: boolean;
+  isLoading: boolean;
 }
 
 const useRatingsAnimation = ({ results, hasResults }: UseRatingsAnimationProps) => {
@@ -29,7 +30,8 @@ const useRatingsAnimation = ({ results, hasResults }: UseRatingsAnimationProps) 
     titleVisible: false,
     legendVisible: false,
     footerVisible: false,
-    hasInitialized: false
+    hasInitialized: false,
+    isLoading: true
   });
   
   // Handle initial animation sequence
@@ -44,14 +46,19 @@ const useRatingsAnimation = ({ results, hasResults }: UseRatingsAnimationProps) 
       // Set has initialized to prevent multiple animations
       setAnimationState(prev => ({ ...prev, hasInitialized: true }));
       
-      // Start animations sequence
-      startAnimations(results);
+      // First show the card and loading state
+      setAnimationState(prev => ({ ...prev, cardVisible: true }));
+      
+      // Start complete animation sequence after a delay to simulate loading
+      setTimeout(() => {
+        setAnimationState(prev => ({ ...prev, isLoading: false }));
+        startAnimations(results);
+      }, 1500); // Add a loading delay before showing real data
     }
   }, [results, hasResults, animationState.hasInitialized]);
   
   const startAnimations = (results: PlatformResult[]) => {
-    // First show the card container
-    setAnimationState(prev => ({ ...prev, cardVisible: true }));
+    // First show the card container (already visible)
     
     // Then show the title with a small delay
     setTimeout(() => {
@@ -86,7 +93,8 @@ const useRatingsAnimation = ({ results, hasResults }: UseRatingsAnimationProps) 
       titleVisible: false,
       legendVisible: false,
       footerVisible: false,
-      hasInitialized: false
+      hasInitialized: false,
+      isLoading: true
     });
   };
 

@@ -1,5 +1,5 @@
 
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { useChatbotState } from './hooks/useChatbotState';
 import { useIntroSequence } from './hooks/useIntroSequence';
 import { useChatbotMessaging } from './hooks/useChatbotMessaging';
@@ -66,18 +66,18 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
     onChatComplete
   });
   
-  // Create a state to store the handler function
+  // Handler for showing Google Basics
   const [showBasicsHandler, setShowBasicsHandler] = useState<(() => void) | null>(null);
   
   // Function to handle showing Google Basics
-  const handleGoogleBasicsClick = () => {
+  const handleGoogleBasicsClick = useCallback(() => {
     console.log("ChatbotStep: handleGoogleBasicsClick called");
     if (showBasicsHandler) {
       showBasicsHandler();
     } else {
       console.error("No show basics handler available");
     }
-  };
+  }, [showBasicsHandler]);
 
   return (
     <>

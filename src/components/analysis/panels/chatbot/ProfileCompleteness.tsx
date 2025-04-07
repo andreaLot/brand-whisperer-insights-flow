@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { ApifyBusinessResult } from '@/services/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,10 +18,12 @@ const ProfileCompleteness: React.FC<ProfileCompletenessProps> = ({
   const [completenessScore, setCompletenessScore] = useState(0);
   const [scoreDetails, setScoreDetails] = useState<Array<{field: string, present: boolean, icon: React.ReactNode}>>([]);
   const [animateProgress, setAnimateProgress] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
     if (apifyBusinessResult && isVisible) {
       console.log("ProfileCompleteness: Calculating completeness from Apify data:", apifyBusinessResult);
+      setIsLoading(true);
       
       const fieldsToCheck = [
         { field: 'Name', present: !!apifyBusinessResult.name, icon: <Shield size={18} className="mr-2" /> },
@@ -39,18 +42,22 @@ const ProfileCompleteness: React.FC<ProfileCompletenessProps> = ({
       setScoreDetails(fieldsToCheck);
       setCompletenessScore(0);
       
+      // Set a short timeout to simulate loading and then display the content
       setTimeout(() => {
+        setIsLoading(false);
         setAnimateProgress(true);
         setCompletenessScore(calculatedScore);
-      }, 500);
+      }, 800);
     }
   }, [apifyBusinessResult, isVisible]);
   
+  // If not visible, don't render anything
   if (!isVisible) {
     return null;
   }
   
-  if (!apifyBusinessResult) {
+  // Loading state
+  if (isLoading) {
     return (
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
@@ -103,6 +110,7 @@ const ProfileCompleteness: React.FC<ProfileCompletenessProps> = ({
     return 'bg-gradient-to-r from-uberall-rosa to-uberall-ultraviolet';
   };
 
+  // Render actual content
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}

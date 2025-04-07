@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import RatingsTableTitle from './RatingsTableTitle';
@@ -23,8 +23,6 @@ interface RatingsTableContainerProps {
 }
 
 const RatingsTableContainer: React.FC<RatingsTableContainerProps> = ({ businessName, platformResults }) => {
-  const [isLoading, setIsLoading] = useState(false);
-
   // Important: Make sure we have an array, even if empty
   const results = Array.isArray(platformResults) ? platformResults : [];
   const hasResults = results.length > 0;
@@ -35,7 +33,8 @@ const RatingsTableContainer: React.FC<RatingsTableContainerProps> = ({ businessN
     cardVisible, 
     titleVisible, 
     legendVisible, 
-    footerVisible 
+    footerVisible,
+    isLoading
   } = useRatingsAnimation({
     results,
     hasResults
@@ -66,7 +65,7 @@ const RatingsTableContainer: React.FC<RatingsTableContainerProps> = ({ businessN
                 <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-fuchsia-500/10 pointer-events-none" />
                 
                 {isLoading ? (
-                  <RatingsTableEmptyState isLoading={isLoading} />
+                  <RatingsTableEmptyState isLoading={true} />
                 ) : (
                   <RatingsResults 
                     results={results} 

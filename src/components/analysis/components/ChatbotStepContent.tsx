@@ -46,7 +46,7 @@ const ChatbotStepContent: React.FC<ChatbotStepContentProps> = ({
         AI Platform <span className="text-uberall-rosa">Rankings</span>
       </h2>
       
-      <div className="flex-1 bg-gradient-to-br from-uberall-dark-plum/60 to-uberall-dark-plum/40 rounded-lg h-[400px] shadow-xl border border-uberall-ultraviolet/30 backdrop-blur-sm">
+      <div className="flex-1 bg-gradient-to-br from-uberall-dark-plum/60 to-uberall-dark-plum/40 rounded-lg h-[400px] shadow-xl border border-uberall-ultraviolet/30 backdrop-blur-sm overflow-hidden">
         <ScrollArea className="h-full w-full pr-4" ref={scrollAreaRef}>
           <div className="p-4">
             <ChatMessages 

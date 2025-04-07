@@ -36,11 +36,8 @@ const GoogleBasicsHandler: React.FC<GoogleBasicsHandlerProps> = ({
       detail: { timestamp: Date.now() } 
     }, '*');
     
-    // Then send the panel selection message with a small delay 
-    setTimeout(() => {
-      console.log("GoogleBasicsHandler: Sending chatbot-selection for google-basics");
-      window.postMessage({ type: 'chatbot-selection', message: 'google-basics' }, '*');
-    }, 50);
+    // Then send the panel selection message
+    window.postMessage({ type: 'chatbot-selection', message: 'google-basics' }, '*');
   }, []);
 
   // Initialize the handler function
@@ -52,7 +49,7 @@ const GoogleBasicsHandler: React.FC<GoogleBasicsHandlerProps> = ({
     }
   }, [onShowBasicsInit, handleShowBasics]);
 
-  return null; // No need for a hidden element anymore
+  return null; // No need for a hidden element
 };
 
 export default GoogleBasicsHandler;
