@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Step } from '../../ConversationPanel';
 
 type PanelType = 'none' | 'competitors' | 'seo' | 'content' | 'ratings' | 'google-basics';
@@ -81,10 +81,12 @@ export const usePanelAnimations = (step: Step) => {
     }
   }, []);
   
-  // Reset active panels when step changes
-  if (step !== 'chatbot') {
-    setActivePanels(['none']);
-  }
+  // Reset active panels when step changes - using useEffect to prevent infinite renders
+  useEffect(() => {
+    if (step !== 'chatbot') {
+      setActivePanels(['none']);
+    }
+  }, [step]);
   
   return { animationProps, activePanels, handleChatbotMessage };
 };
