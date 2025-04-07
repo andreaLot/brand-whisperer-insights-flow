@@ -32,9 +32,15 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
   // Important: Make sure we have an array, even if empty
   const results = Array.isArray(platformResults) ? platformResults : [];
   
-  // If there are no real results, don't use demo data
+  // Always show demo data if there are no real results
   const hasResults = results.length > 0;
-  const displayResults = hasResults ? results : [];
+  const displayResults = hasResults ? results : [
+    { platform: 'Gemini', score: 88, rank: 2 },
+    { platform: 'GPT-4o', score: 92, rank: 1 },
+    { platform: 'Perplexity', score: 85, rank: 3 },
+    { platform: 'Claude', score: 84, rank: 4 },
+    { platform: 'Mistral', score: 82, rank: 5 },
+  ];
   
   useEffect(() => {
     console.log("🎯 [RatingsTable] Received platformResults:", JSON.stringify(results, null, 2));
@@ -47,22 +53,20 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
     setLegendVisible(false);
     setFooterVisible(false);
     
+    // Always show loading initially
+    setIsLoading(true);
+    
     // Start animations on next tick
     setTimeout(() => {
       startAnimations(displayResults);
     }, 100);
     
-    // Mark as no longer loading after 3 seconds or if we have results
-    if (results.length > 0) {
+    // After 3 seconds, always show results (either real or demo)
+    const loadingTimeout = setTimeout(() => {
       setIsLoading(false);
-    } else {
-      // Show loading state for at least 5 seconds if no results
-      const loadingTimeout = setTimeout(() => {
-        setIsLoading(false);
-      }, 5000);
-      
-      return () => clearTimeout(loadingTimeout);
-    }
+    }, 3000);
+    
+    return () => clearTimeout(loadingTimeout);
   }, [platformResults]);
   
   const startAnimations = (results: PlatformResult[]) => {
@@ -72,8 +76,8 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
     // Then show the title
     setTimeout(() => setTitleVisible(true), 500);
     
-    // Only start animating rows if we have results
-    if (results.length > 0) {
+    // Only start animating rows if loading is complete
+    if (!isLoading) {
       results.forEach((_, index) => {
         setTimeout(() => {
           setVisibleRows(prev => [...prev, index]);
@@ -83,12 +87,23 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
       // Finally show the legend and footer
       setTimeout(() => setLegendVisible(true), 1000 + (results.length * 300) + 300);
       setTimeout(() => setFooterVisible(true), 1000 + (results.length * 300) + 600);
-    } else {
-      // If no results, show the legend and footer sooner
-      setTimeout(() => setLegendVisible(true), 1000);
-      setTimeout(() => setFooterVisible(true), 1500);
     }
   };
+
+  // Update animations when loading state changes
+  useEffect(() => {
+    if (!isLoading) {
+      displayResults.forEach((_, index) => {
+        setTimeout(() => {
+          setVisibleRows(prev => [...prev, index]);
+        }, 300 + (index * 300)); // 300ms delay between each row
+      });
+      
+      // Show the legend and footer
+      setTimeout(() => setLegendVisible(true), 300 + (displayResults.length * 300) + 300);
+      setTimeout(() => setFooterVisible(true), 300 + (displayResults.length * 300) + 600);
+    }
+  }, [isLoading, displayResults.length]);
 
   return (
     <AnimatePresence>
@@ -109,28 +124,28 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
               <div className="relative rounded-xl overflow-hidden border border-violet-500/20">
                 <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-fuchsia-500/10 pointer-events-none" />
                 
-                {displayResults.length > 0 ? (
+                {isLoading ? (
+                  <RatingsTableEmptyState isLoading={isLoading} />
+                ) : (
                   <RatingsResults 
                     results={displayResults} 
                     visibleRows={visibleRows} 
                   />
-                ) : (
-                  <RatingsTableEmptyState isLoading={isLoading} />
                 )}
               </div>
               
               {/* Score legend */}
               <AnimatePresence>
-                {legendVisible && displayResults.length > 0 && <ScoreLegend />}
+                {legendVisible && !isLoading && <ScoreLegend />}
               </AnimatePresence>
             </CardContent>
           </Card>
           
           <AnimatePresence>
-            {footerVisible && (
+            {footerVisible && !isLoading && (
               <TableFooter 
                 businessName={businessName} 
-                platformCount={hasResults ? displayResults.length : 0}
+                platformCount={displayResults.length}
               />
             )}
           </AnimatePresence>
