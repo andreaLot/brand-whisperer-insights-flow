@@ -28,6 +28,7 @@ const ChatbotPanels: React.FC<ChatbotPanelsProps> = ({
       }
     };
     
+    // Use more specific event listener for our custom message
     window.addEventListener('message', handleShowBasics);
     return () => {
       window.removeEventListener('message', handleShowBasics);
