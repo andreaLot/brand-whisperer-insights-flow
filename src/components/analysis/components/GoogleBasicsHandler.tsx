@@ -19,14 +19,17 @@ const GoogleBasicsHandler: React.FC<GoogleBasicsHandlerProps> = ({
       setTimeout(() => {
         console.log("ChatbotStep: Triggering Google basics panel after delay");
         window.postMessage({ type: 'chatbot-selection', message: 'google-basics' }, '*');
-      }, 2000);
+      }, 2000); // Consistent 2 second delay
     }
   }, [isFinalPhase]);
 
   // Function to handle the CTA button click
   const handleShowBasics = useCallback(() => {
     console.log("GoogleBasicsHandler: Show basics button clicked");
+    // Send the panel selection message
     window.postMessage({ type: 'chatbot-selection', message: 'google-basics' }, '*');
+    // Also send the specific click event to show the profile data
+    window.postMessage({ type: 'show-google-basics-click' }, '*');
   }, []);
 
   // Return handler function via a hidden element's data attribute

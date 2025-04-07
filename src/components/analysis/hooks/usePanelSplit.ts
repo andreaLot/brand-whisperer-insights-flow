@@ -23,7 +23,7 @@ export const usePanelSplit = (step: Step, isPanelCollapsed: boolean): PanelSplit
           input: '50%'
         });
       } else if (step === 'business-name' || step === 'category-detection' || step === 'analyzing') {
-        // Transition to 40/60 split over 2 seconds
+        // Transition to 45/55 split over 2 seconds (changed from 40/60)
         const transitionDuration = 2000; // 2 seconds
         let startTime: number;
         
@@ -32,9 +32,9 @@ export const usePanelSplit = (step: Step, isPanelCollapsed: boolean): PanelSplit
           const elapsed = timestamp - startTime;
           const progress = Math.min(elapsed / transitionDuration, 1);
           
-          // Interpolate from 50/50 to 40/60
-          const convWidth = 50 - (10 * progress); // 50% to 40%
-          const inputWidth = 50 + (10 * progress); // 50% to 60%
+          // Interpolate from 50/50 to 45/55 (changed from 40/60)
+          const convWidth = 50 - (5 * progress); // 50% to 45%
+          const inputWidth = 50 + (5 * progress); // 50% to 55%
           
           setPanelSplitRatio({
             conversation: `${convWidth}%`,
@@ -49,10 +49,10 @@ export const usePanelSplit = (step: Step, isPanelCollapsed: boolean): PanelSplit
         requestAnimationFrame(animate);
       } else if (step === 'chatbot') {
         if (isPanelCollapsed) {
-          // After selection, show 40/60 split for chat and ratings
+          // After selection, show 45/55 split for chat and ratings (changed from 40/60)
           setPanelSplitRatio({
-            conversation: '40%',
-            input: '60%'
+            conversation: '45%',
+            input: '55%'
           });
         } else {
           // Initially 50/50 split for chatbot before selection

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ApifyBusinessResult, AnalysisResult } from "@/services/types";
 import ChatbotContent from '../chatbot/ChatbotContent';
@@ -17,6 +17,22 @@ const ChatbotPanels: React.FC<ChatbotPanelsProps> = ({
   apifyBusinessResult,
   animationProps
 }) => {
+  const [showGoogleBasics, setShowGoogleBasics] = useState(false);
+  
+  // Listen for the custom event to show Google basics
+  useEffect(() => {
+    const handleShowBasics = (event: MessageEvent) => {
+      if (event.data && event.data.type === 'show-google-basics-click') {
+        setShowGoogleBasics(true);
+      }
+    };
+    
+    window.addEventListener('message', handleShowBasics);
+    return () => {
+      window.removeEventListener('message', handleShowBasics);
+    };
+  }, []);
+
   return (
     <motion.div
       key="chatbot"
@@ -37,6 +53,7 @@ const ChatbotPanels: React.FC<ChatbotPanelsProps> = ({
           visibleSnippet="google-basics"
           analysisResult={analysisResult}
           apifyBusinessResult={apifyBusinessResult}
+          showGoogleBasics={showGoogleBasics}
         />
       )}
       

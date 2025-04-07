@@ -3,14 +3,19 @@ import React, { useEffect, useState } from 'react';
 import { Progress } from '@/components/ui/progress';
 import { ApifyBusinessResult } from '@/services/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, XCircle, Info, BarChart2 } from 'lucide-react';
+import { CheckCircle, XCircle, Info, BarChart2, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface ProfileCompletenessProps {
   apifyBusinessResult: ApifyBusinessResult | null | undefined;
+  isVisible: boolean;
 }
 
-const ProfileCompleteness: React.FC<ProfileCompletenessProps> = ({ apifyBusinessResult }) => {
+const ProfileCompleteness: React.FC<ProfileCompletenessProps> = ({ 
+  apifyBusinessResult, 
+  isVisible 
+}) => {
   const [completenessScore, setCompletenessScore] = useState(0);
   const [scoreDetails, setScoreDetails] = useState<Array<{field: string, present: boolean}>>([]);
   const [animateProgress, setAnimateProgress] = useState(false);
@@ -25,7 +30,7 @@ const ProfileCompleteness: React.FC<ProfileCompletenessProps> = ({ apifyBusiness
         { field: 'Address', present: !!apifyBusinessResult.address },
         { field: 'Category', present: !!apifyBusinessResult.category },
         { field: 'Website', present: !!apifyBusinessResult.website },
-        { field: 'Phone Number', present: !!apifyBusinessResult.phoneNumber }, // Added phone number check
+        { field: 'Phone Number', present: !!apifyBusinessResult.phoneNumber },
         { field: 'Reviews', present: !!apifyBusinessResult.reviews && apifyBusinessResult.reviews.length > 0 },
       ];
       
@@ -45,8 +50,49 @@ const ProfileCompleteness: React.FC<ProfileCompletenessProps> = ({ apifyBusiness
     }
   }, [apifyBusinessResult]);
   
+  // If not visible, don't render
+  if (!isVisible) return null;
+  
+  // Show loading state when data isn't available
   if (!apifyBusinessResult) {
-    return null;
+    return (
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: [0.19, 1.0, 0.22, 1.0] }}
+        className="mt-6"
+      >
+        <Card className="border-violet-500/20 bg-violet-900/10 backdrop-blur-sm shadow-lg shadow-violet-900/10">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg font-medium flex items-center gap-2 text-white">
+              <BarChart2 size={18} className="text-violet-400" />
+              Google Business Profile Completeness
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="relative rounded-xl overflow-hidden border border-violet-500/20">
+              <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-fuchsia-500/10 pointer-events-none" />
+              
+              <div className="space-y-4 p-6 flex flex-col items-center justify-center">
+                <Loader2 className="h-8 w-8 text-violet-400 animate-spin" />
+                <p className="text-violet-200 text-sm">Loading profile data...</p>
+                
+                <div className="w-full space-y-3">
+                  <Skeleton className="h-8 w-full bg-violet-800/30" />
+                  <Skeleton className="h-2 w-full bg-violet-800/30" />
+                  
+                  <div className="grid grid-cols-2 gap-3 mt-4">
+                    {[1, 2, 3, 4].map(i => (
+                      <Skeleton key={i} className="h-12 w-full bg-violet-800/20" />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+    );
   }
   
   const getScoreColor = (score: number) => {

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import RatingsTable from './ratings/RatingsTable';
 import CompetitorsPanel from './CompetitorsPanel';
@@ -12,12 +12,14 @@ interface ChatbotContentProps {
   visibleSnippet: 'none' | 'competitors' | 'seo' | 'content' | 'ratings' | 'google-basics';
   analysisResult: AnalysisResult | null;
   apifyBusinessResult?: ApifyBusinessResult | null;
+  showGoogleBasics?: boolean;
 }
 
 const ChatbotContent: React.FC<ChatbotContentProps> = ({
   visibleSnippet,
   analysisResult,
-  apifyBusinessResult
+  apifyBusinessResult,
+  showGoogleBasics = false
 }) => {
   console.log("ChatbotContent received analysisResult:", analysisResult);
   console.log("ChatbotContent visibleSnippet:", visibleSnippet);
@@ -65,7 +67,8 @@ const ChatbotContent: React.FC<ChatbotContentProps> = ({
           className="space-y-4"
         >
           <ProfileCompleteness 
-            apifyBusinessResult={apifyBusinessResult} 
+            apifyBusinessResult={apifyBusinessResult}
+            isVisible={showGoogleBasics} 
           />
         </motion.div>
       )}
