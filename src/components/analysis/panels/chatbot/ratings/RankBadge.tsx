@@ -21,10 +21,10 @@ const RankBadge: React.FC<RankBadgeProps> = ({ rank }) => {
   
   // Get appropriate CSS classes based on rank
   const getRankBadgeClass = (rank: number) => {
-    if (rank === 1) return "bg-amber-500/30 text-amber-200 ring-1 ring-amber-500/30";
-    if (rank === 2) return "bg-slate-400/30 text-slate-200 ring-1 ring-slate-400/30";
-    if (rank === 3) return "bg-amber-700/30 text-amber-300/80 ring-1 ring-amber-700/30";
-    return "bg-violet-500/20 text-violet-300 ring-1 ring-violet-500/20";
+    if (rank === 1) return "bg-uberall-bold-green/30 text-uberall-bold-green ring-1 ring-uberall-bold-green/30";
+    if (rank === 2) return "bg-uberall-bright-blue/30 text-uberall-bright-blue ring-1 ring-uberall-bright-blue/30";
+    if (rank === 3) return "bg-uberall-tangerine/30 text-uberall-tangerine ring-1 ring-uberall-tangerine/30";
+    return "bg-uberall-ultraviolet/20 text-uberall-rosa ring-1 ring-uberall-ultraviolet/20";
   };
 
   return (

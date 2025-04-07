@@ -64,12 +64,28 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				brand: {
-					blue: '#0052CC',
-					"blue-light": '#4C9AFF',
-					"blue-dark": '#172B4D',
-					black: '#0A0E17',
-					"gray-dark": '#161B22',
-					"gray-light": '#F7F8F9'
+					blue: '#08C0F9',
+					"blue-light": '#76EAED',
+					"blue-dark": '#260E5A',
+					black: '#260E5A',
+					"gray-dark": '#260E5A',
+					"gray-light": '#F6F9FD'
+				},
+				uberall: {
+					ultraviolet: '#7515F5',
+					"dark-plum": '#260E5A',
+					rosa: '#FF7BBA',
+					"bold-green": '#06CC8A',
+					tangerine: '#FF8522',
+					"bright-blue": '#08C0F9',
+					aqua: '#76EAED',
+					"spotlight-white": '#FFFFFF',
+					"pale-blue": '#D3F2FE',
+					"soft-green": '#E3F7B5',
+					lilac: '#E2D7FF',
+					"light-peach": '#FFEFCB',
+					"baby-pink": '#FFCCC',
+					"cool-gray": '#F6F9FD'
 				}
 			},
 			fontFamily: {
@@ -109,6 +125,10 @@ export default {
 				"fade-in": "fade-in 0.5s ease-out",
 				"fade-out": "fade-out 0.5s ease-out",
 				"slide-in": "slide-in 0.3s ease-out"
+			},
+			backgroundImage: {
+				'uberall-gradient': 'linear-gradient(135deg, #7515F5 0%, #FF7BBA 100%)',
+				'uberall-gradient-soft': 'linear-gradient(135deg, rgba(117, 21, 245, 0.9) 0%, rgba(255, 123, 186, 0.9) 100%)',
 			}
 		}
 	},

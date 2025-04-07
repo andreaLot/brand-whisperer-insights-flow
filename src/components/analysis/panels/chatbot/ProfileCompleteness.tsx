@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Progress } from '@/components/ui/progress';
 import { ApifyBusinessResult } from '@/services/types';
@@ -61,28 +62,28 @@ const ProfileCompleteness: React.FC<ProfileCompletenessProps> = ({
         transition={{ duration: 0.8, ease: [0.19, 1.0, 0.22, 1.0] }}
         className="mt-6"
       >
-        <Card className="border-violet-500/20 bg-violet-900/10 backdrop-blur-sm shadow-lg shadow-violet-900/10">
+        <Card className="border-uberall-ultraviolet/20 bg-uberall-ultraviolet/10 backdrop-blur-sm shadow-lg shadow-uberall-ultraviolet/10">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg font-medium flex items-center gap-2 text-white">
-              <BarChart2 size={18} className="text-violet-400" />
+              <BarChart2 size={18} className="text-uberall-rosa" />
               Google Business Profile Completeness
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="relative rounded-xl overflow-hidden border border-violet-500/20">
-              <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-fuchsia-500/10 pointer-events-none" />
+            <div className="relative rounded-xl overflow-hidden border border-uberall-ultraviolet/20">
+              <div className="absolute inset-0 bg-gradient-to-br from-uberall-ultraviolet/5 to-uberall-rosa/10 pointer-events-none" />
               
               <div className="space-y-4 p-6 flex flex-col items-center justify-center">
-                <Loader2 className="h-8 w-8 text-violet-400 animate-spin" />
-                <p className="text-violet-200 text-sm">Loading profile data...</p>
+                <Loader2 className="h-8 w-8 text-uberall-rosa animate-spin" />
+                <p className="text-uberall-spotlight-white text-sm">Loading profile data...</p>
                 
                 <div className="w-full space-y-3">
-                  <Skeleton className="h-8 w-full bg-violet-800/30" />
-                  <Skeleton className="h-2 w-full bg-violet-800/30" />
+                  <Skeleton className="h-8 w-full bg-uberall-ultraviolet/30" />
+                  <Skeleton className="h-2 w-full bg-uberall-ultraviolet/30" />
                   
                   <div className="grid grid-cols-2 gap-3 mt-4">
                     {[1, 2, 3, 4].map(i => (
-                      <Skeleton key={i} className="h-12 w-full bg-violet-800/20" />
+                      <Skeleton key={i} className="h-12 w-full bg-uberall-ultraviolet/20" />
                     ))}
                   </div>
                 </div>
@@ -95,15 +96,15 @@ const ProfileCompleteness: React.FC<ProfileCompletenessProps> = ({
   }
   
   const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-green-500';
-    if (score >= 50) return 'text-yellow-500';
-    return 'text-red-500';
+    if (score >= 80) return 'text-uberall-bold-green';
+    if (score >= 50) return 'text-uberall-tangerine';
+    return 'text-uberall-rosa';
   };
 
   const getProgressColor = (score: number) => {
-    if (score >= 80) return 'bg-gradient-to-r from-green-500 to-green-400';
-    if (score >= 50) return 'bg-gradient-to-r from-yellow-500 to-yellow-400';
-    return 'bg-gradient-to-r from-red-500 to-red-400';
+    if (score >= 80) return 'bg-gradient-to-r from-uberall-bold-green to-uberall-aqua';
+    if (score >= 50) return 'bg-gradient-to-r from-uberall-tangerine to-uberall-bright-blue';
+    return 'bg-gradient-to-r from-uberall-rosa to-uberall-ultraviolet';
   };
 
   return (
@@ -113,16 +114,16 @@ const ProfileCompleteness: React.FC<ProfileCompletenessProps> = ({
       transition={{ duration: 0.8, ease: [0.19, 1.0, 0.22, 1.0] }}
       className="mt-6"
     >
-      <Card className="border-violet-500/20 bg-violet-900/10 backdrop-blur-sm shadow-lg shadow-violet-900/10">
+      <Card className="border-uberall-ultraviolet/20 bg-uberall-ultraviolet/10 backdrop-blur-sm shadow-lg shadow-uberall-ultraviolet/10">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg font-medium flex items-center gap-2 text-white">
-            <BarChart2 size={18} className="text-violet-400" />
+            <BarChart2 size={18} className="text-uberall-rosa" />
             Google Business Profile Completeness
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="relative rounded-xl overflow-hidden border border-violet-500/20">
-            <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-fuchsia-500/10 pointer-events-none" />
+          <div className="relative rounded-xl overflow-hidden border border-uberall-ultraviolet/20">
+            <div className="absolute inset-0 bg-gradient-to-br from-uberall-ultraviolet/5 to-uberall-rosa/10 pointer-events-none" />
             
             <div className="space-y-4 p-4">
               <div className="flex justify-between items-center">
@@ -154,13 +155,13 @@ const ProfileCompleteness: React.FC<ProfileCompletenessProps> = ({
                 {scoreDetails.map((detail, index) => (
                   <motion.div 
                     key={detail.field} 
-                    className={`flex items-center p-2.5 rounded-lg ${detail.present ? 'bg-violet-800/30' : 'bg-gray-700/50'}`}
+                    className={`flex items-center p-2.5 rounded-lg ${detail.present ? 'bg-uberall-ultraviolet/30' : 'bg-gray-700/50'}`}
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.5 + (index * 0.15) }}
                   >
                     {detail.present ? (
-                      <CheckCircle className="h-5 w-5 text-green-500 mr-2.5" />
+                      <CheckCircle className="h-5 w-5 text-uberall-bold-green mr-2.5" />
                     ) : (
                       <XCircle className="h-5 w-5 text-gray-400 mr-2.5" />
                     )}
@@ -176,10 +177,10 @@ const ProfileCompleteness: React.FC<ProfileCompletenessProps> = ({
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 1.5 }}
-                  className="bg-violet-800/30 border border-violet-500/20 rounded-lg p-3 text-sm text-gray-200"
+                  className="bg-uberall-ultraviolet/30 border border-uberall-ultraviolet/20 rounded-lg p-3 text-sm text-gray-200"
                 >
                   <p>
-                    <span className="font-semibold text-violet-400">Pro Tip:</span> Complete your Google Business Profile to improve visibility in search results and AI platforms.
+                    <span className="font-semibold text-uberall-rosa">Pro Tip:</span> Complete your Google Business Profile to improve visibility in search results and AI platforms.
                   </p>
                 </motion.div>
               )}

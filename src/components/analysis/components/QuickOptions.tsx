@@ -40,11 +40,11 @@ const QuickOptions: React.FC<QuickOptionsProps> = ({
       <Button
         variant="outline"
         size="lg"
-        className="text-base bg-violet-500/30 border-violet-400 text-violet-100 hover:bg-violet-500/40 px-6 py-2 flex items-center gap-2"
+        className="text-base bg-uberall-ultraviolet/30 border-uberall-ultraviolet/50 text-white hover:bg-uberall-ultraviolet/40 px-6 py-2 flex items-center gap-2"
         onClick={handleRatingsClick}
         data-testid="view-ratings-button"
       >
-        <BarChart2 size={18} className="text-violet-300" />
+        <BarChart2 size={18} className="text-uberall-rosa" />
         View AI Platform Rankings
       </Button>
     </motion.div>

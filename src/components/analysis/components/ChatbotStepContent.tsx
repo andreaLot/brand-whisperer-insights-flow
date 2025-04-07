@@ -27,10 +27,10 @@ const ChatbotStepContent: React.FC<ChatbotStepContentProps> = ({
   return (
     <div className="flex flex-col space-y-4 w-full">
       <h2 className="text-3xl font-bold">
-        AI Platform <span className="text-brand-blue-light">Rankings</span>
+        AI Platform <span className="text-uberall-rosa">Rankings</span>
       </h2>
       
-      <div className="flex-1 overflow-auto p-4 bg-brand-black/50 rounded-lg h-[300px] overflow-y-auto">
+      <div className="flex-1 overflow-auto p-4 bg-uberall-dark-plum/50 rounded-lg h-[300px] overflow-y-auto shadow-lg border border-uberall-ultraviolet/20">
         <ChatMessages 
           chatHistory={chatHistory} 
           isTyping={isTyping} 

@@ -19,7 +19,7 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        elegant: "bg-gradient-to-r from-brand-blue to-brand-blue-light border border-white/10 shadow-lg text-white hover:shadow-brand-blue/20 hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5",
+        elegant: "bg-gradient-to-r from-uberall-ultraviolet to-uberall-rosa border border-white/10 shadow-lg text-white hover:shadow-uberall-rosa/20 hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5",
         dynamic: "relative text-white border border-white/10 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 overflow-hidden",
       },
       size: {
@@ -60,7 +60,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           }
           
           .btn-animate {
-            background: linear-gradient(-45deg, #FFA63D, #FF3D77, #338AFF, #3CF0C5);
+            background: linear-gradient(-45deg, #7515F5, #FF7BBA, #06CC8A, #08C0F9);
             background-size: 300% 300%;
             animation: gradientMove 6s ease infinite;
           }
@@ -71,7 +71,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             border-radius: inherit;
             filter: blur(15px);
             opacity: 0.7;
-            background: linear-gradient(-45deg, rgba(255, 166, 61, 0.7), rgba(255, 61, 119, 0.7), rgba(51, 138, 255, 0.7), rgba(60, 240, 197, 0.7));
+            background: linear-gradient(-45deg, rgba(117, 21, 245, 0.7), rgba(255, 123, 186, 0.7), rgba(6, 204, 138, 0.7), rgba(8, 192, 249, 0.7));
             background-size: 300% 300%;
             animation: gradientMove 6s ease infinite;
             transform: translateY(5px);

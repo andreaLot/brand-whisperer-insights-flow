@@ -32,8 +32,8 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ chatHistory, isTyping, onSh
           <div
             className={`px-4 py-2 rounded-xl max-w-[80%] ${
               msg.sender === 'user' 
-                ? 'bg-brand-blue-light text-white rounded-tr-none' 
-                : 'bg-gray-700 text-white rounded-tl-none'
+                ? 'bg-uberall-rosa text-white rounded-tr-none' 
+                : 'bg-uberall-ultraviolet text-white rounded-tl-none'
             }`}
           >
             {msg.text}
@@ -50,7 +50,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ chatHistory, isTyping, onSh
                   size="sm" 
                   variant="dynamic"
                   onClick={onShowBasics}
-                  className="w-full bg-brand-blue-light hover:bg-brand-blue text-white"
+                  className="w-full bg-uberall-bold-green hover:bg-uberall-bold-green/90 text-white"
                 >
                   Show me the basics
                 </Button>
@@ -70,7 +70,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ chatHistory, isTyping, onSh
             transition={{ duration: 0.3 }}
             className="flex justify-start mb-4"
           >
-            <div className="bg-gray-700 text-white rounded-xl rounded-tl-none px-4 py-2">
+            <div className="bg-uberall-ultraviolet text-white rounded-xl rounded-tl-none px-4 py-2">
               <span className="flex space-x-1">
                 <span className="typing-dot"></span>
                 <span className="typing-dot animation-delay-200"></span>

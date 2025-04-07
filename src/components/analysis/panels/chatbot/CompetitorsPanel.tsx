@@ -16,7 +16,7 @@ const CompetitorsPanel: React.FC<CompetitorsPanelProps> = ({
   const competitors = apifyBusinessResult?.reviews || [];
   
   return (
-    <Card className="bg-gradient-to-br from-brand-gray-dark to-brand-blue-dark/30 border border-gray-700 text-white">
+    <Card className="bg-gradient-to-br from-uberall-dark-plum to-uberall-ultraviolet/30 border border-uberall-ultraviolet/30 text-white">
       <CardHeader>
         <CardTitle className="text-lg">Top Competitors</CardTitle>
       </CardHeader>
@@ -26,11 +26,11 @@ const CompetitorsPanel: React.FC<CompetitorsPanelProps> = ({
             <div key={index} className="space-y-3">
               <div className="flex items-center justify-between">
                 <span>{competitor.userName || `Competitor ${index + 1}`}</span>
-                <span className="text-sm font-bold text-brand-blue-light">
+                <span className="text-sm font-bold text-uberall-rosa">
                   {competitor.stars ? `${competitor.stars * 20}% match` : ''}
                 </span>
               </div>
-              <Progress value={competitor.stars ? competitor.stars * 20 : 0} className="h-2" />
+              <Progress value={competitor.stars ? competitor.stars * 20 : 0} className="h-2 bg-uberall-ultraviolet/30" />
             </div>
           ))
         ) : (
@@ -38,23 +38,23 @@ const CompetitorsPanel: React.FC<CompetitorsPanelProps> = ({
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span>Competitor A</span>
-                <span className="text-sm font-bold text-brand-blue-light">88% match</span>
+                <span className="text-sm font-bold text-uberall-rosa">88% match</span>
               </div>
-              <Progress value={88} className="h-2" />
+              <Progress value={88} className="h-2 bg-uberall-ultraviolet/30" />
             </div>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span>Competitor B</span>
-                <span className="text-sm font-bold text-brand-blue-light">76% match</span>
+                <span className="text-sm font-bold text-uberall-rosa">76% match</span>
               </div>
-              <Progress value={76} className="h-2" />
+              <Progress value={76} className="h-2 bg-uberall-ultraviolet/30" />
             </div>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span>Competitor C</span>
-                <span className="text-sm font-bold text-brand-blue-light">62% match</span>
+                <span className="text-sm font-bold text-uberall-rosa">62% match</span>
               </div>
-              <Progress value={62} className="h-2" />
+              <Progress value={62} className="h-2 bg-uberall-ultraviolet/30" />
             </div>
           </>
         )}
