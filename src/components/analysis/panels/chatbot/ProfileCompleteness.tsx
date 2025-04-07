@@ -18,12 +18,14 @@ const ProfileCompleteness: React.FC<ProfileCompletenessProps> = ({
   const [completenessScore, setCompletenessScore] = useState(0);
   const [scoreDetails, setScoreDetails] = useState<Array<{field: string, present: boolean, icon: React.ReactNode}>>([]);
   const [animateProgress, setAnimateProgress] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasStartedLoading, setHasStartedLoading] = useState(false);
   
   useEffect(() => {
-    if (apifyBusinessResult && isVisible) {
-      console.log("ProfileCompleteness: Calculating completeness from Apify data:", apifyBusinessResult);
+    if (apifyBusinessResult && isVisible && !hasStartedLoading) {
+      console.log("ProfileCompleteness: User clicked Show Basics, calculating completeness");
       setIsLoading(true);
+      setHasStartedLoading(true);
       
       // Helper function to check if a field has a valid value
       const hasValidValue = (field: any): boolean => {
@@ -82,10 +84,15 @@ const ProfileCompleteness: React.FC<ProfileCompletenessProps> = ({
         setCompletenessScore(calculatedScore);
       }, 800);
     }
-  }, [apifyBusinessResult, isVisible]);
+  }, [apifyBusinessResult, isVisible, hasStartedLoading]);
   
   // If not visible, don't render anything
   if (!isVisible) {
+    return null;
+  }
+  
+  // If the user hasn't clicked the button yet, don't show anything
+  if (!hasStartedLoading) {
     return null;
   }
   
