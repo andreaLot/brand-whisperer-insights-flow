@@ -1,3 +1,4 @@
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -6,7 +7,7 @@
 }
 
 body {
-  background-color: #0A0E17;
+  background-color: #050509;
   font-family: 'IBM Plex Sans', sans-serif;
   color: #fff;
 }
@@ -108,10 +109,10 @@ body {
 
 .card {
   padding: 2em;
-  background: linear-gradient(135deg, rgba(22, 27, 34, 0.8) 0%, rgba(10, 14, 23, 0.9) 100%);
+  background: linear-gradient(135deg, rgba(10, 12, 18, 0.9) 0%, rgba(5, 7, 12, 0.95) 100%);
   border: 1px solid rgba(76, 154, 255, 0.1);
   border-radius: 12px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
 }
@@ -160,7 +161,7 @@ button.glossy:hover {
 
 /* Google Maps Places Autocomplete styling */
 .pac-container {
-  background-color: #0F1623;
+  background-color: #0A0C14;
   border-radius: 8px;
   border: 1px solid rgba(76, 154, 255, 0.2);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);

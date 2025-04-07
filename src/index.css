@@ -114,7 +114,8 @@
 
   body {
     @apply text-foreground font-ibm;
-    background: linear-gradient(135deg, hsl(268, 80%, 12%) 0%, hsl(268, 74%, 18%) 40%, hsl(268, 74%, 21%) 100%);
+    /* Updated to a much darker background gradient */
+    background: linear-gradient(135deg, hsl(268, 80%, 6%) 0%, hsl(268, 74%, 10%) 40%, hsl(268, 74%, 12%) 100%);
     background-attachment: fixed;
     background-size: cover;
   }
@@ -126,7 +127,7 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #260E5A;
+  background: #1A0940;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -169,4 +170,3 @@
     opacity: 1;
   }
 }
-
