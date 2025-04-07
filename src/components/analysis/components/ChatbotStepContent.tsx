@@ -30,7 +30,7 @@ const ChatbotStepContent: React.FC<ChatbotStepContentProps> = ({
         AI Platform <span className="text-uberall-rosa">Rankings</span>
       </h2>
       
-      <div className="flex-1 overflow-auto p-4 bg-uberall-dark-plum/50 rounded-lg h-[300px] overflow-y-auto shadow-lg border border-uberall-ultraviolet/20">
+      <div className="flex-1 overflow-auto p-4 bg-gradient-to-br from-uberall-dark-plum/60 to-uberall-dark-plum/40 rounded-lg h-[300px] overflow-y-auto shadow-xl border border-uberall-ultraviolet/30 backdrop-blur-sm">
         <ChatMessages 
           chatHistory={chatHistory} 
           isTyping={isTyping} 
