@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from "framer-motion";
 import ResultCard from "@/components/ResultCard";
-import PlatformIcon from "./panels/chatbot/ratings/PlatformIcon";
+import PlatformIcon from "../panels/chatbot/ratings/PlatformIcon";
 import { Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
