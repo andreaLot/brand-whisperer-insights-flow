@@ -3,7 +3,6 @@ import React from 'react';
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { BarChart2, Code } from "lucide-react";
-import { WebhookService } from '@/services/WebhookService';
 
 interface QuickOptionsProps {
   showOptions: boolean;
@@ -22,8 +21,12 @@ const QuickOptions: React.FC<QuickOptionsProps> = ({
   if ((!showOptions && !forceShow) || isFinalPhase) return null;
 
   const handleRatingsClick = () => {
-    // Post message first to ensure panel shows immediately
-    window.postMessage({ type: 'chatbot-selection', message: 'ratings' }, '*');
+    // First post message to trigger skeleton loading immediately
+    window.postMessage({ 
+      type: 'chatbot-selection', 
+      message: 'ratings',
+      showSkeleton: true 
+    }, '*');
     
     // Then trigger the analysis by sending the message
     onOptionClick("Show me the current AI platform rankings");

@@ -19,6 +19,7 @@ const ChatbotPanels: React.FC<ChatbotPanelsProps> = ({
 }) => {
   const [showGoogleBasics, setShowGoogleBasics] = useState(false);
   const [showReviews, setShowReviews] = useState(false);
+  const [showRatingsSkeleton, setShowRatingsSkeleton] = useState(false);
   
   // Listen for custom events to show different panels
   useEffect(() => {
@@ -35,6 +36,14 @@ const ChatbotPanels: React.FC<ChatbotPanelsProps> = ({
       if (event.data.type === 'show-reviews-click') {
         console.log("ChatbotPanels: Received show-reviews-click event", event.data);
         setShowReviews(true);
+      }
+      
+      // Handle ratings with skeleton
+      if (event.data.type === 'chatbot-selection' && event.data.message === 'ratings') {
+        if (event.data.showSkeleton === true) {
+          console.log("ChatbotPanels: Showing ratings skeleton immediately");
+          setShowRatingsSkeleton(true);
+        }
       }
     };
     

@@ -31,6 +31,7 @@ const ChatbotContent: React.FC<ChatbotContentProps> = ({
   // Local state to track if panels should be shown
   const [showBasics, setShowBasics] = useState(false);
   const [showReviewsPanel, setShowReviewsPanel] = useState(false);
+  const [showRatingsSkeleton, setShowRatingsSkeleton] = useState(false);
   
   // Listen for the specific events
   useEffect(() => {
@@ -47,6 +48,14 @@ const ChatbotContent: React.FC<ChatbotContentProps> = ({
       if (event.data.type === 'show-reviews-click') {
         console.log("ChatbotContent: Received show-reviews-click event, showing reviews");
         setShowReviewsPanel(true);
+      }
+      
+      // Handle ratings with skeleton
+      if (event.data.type === 'chatbot-selection' && event.data.message === 'ratings') {
+        if (event.data.showSkeleton === true) {
+          console.log("ChatbotContent: Showing ratings skeleton immediately");
+          setShowRatingsSkeleton(true);
+        }
       }
     };
     
@@ -80,7 +89,7 @@ const ChatbotContent: React.FC<ChatbotContentProps> = ({
 
   return (
     <AnimatePresence mode="wait">
-      {visibleSnippet === 'ratings' && analysisResult?.platformResults?.length > 0 && (
+      {visibleSnippet === 'ratings' && (
         <motion.div
           key="ratings"
           initial={{ opacity: 0, y: 20 }}
@@ -92,6 +101,7 @@ const ChatbotContent: React.FC<ChatbotContentProps> = ({
           <RatingsTable 
             businessName={safeResult.businessName} 
             platformResults={safeResult.platformResults || []} 
+            showSkeleton={showRatingsSkeleton && (!analysisResult?.platformResults?.length || analysisResult.platformResults.length === 0)}
           />
         </motion.div>
       )}
