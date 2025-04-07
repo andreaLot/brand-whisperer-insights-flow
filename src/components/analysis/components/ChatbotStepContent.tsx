@@ -30,9 +30,20 @@ const ChatbotStepContent: React.FC<ChatbotStepContentProps> = ({
   
   // Auto-scroll to bottom when chat history or typing state changes
   useEffect(() => {
-    if (scrollViewportRef.current) {
-      scrollViewportRef.current.scrollTop = scrollViewportRef.current.scrollHeight;
-    }
+    const scrollToBottom = () => {
+      if (scrollViewportRef.current) {
+        const scrollHeight = scrollViewportRef.current.scrollHeight;
+        scrollViewportRef.current.scrollTop = scrollHeight;
+        console.log("Scrolling to bottom", { 
+          scrollHeight, 
+          scrollTop: scrollViewportRef.current.scrollTop,
+          clientHeight: scrollViewportRef.current.clientHeight
+        });
+      }
+    };
+    
+    // Wait a tiny bit for DOM updates to complete
+    setTimeout(scrollToBottom, 50);
   }, [chatHistory, isTyping]);
   
   return (
@@ -41,9 +52,12 @@ const ChatbotStepContent: React.FC<ChatbotStepContentProps> = ({
         AI Platform <span className="text-uberall-rosa">Rankings</span>
       </h2>
       
-      <div className="flex-1 bg-gradient-to-br from-uberall-dark-plum/60 to-uberall-dark-plum/40 rounded-lg h-[400px] shadow-xl border border-uberall-ultraviolet/30 backdrop-blur-sm overflow-hidden">
-        <ScrollArea className="h-full w-full pr-4" viewportRef={scrollViewportRef}>
-          <div className="p-4">
+      <div className="flex-1 bg-gradient-to-br from-uberall-dark-plum/60 to-uberall-dark-plum/40 rounded-lg h-[400px] shadow-xl border border-uberall-ultraviolet/30 backdrop-blur-sm overflow-hidden flex flex-col">
+        <ScrollArea 
+          className="h-full w-full pr-4 flex-grow" 
+          viewportRef={scrollViewportRef}
+        >
+          <div className="p-4 h-full">
             <ChatMessages 
               chatHistory={chatHistory} 
               isTyping={isTyping} 
