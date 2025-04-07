@@ -1,5 +1,5 @@
 
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { useChatbotState } from './hooks/useChatbotState';
 import { useIntroSequence } from './hooks/useIntroSequence';
 import { useChatbotMessaging } from './hooks/useChatbotMessaging';
@@ -51,6 +51,11 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
     introComplete
   });
   
+  // Log initial render once to help debugging
+  useEffect(() => {
+    console.log("ChatbotStep: Initial render");
+  }, []);
+  
   // Use the messaging hook
   const { sendMessage } = useChatbotMessaging({
     setChatHistory,
@@ -66,18 +71,19 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
   
   // Function to handle showing Google Basics
   const handleGoogleBasicsClick = () => {
+    console.log("ChatbotStep: handleGoogleBasicsClick called");
     if (showBasicsHandlerRef.current) {
       showBasicsHandlerRef.current();
     }
   };
   
-  // Function to capture the handler from GoogleBasicsHandler
-  const handleGoogleBasicsRef = (element: React.ReactElement) => {
-    // Extract the handler from the data attribute
-    if (element && element.props && element.props.children) {
-      const inputElement = React.Children.toArray(element.props.children)[0] as React.ReactElement;
-      if (inputElement && inputElement.props && inputElement.props["data-show-basics"]) {
-        showBasicsHandlerRef.current = inputElement.props["data-show-basics"];
+  // Capture the handler function from GoogleBasicsHandler component
+  const captureBasicsHandler = (element: HTMLDivElement | null) => {
+    if (element && element.querySelector) {
+      const input = element.querySelector('input[data-show-basics]');
+      if (input) {
+        // @ts-ignore - We know this attribute exists
+        showBasicsHandlerRef.current = input.dataset.showBasics;
       }
     }
   };
@@ -101,8 +107,10 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
         setIsPanelVisible={setIsPanelVisible}
       />
       
-      {/* Render GoogleBasicsHandler but capture its function via ref */}
-      {React.createElement(GoogleBasicsHandler, { isFinalPhase }, null)}
+      {/* Get a reference to the GoogleBasicsHandler */}
+      <div ref={captureBasicsHandler}>
+        <GoogleBasicsHandler isFinalPhase={isFinalPhase} />
+      </div>
     </>
   );
 };

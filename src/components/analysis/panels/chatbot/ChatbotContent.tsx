@@ -41,6 +41,7 @@ const ChatbotContent: React.FC<ChatbotContentProps> = ({
   // Update local state when prop changes
   useEffect(() => {
     if (showGoogleBasics) {
+      console.log("ChatbotContent: showGoogleBasics prop is true, showing basics");
       setShowBasics(true);
     }
   }, [showGoogleBasics]);
