@@ -1,9 +1,8 @@
 
 import React, { useEffect, useState } from 'react';
-import { Progress } from '@/components/ui/progress';
 import { ApifyBusinessResult } from '@/services/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, XCircle, Info, BarChart2, Loader2 } from 'lucide-react';
+import { CheckCircle, XCircle, BarChart2, Loader2, Shield, MapPin, Phone, Globe, Newspaper, MessageSquare } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -17,24 +16,25 @@ const ProfileCompleteness: React.FC<ProfileCompletenessProps> = ({
   isVisible 
 }) => {
   const [completenessScore, setCompletenessScore] = useState(0);
-  const [scoreDetails, setScoreDetails] = useState<Array<{field: string, present: boolean}>>([]);
+  const [scoreDetails, setScoreDetails] = useState<Array<{field: string, present: boolean, icon: React.ReactNode}>>([]);
   const [animateProgress, setAnimateProgress] = useState(false);
   
   useEffect(() => {
     if (apifyBusinessResult && isVisible) {
       console.log("ProfileCompleteness: Calculating completeness from Apify data:", apifyBusinessResult);
       
-      // Fields to check for completeness based on Apify data
+      // Fields to check for completeness based on Apify data with icons
       const fieldsToCheck = [
-        { field: 'Name', present: !!apifyBusinessResult.name },
-        { field: 'Address', present: !!apifyBusinessResult.address },
-        { field: 'Category', present: !!apifyBusinessResult.category },
-        { field: 'Website', present: !!apifyBusinessResult.website },
-        { field: 'Phone Number', present: !!apifyBusinessResult.phoneNumber },
-        { field: 'Reviews', present: !!apifyBusinessResult.reviews && apifyBusinessResult.reviews.length > 0 },
+        { field: 'Name', present: !!apifyBusinessResult.name, icon: <Shield size={18} className="mr-2" /> },
+        { field: 'Address', present: !!apifyBusinessResult.address, icon: <MapPin size={18} className="mr-2" /> },
+        { field: 'Category', present: !!apifyBusinessResult.category, icon: <Shield size={18} className="mr-2" /> },
+        { field: 'Website', present: !!apifyBusinessResult.website, icon: <Globe size={18} className="mr-2" /> },
+        { field: 'Phone Number', present: !!apifyBusinessResult.phoneNumber, icon: <Phone size={18} className="mr-2" /> },
+        { field: 'Reviews', present: !!apifyBusinessResult.reviews && apifyBusinessResult.reviews.length > 0, icon: <MessageSquare size={18} className="mr-2" /> },
+        { field: 'Photos', present: !!apifyBusinessResult.photos && apifyBusinessResult.photos.length > 0, icon: <Newspaper size={18} className="mr-2" /> },
       ];
       
-      // Calculate score (each field is worth ~16.67 points)
+      // Calculate score (each field is worth an equal percentage)
       const totalFields = fieldsToCheck.length;
       const presentFields = fieldsToCheck.filter(item => item.present).length;
       const calculatedScore = Math.round((presentFields / totalFields) * 100);
@@ -165,7 +165,8 @@ const ProfileCompleteness: React.FC<ProfileCompletenessProps> = ({
                     ) : (
                       <XCircle className="h-5 w-5 text-gray-400 mr-2.5" />
                     )}
-                    <span className={detail.present ? 'text-white' : 'text-gray-400'}>
+                    <span className={`flex items-center ${detail.present ? 'text-white' : 'text-gray-400'}`}>
+                      {detail.icon}
                       {detail.field}
                     </span>
                   </motion.div>

@@ -1,5 +1,5 @@
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { useChatbotState } from './hooks/useChatbotState';
 import { useIntroSequence } from './hooks/useIntroSequence';
 import { useChatbotMessaging } from './hooks/useChatbotMessaging';
@@ -66,25 +66,16 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
     onChatComplete
   });
   
-  // Create a ref to store the handler function
-  const showBasicsHandlerRef = useRef<(() => void) | null>(null);
+  // Create a state to store the handler function
+  const [showBasicsHandler, setShowBasicsHandler] = useState<(() => void) | null>(null);
   
   // Function to handle showing Google Basics
   const handleGoogleBasicsClick = () => {
     console.log("ChatbotStep: handleGoogleBasicsClick called");
-    if (showBasicsHandlerRef.current) {
-      showBasicsHandlerRef.current();
-    }
-  };
-  
-  // Capture the handler function from GoogleBasicsHandler component
-  const captureBasicsHandler = (element: HTMLDivElement | null) => {
-    if (element && element.querySelector) {
-      const input = element.querySelector('input[data-show-basics]');
-      if (input) {
-        // @ts-ignore - We know this attribute exists
-        showBasicsHandlerRef.current = input.dataset.showBasics;
-      }
+    if (showBasicsHandler) {
+      showBasicsHandler();
+    } else {
+      console.error("No show basics handler available");
     }
   };
 
@@ -108,9 +99,10 @@ const ChatbotStep: React.FC<ChatbotStepProps> = ({
       />
       
       {/* Get a reference to the GoogleBasicsHandler */}
-      <div ref={captureBasicsHandler}>
-        <GoogleBasicsHandler isFinalPhase={isFinalPhase} />
-      </div>
+      <GoogleBasicsHandler 
+        isFinalPhase={isFinalPhase}
+        onShowBasicsInit={setShowBasicsHandler}
+      />
     </>
   );
 };

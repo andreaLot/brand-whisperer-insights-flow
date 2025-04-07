@@ -17,6 +17,36 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ chatHistory, isTyping, onSh
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatHistory]);
+  
+  // Function to show reviews panel
+  const handleShowReviews = () => {
+    console.log("ChatMessages: Show reviews button clicked");
+    window.postMessage({ 
+      type: 'show-reviews-click', 
+      detail: { timestamp: Date.now() } 
+    }, '*');
+    
+    // Then send the panel selection message with a small delay 
+    setTimeout(() => {
+      console.log("ChatMessages: Sending chatbot-selection for reviews");
+      window.postMessage({ type: 'chatbot-selection', message: 'reviews' }, '*');
+    }, 50);
+  };
+  
+  // Function to show review sentiment
+  const handleShowSentiment = () => {
+    console.log("ChatMessages: Show sentiment button clicked");
+    window.postMessage({ 
+      type: 'show-reviews-click', 
+      detail: { timestamp: Date.now() } 
+    }, '*');
+    
+    // Then send the panel selection message with a small delay 
+    setTimeout(() => {
+      console.log("ChatMessages: Sending chatbot-selection for reviews");
+      window.postMessage({ type: 'chatbot-selection', message: 'reviews' }, '*');
+    }, 50);
+  };
 
   return (
     <>
@@ -43,7 +73,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ chatHistory, isTyping, onSh
           >
             {msg.text}
             
-            {/* Show the CTA button if this message has showCTA flag */}
+            {/* Show the Google Basics CTA button if this message has showCTA flag */}
             {msg.showCTA && onShowBasics && (
               <motion.div 
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -58,6 +88,34 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ chatHistory, isTyping, onSh
                   className="w-full bg-uberall-bold-green hover:bg-uberall-bold-green/90 text-white shadow-md shadow-uberall-bold-green/20"
                 >
                   Show me the basics
+                </Button>
+              </motion.div>
+            )}
+            
+            {/* Show the Reviews CTA buttons if this message has showReviewCTA flag */}
+            {msg.showReviewCTA && (
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.5 }}
+                className="mt-4 mb-2 space-y-2"
+              >
+                <Button 
+                  size="sm" 
+                  variant="dynamic"
+                  onClick={handleShowReviews}
+                  className="w-full bg-uberall-bright-blue hover:bg-uberall-bright-blue/90 text-white shadow-md shadow-uberall-bright-blue/20"
+                >
+                  Show my review score
+                </Button>
+                
+                <Button 
+                  size="sm" 
+                  variant="dynamic"
+                  onClick={handleShowSentiment}
+                  className="w-full bg-uberall-tangerine hover:bg-uberall-tangerine/90 text-white shadow-md shadow-uberall-tangerine/20"
+                >
+                  Show my review sentiment
                 </Button>
               </motion.div>
             )}

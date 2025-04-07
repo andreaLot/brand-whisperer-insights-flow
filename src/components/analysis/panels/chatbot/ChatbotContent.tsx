@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import RatingsTable from './ratings/RatingsTable';
@@ -5,46 +6,65 @@ import CompetitorsPanel from './CompetitorsPanel';
 import SeoPanel from './SeoPanel';
 import ContentPanel from './ContentPanel';
 import ProfileCompleteness from './ProfileCompleteness';
+import ReviewsPanel from './ReviewsPanel';
 import { AnalysisResult, ApifyBusinessResult } from '@/services/types';
 
 interface ChatbotContentProps {
-  visibleSnippet: 'none' | 'competitors' | 'seo' | 'content' | 'ratings' | 'google-basics';
+  visibleSnippet: 'none' | 'competitors' | 'seo' | 'content' | 'ratings' | 'google-basics' | 'reviews';
   analysisResult: AnalysisResult | null;
   apifyBusinessResult?: ApifyBusinessResult | null;
   showGoogleBasics?: boolean;
+  showReviews?: boolean;
 }
 
 const ChatbotContent: React.FC<ChatbotContentProps> = ({
   visibleSnippet,
   analysisResult,
   apifyBusinessResult,
-  showGoogleBasics = false
+  showGoogleBasics = false,
+  showReviews = false
 }) => {
-  console.log("ChatbotContent: visibleSnippet =", visibleSnippet, "showGoogleBasics =", showGoogleBasics);
+  console.log("ChatbotContent: visibleSnippet =", visibleSnippet, 
+    "showGoogleBasics =", showGoogleBasics,
+    "showReviews =", showReviews);
   
-  // Local state to track if Google Basics should be shown
+  // Local state to track if panels should be shown
   const [showBasics, setShowBasics] = useState(showGoogleBasics);
+  const [showReviewsPanel, setShowReviewsPanel] = useState(showReviews);
   
-  // Listen for the specific event from the button click
+  // Listen for the specific events
   useEffect(() => {
-    const handleShowBasicsClick = (event: MessageEvent) => {
-      if (event.data && event.data.type === 'show-google-basics-click') {
+    const handleCustomEvents = (event: MessageEvent) => {
+      if (!event.data || typeof event.data !== 'object') return;
+      
+      // Handle Google Basics click
+      if (event.data.type === 'show-google-basics-click') {
         console.log("ChatbotContent: Received show-google-basics-click event, showing basics");
         setShowBasics(true);
       }
+      
+      // Handle Reviews click
+      if (event.data.type === 'show-reviews-click') {
+        console.log("ChatbotContent: Received show-reviews-click event, showing reviews");
+        setShowReviewsPanel(true);
+      }
     };
     
-    window.addEventListener('message', handleShowBasicsClick);
-    return () => window.removeEventListener('message', handleShowBasicsClick);
+    window.addEventListener('message', handleCustomEvents);
+    return () => window.removeEventListener('message', handleCustomEvents);
   }, []);
   
-  // Update local state when prop changes
+  // Update local state when props change
   useEffect(() => {
     if (showGoogleBasics) {
       console.log("ChatbotContent: showGoogleBasics prop is true, showing basics");
       setShowBasics(true);
     }
-  }, [showGoogleBasics]);
+    if (showReviews) {
+      console.log("ChatbotContent: showReviews prop is true, showing reviews");
+      setShowReviewsPanel(true);
+    }
+  }, [showGoogleBasics, showReviews]);
   
   // Create a safe default if analysisResult is null
   const safeResult: AnalysisResult = analysisResult || {
@@ -88,6 +108,23 @@ const ChatbotContent: React.FC<ChatbotContentProps> = ({
           <ProfileCompleteness 
             apifyBusinessResult={apifyBusinessResult}
             isVisible={showBasics} 
+          />
+        </motion.div>
+      )}
+      
+      {visibleSnippet === 'reviews' && (
+        <motion.div
+          key="reviews"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.4 }}
+          className="space-y-4"
+        >
+          <ReviewsPanel 
+            apifyBusinessResult={apifyBusinessResult}
+            isVisible={showReviewsPanel} 
+            businessName={safeResult.businessName}
           />
         </motion.div>
       )}

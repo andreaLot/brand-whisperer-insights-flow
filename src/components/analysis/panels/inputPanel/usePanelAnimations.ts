@@ -2,7 +2,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { Step } from '../../ConversationPanel';
 
-type PanelType = 'none' | 'competitors' | 'seo' | 'content' | 'ratings' | 'google-basics';
+type PanelType = 'none' | 'competitors' | 'seo' | 'content' | 'ratings' | 'google-basics' | 'reviews';
 
 export const usePanelAnimations = (step: Step) => {
   // Track active panels
@@ -50,6 +50,15 @@ export const usePanelAnimations = (step: Step) => {
         setActivePanels(prev => {
           if (!prev.includes('google-basics')) {
             return [...prev, 'google-basics'];
+          }
+          return prev;
+        });
+      }
+      else if (event.data.message.includes('reviews')) {
+        console.log("Setting reviews panel to visible");
+        setActivePanels(prev => {
+          if (!prev.includes('reviews')) {
+            return [...prev, 'reviews'];
           }
           return prev;
         });

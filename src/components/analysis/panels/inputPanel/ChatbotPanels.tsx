@@ -5,7 +5,7 @@ import { ApifyBusinessResult, AnalysisResult } from "@/services/types";
 import ChatbotContent from '../chatbot/ChatbotContent';
 
 interface ChatbotPanelsProps {
-  activePanels: Array<'none' | 'competitors' | 'seo' | 'content' | 'ratings' | 'google-basics'>;
+  activePanels: Array<'none' | 'competitors' | 'seo' | 'content' | 'ratings' | 'google-basics' | 'reviews'>;
   analysisResult: AnalysisResult | null;
   apifyBusinessResult?: ApifyBusinessResult | null;
   animationProps: any;
@@ -18,20 +18,29 @@ const ChatbotPanels: React.FC<ChatbotPanelsProps> = ({
   animationProps
 }) => {
   const [showGoogleBasics, setShowGoogleBasics] = useState(false);
+  const [showReviews, setShowReviews] = useState(false);
   
-  // Listen for the custom event to show Google basics
+  // Listen for custom events to show different panels
   useEffect(() => {
-    const handleShowBasics = (event: MessageEvent) => {
-      if (event.data && event.data.type === 'show-google-basics-click') {
+    const handleCustomEvents = (event: MessageEvent) => {
+      if (!event.data || typeof event.data !== 'object') return;
+      
+      // Handle Google Basics panel
+      if (event.data.type === 'show-google-basics-click') {
         console.log("ChatbotPanels: Received show-google-basics-click event", event.data);
         setShowGoogleBasics(true);
       }
+      
+      // Handle Reviews panel
+      if (event.data.type === 'show-reviews-click') {
+        console.log("ChatbotPanels: Received show-reviews-click event", event.data);
+        setShowReviews(true);
+      }
     };
     
-    // Use more specific event listener for our custom message
-    window.addEventListener('message', handleShowBasics);
+    window.addEventListener('message', handleCustomEvents);
     return () => {
-      window.removeEventListener('message', handleShowBasics);
+      window.removeEventListener('message', handleCustomEvents);
     };
   }, []);
 
@@ -39,7 +48,7 @@ const ChatbotPanels: React.FC<ChatbotPanelsProps> = ({
     <motion.div
       key="chatbot"
       {...animationProps}
-      className="space-y-6"
+      className="space-y-6 max-h-[calc(100vh-200px)] overflow-auto"
     >
       {/* Show all active panels in order */}
       {activePanels.includes('ratings') && (
@@ -56,6 +65,15 @@ const ChatbotPanels: React.FC<ChatbotPanelsProps> = ({
           analysisResult={analysisResult}
           apifyBusinessResult={apifyBusinessResult}
           showGoogleBasics={showGoogleBasics}
+        />
+      )}
+      
+      {activePanels.includes('reviews') && (
+        <ChatbotContent 
+          visibleSnippet="reviews"
+          analysisResult={analysisResult}
+          apifyBusinessResult={apifyBusinessResult}
+          showReviews={showReviews}
         />
       )}
       

@@ -55,13 +55,27 @@ export const useChatbotMessaging = ({
           id: googleReminderMessageId,
           showCTA: true // Add flag to show CTA
         }]);
+        
+        // After the Google reminder, add a review-focused message
+        setTimeout(() => {
+          const reviewsMessageId = `bot-reviews-${Date.now()}`;
+          const reviewsText = `Reviews are also crucial! They significantly impact how your business appears in AI search results. Positive reviews can boost your visibility across all AI platforms. Would you like to see your review sentiment analysis?`;
+          
+          // Add review message with CTA
+          setChatHistory(prev => [...prev, { 
+            sender: 'bot', 
+            text: reviewsText, 
+            id: reviewsMessageId,
+            showReviewCTA: true // Add flag to show Reviews CTA
+          }]);
+        }, 3000); // 3 seconds after Google basics
       }, 2000); // Consistent 2 second delay
       
       // Explicitly call onChatComplete to trigger any parent component logic (increased timing)
       setTimeout(() => {
         console.log("ChatbotStep: Calling onChatComplete");
         onChatComplete();
-      }, 4000); // Keep as 4s to allow time for user to see the final message
+      }, 7000); // Increased to allow time for all messages
     }, 2000); // Consistent 2 second delay
   };
 

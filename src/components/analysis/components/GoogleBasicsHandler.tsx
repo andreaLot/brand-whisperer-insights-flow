@@ -3,13 +3,16 @@ import React, { useCallback, useRef, useEffect } from 'react';
 
 interface GoogleBasicsHandlerProps {
   isFinalPhase: boolean;
+  onShowBasicsInit: (handler: () => void) => void;
 }
 
 const GoogleBasicsHandler: React.FC<GoogleBasicsHandlerProps> = ({ 
-  isFinalPhase 
+  isFinalPhase,
+  onShowBasicsInit
 }) => {
   // Create a ref to track if we've already sent the message
   const messagesSent = useRef(false);
+  const hasInitialized = useRef(false);
   
   // Send message to show ratings panel when we're in final phase
   useEffect(() => {
@@ -40,12 +43,16 @@ const GoogleBasicsHandler: React.FC<GoogleBasicsHandlerProps> = ({
     }, 50);
   }, []);
 
-  // Return handler function via a hidden element's data attribute
-  return (
-    <div style={{ display: 'none' }}>
-      <input type="hidden" data-show-basics={handleShowBasics} />
-    </div>
-  );
+  // Initialize the handler function
+  useEffect(() => {
+    if (!hasInitialized.current && onShowBasicsInit) {
+      console.log("GoogleBasicsHandler: Initializing handler function");
+      onShowBasicsInit(handleShowBasics);
+      hasInitialized.current = true;
+    }
+  }, [onShowBasicsInit, handleShowBasics]);
+
+  return null; // No need for a hidden element anymore
 };
 
 export default GoogleBasicsHandler;
