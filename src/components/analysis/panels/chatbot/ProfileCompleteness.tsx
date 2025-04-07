@@ -25,14 +25,47 @@ const ProfileCompleteness: React.FC<ProfileCompletenessProps> = ({
       console.log("ProfileCompleteness: Calculating completeness from Apify data:", apifyBusinessResult);
       setIsLoading(true);
       
+      // Helper function to check if a field has a valid value
+      const hasValidValue = (field: any): boolean => {
+        // If it's a string/number/boolean, check directly
+        if (typeof field === 'string' || typeof field === 'number' || typeof field === 'boolean') {
+          return !!field;
+        }
+        
+        // If it's an object with _type and value properties (from Apify)
+        if (field && typeof field === 'object' && '_type' in field) {
+          // Check if it has a valid value property that isn't "undefined"
+          return field.value && field.value !== "undefined";
+        }
+        
+        // For arrays, check length
+        if (Array.isArray(field)) {
+          return field.length > 0;
+        }
+        
+        // For other objects, just check if it exists
+        return !!field;
+      };
+      
       const fieldsToCheck = [
-        { field: 'Name', present: !!apifyBusinessResult.name, icon: <Shield size={18} className="mr-2" /> },
-        { field: 'Address', present: !!apifyBusinessResult.address, icon: <MapPin size={18} className="mr-2" /> },
-        { field: 'Category', present: !!apifyBusinessResult.category, icon: <Shield size={18} className="mr-2" /> },
-        { field: 'Website', present: !!apifyBusinessResult.website, icon: <Globe size={18} className="mr-2" /> },
-        { field: 'Phone Number', present: !!apifyBusinessResult.phoneNumber, icon: <Phone size={18} className="mr-2" /> },
-        { field: 'Reviews', present: !!apifyBusinessResult.reviews && apifyBusinessResult.reviews.length > 0, icon: <MessageSquare size={18} className="mr-2" /> },
-        // Removed the Photos field from the profile score calculation
+        { field: 'Name', present: hasValidValue(apifyBusinessResult.name), icon: <Shield size={18} className="mr-2" /> },
+        { field: 'Address', present: hasValidValue(apifyBusinessResult.address), icon: <MapPin size={18} className="mr-2" /> },
+        { 
+          field: 'Category', 
+          present: hasValidValue(apifyBusinessResult.category), 
+          icon: <Shield size={18} className="mr-2" /> 
+        },
+        { field: 'Website', present: hasValidValue(apifyBusinessResult.website), icon: <Globe size={18} className="mr-2" /> },
+        { 
+          field: 'Phone Number', 
+          present: hasValidValue(apifyBusinessResult.phoneNumber), 
+          icon: <Phone size={18} className="mr-2" /> 
+        },
+        { 
+          field: 'Reviews', 
+          present: hasValidValue(apifyBusinessResult.reviews) && apifyBusinessResult.reviews!.length > 0, 
+          icon: <MessageSquare size={18} className="mr-2" /> 
+        },
       ];
       
       const totalFields = fieldsToCheck.length;

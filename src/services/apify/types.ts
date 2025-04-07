@@ -35,14 +35,19 @@ export interface ApifyConfig {
   allPlacesNoSearchAction?: string;
 }
 
+export interface ComplexField {
+  _type?: string;
+  value?: any;
+}
+
 export interface ApifyRawResult {
   name: string;
-  rating?: number;
+  rating?: number | ComplexField;
   reviewsCount?: number;
   address?: string;
-  category?: string;
+  category?: string | ComplexField;
   website?: string;
-  phoneNumber?: string; // Added phone number field
+  phoneNumber?: string | ComplexField;
   reviews?: Array<{
     text: string;
     stars: number;

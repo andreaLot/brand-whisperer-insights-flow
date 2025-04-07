@@ -10,15 +10,24 @@ export class ApifyDataProcessor {
     // Filter reviews to only include those from 2025 onwards
     const filteredReviews = this.filterRecentReviews(place.reviews || []);
     
+    // Helper function to extract value from complex fields that might be objects with _type property
+    const extractValue = (field: any): any => {
+      if (field && typeof field === 'object' && '_type' in field) {
+        // If the value is "undefined", return null instead
+        return field.value !== "undefined" ? field.value : null;
+      }
+      return field;
+    };
+    
     // Create the business result object
     return {
       name: place.name || "Unknown",
-      rating: place.rating,
+      rating: extractValue(place.rating),
       reviewsCount: place.reviewsCount,
       address: place.address,
-      category: place.category,
+      category: extractValue(place.category),
       website: place.website,
-      phoneNumber: place.phoneNumber, // Add phone number to the result
+      phoneNumber: extractValue(place.phoneNumber),
       reviews: filteredReviews,
       images: place.imageUrls || []
     };
