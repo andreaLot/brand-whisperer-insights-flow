@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import RatingsTableTitle from './RatingsTableTitle';
@@ -8,6 +8,7 @@ import ScoreLegend from './ScoreLegend';
 import TableFooter from './TableFooter';
 import RatingsTableEmptyState from './RatingsTableEmptyState';
 import { cardVariants } from './RatingsAnimations';
+import useRatingsAnimation from './useRatingsAnimation';
 
 interface PlatformResult {
   platform?: string;
@@ -22,52 +23,23 @@ interface RatingsTableContainerProps {
 }
 
 const RatingsTableContainer: React.FC<RatingsTableContainerProps> = ({ businessName, platformResults }) => {
-  const [visibleRows, setVisibleRows] = useState<number[]>([]);
-  const [cardVisible, setCardVisible] = useState(false);
-  const [titleVisible, setTitleVisible] = useState(false);
-  const [legendVisible, setLegendVisible] = useState(false);
-  const [footerVisible, setFooterVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [hasInitialized, setHasInitialized] = useState(false);
 
   // Important: Make sure we have an array, even if empty
   const results = Array.isArray(platformResults) ? platformResults : [];
   const hasResults = results.length > 0;
   
-  useEffect(() => {
-    if (hasInitialized) return; // Prevent multiple initializations
-    
-    console.log("🎯 [RatingsTable] Received platformResults:", JSON.stringify(results, null, 2));
-    console.log(`🎯 [RatingsTable] Number of platform results: ${results.length}`);
-    
-    // Set has initialized to prevent multiple animations
-    setHasInitialized(true);
-    
-    // Only animate if we have actual results
-    if (hasResults) {
-      // Start animations sequence
-      startAnimations(results);
-    }
-  }, [platformResults, hasResults]);
-  
-  const startAnimations = (results: PlatformResult[]) => {
-    // First show the card container
-    setCardVisible(true);
-    
-    // Then show the title with a small delay
-    setTimeout(() => setTitleVisible(true), 300);
-    
-    // Start showing rows one by one
-    results.forEach((_, index) => {
-      setTimeout(() => {
-        setVisibleRows(prev => [...prev, index]);
-      }, 600 + (index * 200)); // Faster animation sequence
-    });
-    
-    // Finally show the legend and footer
-    setTimeout(() => setLegendVisible(true), 600 + (results.length * 200) + 200);
-    setTimeout(() => setFooterVisible(true), 600 + (results.length * 200) + 400);
-  };
+  // Use our custom animation hook
+  const { 
+    visibleRows, 
+    cardVisible, 
+    titleVisible, 
+    legendVisible, 
+    footerVisible 
+  } = useRatingsAnimation({
+    results,
+    hasResults
+  });
 
   // If we have no results, don't render anything
   if (!hasResults) {
