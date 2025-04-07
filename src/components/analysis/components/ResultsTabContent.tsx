@@ -1,5 +1,7 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from "framer-motion";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import ResultCard from "@/components/ResultCard";
 import PlatformIcon from "../panels/chatbot/ratings/PlatformIcon";
 import { Loader2 } from "lucide-react";
@@ -113,43 +115,45 @@ const ResultsTabContent: React.FC<ResultsTabContentProps> = ({ platformResults }
   }
 
   return (
-    <motion.div 
-      key="results"
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -20 }}
-      transition={{ duration: 0.4 }}
-      className="space-y-6"
-    >
-      <Carousel className="w-full">
-        <CarouselContent className="-ml-2 md:-ml-4">
-          {results.map((result, index) => (
-            <CarouselItem key={index} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
-              <AnimatePresence>
-                {visibleCards.includes(index) && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, type: "spring" }}
-                  >
-                    <ResultCard 
-                      platform={result.platform || result.model || ""} 
-                      score={result.score} 
-                      rank={result.rank} 
-                      icon={<PlatformIcon platform={result.platform || result.model} />} 
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-        <div className="flex justify-center mt-4">
-          <CarouselPrevious className="relative static transform-none mx-2 text-white" />
-          <CarouselNext className="relative static transform-none mx-2 text-white" />
-        </div>
-      </Carousel>
-    </motion.div>
+    <ScrollArea className="h-[calc(100vh-220px)]">
+      <motion.div 
+        key="results"
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: -20 }}
+        transition={{ duration: 0.4 }}
+        className="space-y-6 p-2"
+      >
+        <Carousel className="w-full">
+          <CarouselContent className="-ml-2 md:-ml-4">
+            {results.map((result, index) => (
+              <CarouselItem key={index} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
+                <AnimatePresence>
+                  {visibleCards.includes(index) && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, type: "spring" }}
+                    >
+                      <ResultCard 
+                        platform={result.platform || result.model || ""} 
+                        score={result.score} 
+                        rank={result.rank} 
+                        icon={<PlatformIcon platform={result.platform || result.model} />} 
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <div className="flex justify-center mt-4">
+            <CarouselPrevious className="relative static transform-none mx-2 text-white" />
+            <CarouselNext className="relative static transform-none mx-2 text-white" />
+          </div>
+        </Carousel>
+      </motion.div>
+    </ScrollArea>
   );
 };
 
