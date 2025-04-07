@@ -29,7 +29,7 @@ const ChatbotContent: React.FC<ChatbotContentProps> = ({
     "showReviews =", showReviews);
   
   // Local state to track if panels should be shown
-  const [showBasics, setShowBasics] = useState(false); // Initialize to false by default
+  const [showBasics, setShowBasics] = useState(false);
   const [showReviewsPanel, setShowReviewsPanel] = useState(false);
   
   // Listen for the specific events
@@ -80,7 +80,7 @@ const ChatbotContent: React.FC<ChatbotContentProps> = ({
 
   return (
     <AnimatePresence mode="wait">
-      {visibleSnippet === 'ratings' && (
+      {visibleSnippet === 'ratings' && analysisResult?.platformResults?.length > 0 && (
         <motion.div
           key="ratings"
           initial={{ opacity: 0, y: 20 }}

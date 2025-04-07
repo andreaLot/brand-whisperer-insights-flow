@@ -27,21 +27,12 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
   const [titleVisible, setTitleVisible] = useState(false);
   const [legendVisible, setLegendVisible] = useState(false);
   const [footerVisible, setFooterVisible] = useState(false);
-  const [isLoading, setIsLoading] = useState(false); // Don't start in loading state
+  const [isLoading, setIsLoading] = useState(false);
   const [hasInitialized, setHasInitialized] = useState(false);
 
   // Important: Make sure we have an array, even if empty
   const results = Array.isArray(platformResults) ? platformResults : [];
   const hasResults = results.length > 0;
-  
-  // Use real data if available, otherwise use demo data
-  const displayResults = hasResults ? results : [
-    { platform: 'Gemini', score: 88, rank: 2 },
-    { platform: 'GPT-4o', score: 92, rank: 1 },
-    { platform: 'Perplexity', score: 85, rank: 3 },
-    { platform: 'Claude', score: 84, rank: 4 },
-    { platform: 'Mistral', score: 82, rank: 5 },
-  ];
   
   useEffect(() => {
     if (hasInitialized) return; // Prevent multiple initializations
@@ -52,19 +43,10 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
     // Set has initialized to prevent multiple animations
     setHasInitialized(true);
     
-    // Immediately start animations if we have data
+    // Only animate if we have actual results
     if (hasResults) {
       // Start animations sequence
-      startAnimations(displayResults);
-    } else {
-      // Only show brief loading if we don't have data yet
-      setIsLoading(true);
-      const loadingTimeout = setTimeout(() => {
-        setIsLoading(false);
-        startAnimations(displayResults);
-      }, 1500); // Shorter loading time
-      
-      return () => clearTimeout(loadingTimeout);
+      startAnimations(results);
     }
   }, [platformResults, hasResults]);
   
@@ -86,6 +68,11 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
     setTimeout(() => setLegendVisible(true), 600 + (results.length * 200) + 200);
     setTimeout(() => setFooterVisible(true), 600 + (results.length * 200) + 400);
   };
+
+  // If we have no results, don't render anything
+  if (!hasResults) {
+    return null;
+  }
 
   return (
     <AnimatePresence>
@@ -110,7 +97,7 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
                   <RatingsTableEmptyState isLoading={isLoading} />
                 ) : (
                   <RatingsResults 
-                    results={displayResults} 
+                    results={results} 
                     visibleRows={visibleRows} 
                   />
                 )}
@@ -127,7 +114,7 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
             {footerVisible && !isLoading && (
               <TableFooter 
                 businessName={businessName} 
-                platformCount={displayResults.length}
+                platformCount={results.length}
               />
             )}
           </AnimatePresence>

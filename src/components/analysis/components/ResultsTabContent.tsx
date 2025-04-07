@@ -25,7 +25,7 @@ interface ResultsTabContentProps {
 
 const ResultsTabContent: React.FC<ResultsTabContentProps> = ({ platformResults }) => {
   const [visibleCards, setVisibleCards] = useState<number[]>([]);
-  const [isLoading, setIsLoading] = useState(false); // Start with no loading state
+  const [isLoading, setIsLoading] = useState(true);
   const [hasInitialized, setHasInitialized] = useState(false);
   
   // Ensure platformResults is always an array
@@ -37,8 +37,10 @@ const ResultsTabContent: React.FC<ResultsTabContentProps> = ({ platformResults }
     console.log("ResultsTabContent received platformResults:", results);
     setHasInitialized(true);
     
-    // Only show cards once we have data
+    // Skip placeholder data and only show when real results are available
     if (results.length > 0) {
+      setIsLoading(false);
+      
       // Animate cards one by one
       results.forEach((_, index) => {
         setTimeout(() => {
@@ -46,56 +48,14 @@ const ResultsTabContent: React.FC<ResultsTabContentProps> = ({ platformResults }
         }, 300 + (index * 200)); // 200ms delay between each card
       });
     } else {
-      // Brief loading state if no data
       setIsLoading(true);
-      const loadingTimer = setTimeout(() => {
-        setIsLoading(false);
-      }, 1500); // Shorter loading time
-      
-      return () => clearTimeout(loadingTimer);
     }
-  }, [results]);
+  }, [results, platformResults]);
 
-  if (isLoading) {
+  if (isLoading || results.length === 0) {
     return (
       <motion.div
         key="loading"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -20 }}
-        transition={{ duration: 0.4 }}
-        className="flex flex-col items-center justify-center p-8"
-      >
-        <Loader2 size={40} className="text-violet-400 animate-spin mb-4" />
-        <h3 className="text-lg font-medium text-violet-200 mb-2">Loading platform results</h3>
-        <p className="text-gray-400 text-sm">Retrieving data from AI platforms...</p>
-        
-        {/* Loading skeleton cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-8 w-full">
-          {[1, 2, 3].map((_, index) => (
-            <div key={index} className="bg-violet-900/20 rounded-xl p-4 border border-violet-500/20">
-              <div className="flex justify-between items-center mb-4">
-                <Skeleton className="h-8 w-32 bg-violet-500/20" />
-                <Skeleton className="h-8 w-8 rounded-full bg-violet-500/20" />
-              </div>
-              <div className="space-y-2">
-                <Skeleton className="h-12 w-full bg-violet-500/20" />
-                <div className="flex justify-between">
-                  <Skeleton className="h-6 w-16 bg-violet-500/20" />
-                  <Skeleton className="h-6 w-12 bg-violet-500/20" />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </motion.div>
-    );
-  }
-
-  if (results.length === 0) {
-    return (
-      <motion.div
-        key="loading-alt"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
