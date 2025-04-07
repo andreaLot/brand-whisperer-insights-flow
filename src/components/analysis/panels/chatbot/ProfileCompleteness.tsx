@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Progress } from '@/components/ui/progress';
 import { ApifyBusinessResult } from '@/services/types';
@@ -21,8 +20,8 @@ const ProfileCompleteness: React.FC<ProfileCompletenessProps> = ({
   const [animateProgress, setAnimateProgress] = useState(false);
   
   useEffect(() => {
-    if (apifyBusinessResult) {
-      console.log("Calculating completeness from Apify data:", apifyBusinessResult);
+    if (apifyBusinessResult && isVisible) {
+      console.log("ProfileCompleteness: Calculating completeness from Apify data:", apifyBusinessResult);
       
       // Fields to check for completeness based on Apify data
       const fieldsToCheck = [
@@ -48,7 +47,7 @@ const ProfileCompleteness: React.FC<ProfileCompletenessProps> = ({
         setCompletenessScore(calculatedScore);
       }, 500);
     }
-  }, [apifyBusinessResult]);
+  }, [apifyBusinessResult, isVisible]);
   
   // If not visible, don't render
   if (!isVisible) return null;

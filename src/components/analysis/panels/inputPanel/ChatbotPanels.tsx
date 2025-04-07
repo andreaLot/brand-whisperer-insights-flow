@@ -23,6 +23,7 @@ const ChatbotPanels: React.FC<ChatbotPanelsProps> = ({
   useEffect(() => {
     const handleShowBasics = (event: MessageEvent) => {
       if (event.data && event.data.type === 'show-google-basics-click') {
+        console.log("ChatbotPanels: Received show-google-basics-click event", event.data);
         setShowGoogleBasics(true);
       }
     };

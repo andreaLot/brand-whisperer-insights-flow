@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import RatingsTable from './ratings/RatingsTable';
 import CompetitorsPanel from './CompetitorsPanel';
@@ -21,8 +21,17 @@ const ChatbotContent: React.FC<ChatbotContentProps> = ({
   apifyBusinessResult,
   showGoogleBasics = false
 }) => {
-  console.log("ChatbotContent received analysisResult:", analysisResult);
-  console.log("ChatbotContent visibleSnippet:", visibleSnippet);
+  console.log("ChatbotContent: visibleSnippet =", visibleSnippet, "showGoogleBasics =", showGoogleBasics);
+  
+  // Log when the show basics flag changes
+  useEffect(() => {
+    console.log("ChatbotContent: showGoogleBasics changed to", showGoogleBasics);
+  }, [showGoogleBasics]);
+  
+  // Log when Apify result changes
+  useEffect(() => {
+    console.log("ChatbotContent: apifyBusinessResult updated:", apifyBusinessResult ? "data available" : "no data");
+  }, [apifyBusinessResult]);
   
   // Create a safe default if analysisResult is null
   const safeResult: AnalysisResult = analysisResult || {
@@ -35,9 +44,6 @@ const ChatbotContent: React.FC<ChatbotContentProps> = ({
     weaknesses: [],
     recommendations: []
   };
-  
-  // Log platform results specifically for debugging
-  console.log("Platform results:", safeResult.platformResults);
 
   return (
     <AnimatePresence mode="wait">

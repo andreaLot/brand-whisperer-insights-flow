@@ -28,8 +28,8 @@ const GoogleBasicsHandler: React.FC<GoogleBasicsHandlerProps> = ({
     console.log("GoogleBasicsHandler: Show basics button clicked");
     // Send the panel selection message
     window.postMessage({ type: 'chatbot-selection', message: 'google-basics' }, '*');
-    // Also send the specific click event to show the profile data
-    window.postMessage({ type: 'show-google-basics-click' }, '*');
+    // Also send the specific click event to show the profile data - making this more explicit now
+    window.postMessage({ type: 'show-google-basics-click', detail: { timestamp: Date.now() } }, '*');
   }, []);
 
   // Return handler function via a hidden element's data attribute
