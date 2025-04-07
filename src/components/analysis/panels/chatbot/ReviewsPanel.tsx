@@ -41,7 +41,12 @@ const ReviewsPanel: React.FC<ReviewsPanelProps> = ({
       
       if (reviews.length > 0) {
         // Calculate average rating
-        const totalRating = reviews.reduce((sum, review) => sum + (review.rating || 0), 0);
+        const totalRating = reviews.reduce((sum, review) => {
+          // Use stars if available, fall back to rating if stars is not available
+          const reviewScore = review.stars || review.rating || 0;
+          return sum + reviewScore;
+        }, 0);
+        
         const avgRating = reviews.length > 0 ? totalRating / reviews.length : 0;
         
         // Simulate sentiment analysis (in a real app, this would use NLP)
@@ -51,8 +56,9 @@ const ReviewsPanel: React.FC<ReviewsPanelProps> = ({
         let negative = 0;
         
         reviews.forEach(review => {
-          if (review.rating && review.rating >= 4) positive++;
-          else if (review.rating && review.rating >= 3) neutral++;
+          const reviewScore = review.stars || review.rating || 0;
+          if (reviewScore >= 4) positive++;
+          else if (reviewScore >= 3) neutral++;
           else negative++;
         });
         

@@ -27,6 +27,7 @@ export interface AnalysisResult {
 export interface ApifyReview {
   text: string;
   stars: number;
+  rating?: number; // Added rating property
   publishedAtDate?: string;
   userName?: string;
 }
@@ -38,9 +39,10 @@ export interface ApifyBusinessResult {
   address?: string;
   category?: string;
   website?: string;
-  phoneNumber?: string; // Added phone number field
+  phoneNumber?: string;
   reviews?: ApifyReview[];
   images?: string[];
+  photos?: string[]; // Added photos property
 }
 
 export interface ApifyCategoryResult {

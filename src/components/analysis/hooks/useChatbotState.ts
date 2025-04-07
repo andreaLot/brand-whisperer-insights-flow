@@ -6,6 +6,7 @@ export interface ChatMessage {
   text: string;
   id: string;
   showCTA?: boolean;
+  showReviewCTA?: boolean;
 }
 
 interface UseChatbotStateProps {

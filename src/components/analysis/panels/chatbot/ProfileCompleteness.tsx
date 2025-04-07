@@ -31,7 +31,7 @@ const ProfileCompleteness: React.FC<ProfileCompletenessProps> = ({
         { field: 'Website', present: !!apifyBusinessResult.website, icon: <Globe size={18} className="mr-2" /> },
         { field: 'Phone Number', present: !!apifyBusinessResult.phoneNumber, icon: <Phone size={18} className="mr-2" /> },
         { field: 'Reviews', present: !!apifyBusinessResult.reviews && apifyBusinessResult.reviews.length > 0, icon: <MessageSquare size={18} className="mr-2" /> },
-        { field: 'Photos', present: !!apifyBusinessResult.photos && apifyBusinessResult.photos.length > 0, icon: <Newspaper size={18} className="mr-2" /> },
+        { field: 'Photos', present: !!(apifyBusinessResult.photos || apifyBusinessResult.images) && ((apifyBusinessResult.photos?.length || 0) > 0 || (apifyBusinessResult.images?.length || 0) > 0), icon: <Newspaper size={18} className="mr-2" /> },
       ];
       
       // Calculate score (each field is worth an equal percentage)
