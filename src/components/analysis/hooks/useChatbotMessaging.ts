@@ -43,7 +43,8 @@ export const useChatbotMessaging = ({
       // Mark the interaction as in final phase
       setIsFinalPhase(true);
       
-      // Add a reminder about Google basics after a delay (consistent 2 seconds)
+      // Add a longer delay (10 seconds) before continuing the conversation
+      // This gives the user time to review the rankings before moving on
       setTimeout(() => {
         const googleReminderMessageId = `bot-google-${Date.now()}`;
         const googleReminderText = `Don't forget the basics! While AI platforms are important, your Google Business Profile is still essential. Let me show you the completeness of your profile:`;
@@ -69,13 +70,13 @@ export const useChatbotMessaging = ({
             showReviewCTA: true // Add flag to show Reviews CTA
           }]);
         }, 3000); // 3 seconds after Google basics
-      }, 2000); // Consistent 2 second delay
+      }, 10000); // 10-second delay before continuing conversation
       
       // Explicitly call onChatComplete to trigger any parent component logic (increased timing)
       setTimeout(() => {
         console.log("ChatbotStep: Calling onChatComplete");
         onChatComplete();
-      }, 7000); // Increased to allow time for all messages
+      }, 15000); // Increased to allow time for all messages after the 10-second delay
     }, 2000); // Consistent 2 second delay
   };
 
