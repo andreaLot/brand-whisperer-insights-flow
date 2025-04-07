@@ -27,14 +27,14 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
   const [titleVisible, setTitleVisible] = useState(false);
   const [legendVisible, setLegendVisible] = useState(false);
   const [footerVisible, setFooterVisible] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false); // Don't start in loading state
   const [hasInitialized, setHasInitialized] = useState(false);
 
   // Important: Make sure we have an array, even if empty
   const results = Array.isArray(platformResults) ? platformResults : [];
-  
-  // Always show demo data if there are no real results
   const hasResults = results.length > 0;
+  
+  // Use real data if available, otherwise use demo data
   const displayResults = hasResults ? results : [
     { platform: 'Gemini', score: 88, rank: 2 },
     { platform: 'GPT-4o', score: 92, rank: 1 },
@@ -49,65 +49,43 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
     console.log("🎯 [RatingsTable] Received platformResults:", JSON.stringify(results, null, 2));
     console.log(`🎯 [RatingsTable] Number of platform results: ${results.length}`);
     
-    // Reset animation states
-    setVisibleRows([]);
-    setCardVisible(false);
-    setTitleVisible(false);
-    setLegendVisible(false);
-    setFooterVisible(false);
-    
-    // Always show loading initially
-    setIsLoading(true);
+    // Set has initialized to prevent multiple animations
     setHasInitialized(true);
     
-    // Start animations on next tick
-    setTimeout(() => {
+    // Immediately start animations if we have data
+    if (hasResults) {
+      // Start animations sequence
       startAnimations(displayResults);
-    }, 100);
-    
-    // After 3 seconds, always show results (either real or demo)
-    const loadingTimeout = setTimeout(() => {
-      setIsLoading(false);
-    }, 3000);
-    
-    return () => clearTimeout(loadingTimeout);
-  }, [platformResults]);
+    } else {
+      // Only show brief loading if we don't have data yet
+      setIsLoading(true);
+      const loadingTimeout = setTimeout(() => {
+        setIsLoading(false);
+        startAnimations(displayResults);
+      }, 1500); // Shorter loading time
+      
+      return () => clearTimeout(loadingTimeout);
+    }
+  }, [platformResults, hasResults]);
   
   const startAnimations = (results: PlatformResult[]) => {
     // First show the card container
     setCardVisible(true);
     
-    // Then show the title
-    setTimeout(() => setTitleVisible(true), 500);
+    // Then show the title with a small delay
+    setTimeout(() => setTitleVisible(true), 300);
     
-    // Only start animating rows if loading is complete
-    if (!isLoading) {
-      results.forEach((_, index) => {
-        setTimeout(() => {
-          setVisibleRows(prev => [...prev, index]);
-        }, 1000 + (index * 300)); // 300ms delay between each row
-      });
-      
-      // Finally show the legend and footer
-      setTimeout(() => setLegendVisible(true), 1000 + (results.length * 300) + 300);
-      setTimeout(() => setFooterVisible(true), 1000 + (results.length * 300) + 600);
-    }
+    // Start showing rows one by one
+    results.forEach((_, index) => {
+      setTimeout(() => {
+        setVisibleRows(prev => [...prev, index]);
+      }, 600 + (index * 200)); // Faster animation sequence
+    });
+    
+    // Finally show the legend and footer
+    setTimeout(() => setLegendVisible(true), 600 + (results.length * 200) + 200);
+    setTimeout(() => setFooterVisible(true), 600 + (results.length * 200) + 400);
   };
-
-  // Update animations when loading state changes
-  useEffect(() => {
-    if (!isLoading) {
-      displayResults.forEach((_, index) => {
-        setTimeout(() => {
-          setVisibleRows(prev => [...prev, index]);
-        }, 300 + (index * 300)); // 300ms delay between each row
-      });
-      
-      // Show the legend and footer
-      setTimeout(() => setLegendVisible(true), 300 + (displayResults.length * 300) + 300);
-      setTimeout(() => setFooterVisible(true), 300 + (displayResults.length * 300) + 600);
-    }
-  }, [isLoading, displayResults.length]);
 
   return (
     <AnimatePresence>

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { ApifyBusinessResult } from '@/services/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,7 +22,6 @@ const ProfileCompleteness: React.FC<ProfileCompletenessProps> = ({
     if (apifyBusinessResult && isVisible) {
       console.log("ProfileCompleteness: Calculating completeness from Apify data:", apifyBusinessResult);
       
-      // Fields to check for completeness based on Apify data with icons
       const fieldsToCheck = [
         { field: 'Name', present: !!apifyBusinessResult.name, icon: <Shield size={18} className="mr-2" /> },
         { field: 'Address', present: !!apifyBusinessResult.address, icon: <MapPin size={18} className="mr-2" /> },
@@ -34,15 +32,13 @@ const ProfileCompleteness: React.FC<ProfileCompletenessProps> = ({
         { field: 'Photos', present: !!(apifyBusinessResult.photos || apifyBusinessResult.images) && ((apifyBusinessResult.photos?.length || 0) > 0 || (apifyBusinessResult.images?.length || 0) > 0), icon: <Newspaper size={18} className="mr-2" /> },
       ];
       
-      // Calculate score (each field is worth an equal percentage)
       const totalFields = fieldsToCheck.length;
       const presentFields = fieldsToCheck.filter(item => item.present).length;
       const calculatedScore = Math.round((presentFields / totalFields) * 100);
       
       setScoreDetails(fieldsToCheck);
-      setCompletenessScore(0); // Start at 0
+      setCompletenessScore(0);
       
-      // Set a short delay before animating the progress
       setTimeout(() => {
         setAnimateProgress(true);
         setCompletenessScore(calculatedScore);
@@ -50,10 +46,10 @@ const ProfileCompleteness: React.FC<ProfileCompletenessProps> = ({
     }
   }, [apifyBusinessResult, isVisible]);
   
-  // If not visible, don't render
-  if (!isVisible) return null;
+  if (!isVisible) {
+    return null;
+  }
   
-  // Show loading state when data isn't available
   if (!apifyBusinessResult) {
     return (
       <motion.div 
@@ -94,7 +90,7 @@ const ProfileCompleteness: React.FC<ProfileCompletenessProps> = ({
       </motion.div>
     );
   }
-  
+
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'text-uberall-bold-green';
     if (score >= 50) return 'text-uberall-tangerine';

@@ -25,7 +25,7 @@ interface ResultsTabContentProps {
 
 const ResultsTabContent: React.FC<ResultsTabContentProps> = ({ platformResults }) => {
   const [visibleCards, setVisibleCards] = useState<number[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false); // Start with no loading state
   const [hasInitialized, setHasInitialized] = useState(false);
   
   // Ensure platformResults is always an array
@@ -35,15 +35,10 @@ const ResultsTabContent: React.FC<ResultsTabContentProps> = ({ platformResults }
     if (hasInitialized) return; // Prevent multiple initializations
     
     console.log("ResultsTabContent received platformResults:", results);
+    setHasInitialized(true);
     
-    // Reset visible cards when results change
-    setVisibleCards([]);
-    
-    // Set loading state based on results
+    // Only show cards once we have data
     if (results.length > 0) {
-      setIsLoading(false);
-      setHasInitialized(true);
-      
       // Animate cards one by one
       results.forEach((_, index) => {
         setTimeout(() => {
@@ -51,15 +46,15 @@ const ResultsTabContent: React.FC<ResultsTabContentProps> = ({ platformResults }
         }, 300 + (index * 200)); // 200ms delay between each card
       });
     } else {
-      // Show loading for at least 3 seconds
+      // Brief loading state if no data
+      setIsLoading(true);
       const loadingTimer = setTimeout(() => {
         setIsLoading(false);
-        setHasInitialized(true);
-      }, 3000);
+      }, 1500); // Shorter loading time
       
       return () => clearTimeout(loadingTimer);
     }
-  }, [results, hasInitialized]);
+  }, [results]);
 
   if (isLoading) {
     return (

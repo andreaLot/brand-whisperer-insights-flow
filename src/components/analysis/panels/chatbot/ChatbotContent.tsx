@@ -29,8 +29,8 @@ const ChatbotContent: React.FC<ChatbotContentProps> = ({
     "showReviews =", showReviews);
   
   // Local state to track if panels should be shown
-  const [showBasics, setShowBasics] = useState(showGoogleBasics);
-  const [showReviewsPanel, setShowReviewsPanel] = useState(showReviews);
+  const [showBasics, setShowBasics] = useState(false); // Initialize to false by default
+  const [showReviewsPanel, setShowReviewsPanel] = useState(false);
   
   // Listen for the specific events
   useEffect(() => {
@@ -54,13 +54,13 @@ const ChatbotContent: React.FC<ChatbotContentProps> = ({
     return () => window.removeEventListener('message', handleCustomEvents);
   }, []);
   
-  // Update local state when props change
+  // Update local state when props change, but only for explicit true values
   useEffect(() => {
-    if (showGoogleBasics) {
+    if (showGoogleBasics === true) {
       console.log("ChatbotContent: showGoogleBasics prop is true, showing basics");
       setShowBasics(true);
     }
-    if (showReviews) {
+    if (showReviews === true) {
       console.log("ChatbotContent: showReviews prop is true, showing reviews");
       setShowReviewsPanel(true);
     }
