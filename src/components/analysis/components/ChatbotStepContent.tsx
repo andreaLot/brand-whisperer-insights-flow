@@ -25,18 +25,13 @@ const ChatbotStepContent: React.FC<ChatbotStepContentProps> = ({
   onOptionClick,
   onShowBasics
 }) => {
-  // Create a ref for auto-scrolling
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  // Get a direct ref to the ScrollArea viewport for programmatic scrolling
+  const scrollViewportRef = useRef<HTMLDivElement>(null);
   
-  // Auto-scroll to bottom when chat history changes
+  // Auto-scroll to bottom when chat history or typing state changes
   useEffect(() => {
-    if (scrollAreaRef.current) {
-      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
-      if (scrollContainer) {
-        setTimeout(() => {
-          scrollContainer.scrollTop = scrollContainer.scrollHeight;
-        }, 100);
-      }
+    if (scrollViewportRef.current) {
+      scrollViewportRef.current.scrollTop = scrollViewportRef.current.scrollHeight;
     }
   }, [chatHistory, isTyping]);
   
@@ -47,7 +42,7 @@ const ChatbotStepContent: React.FC<ChatbotStepContentProps> = ({
       </h2>
       
       <div className="flex-1 bg-gradient-to-br from-uberall-dark-plum/60 to-uberall-dark-plum/40 rounded-lg h-[400px] shadow-xl border border-uberall-ultraviolet/30 backdrop-blur-sm overflow-hidden">
-        <ScrollArea className="h-full w-full pr-4" ref={scrollAreaRef}>
+        <ScrollArea className="h-full w-full pr-4" viewportRef={scrollViewportRef}>
           <div className="p-4">
             <ChatMessages 
               chatHistory={chatHistory} 
