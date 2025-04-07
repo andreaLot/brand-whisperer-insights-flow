@@ -28,6 +28,7 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
   const [legendVisible, setLegendVisible] = useState(false);
   const [footerVisible, setFooterVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasInitialized, setHasInitialized] = useState(false);
 
   // Important: Make sure we have an array, even if empty
   const results = Array.isArray(platformResults) ? platformResults : [];
@@ -43,6 +44,8 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
   ];
   
   useEffect(() => {
+    if (hasInitialized) return; // Prevent multiple initializations
+    
     console.log("🎯 [RatingsTable] Received platformResults:", JSON.stringify(results, null, 2));
     console.log(`🎯 [RatingsTable] Number of platform results: ${results.length}`);
     
@@ -55,6 +58,7 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
     
     // Always show loading initially
     setIsLoading(true);
+    setHasInitialized(true);
     
     // Start animations on next tick
     setTimeout(() => {

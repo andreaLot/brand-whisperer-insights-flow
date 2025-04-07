@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import RatingsTable from './ratings/RatingsTable';
@@ -23,15 +22,28 @@ const ChatbotContent: React.FC<ChatbotContentProps> = ({
 }) => {
   console.log("ChatbotContent: visibleSnippet =", visibleSnippet, "showGoogleBasics =", showGoogleBasics);
   
-  // Log when the show basics flag changes
-  useEffect(() => {
-    console.log("ChatbotContent: showGoogleBasics changed to", showGoogleBasics);
-  }, [showGoogleBasics]);
+  // Local state to track if Google Basics should be shown
+  const [showBasics, setShowBasics] = useState(showGoogleBasics);
   
-  // Log when Apify result changes
+  // Listen for the specific event from the button click
   useEffect(() => {
-    console.log("ChatbotContent: apifyBusinessResult updated:", apifyBusinessResult ? "data available" : "no data");
-  }, [apifyBusinessResult]);
+    const handleShowBasicsClick = (event: MessageEvent) => {
+      if (event.data && event.data.type === 'show-google-basics-click') {
+        console.log("ChatbotContent: Received show-google-basics-click event, showing basics");
+        setShowBasics(true);
+      }
+    };
+    
+    window.addEventListener('message', handleShowBasicsClick);
+    return () => window.removeEventListener('message', handleShowBasicsClick);
+  }, []);
+  
+  // Update local state when prop changes
+  useEffect(() => {
+    if (showGoogleBasics) {
+      setShowBasics(true);
+    }
+  }, [showGoogleBasics]);
   
   // Create a safe default if analysisResult is null
   const safeResult: AnalysisResult = analysisResult || {
@@ -74,7 +86,7 @@ const ChatbotContent: React.FC<ChatbotContentProps> = ({
         >
           <ProfileCompleteness 
             apifyBusinessResult={apifyBusinessResult}
-            isVisible={showGoogleBasics} 
+            isVisible={showBasics} 
           />
         </motion.div>
       )}

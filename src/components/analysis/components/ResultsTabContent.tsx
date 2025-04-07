@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from "framer-motion";
 import ResultCard from "@/components/ResultCard";
-import PlatformIcon from "../panels/chatbot/ratings/PlatformIcon";
+import PlatformIcon from "./panels/chatbot/ratings/PlatformIcon";
 import { Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -25,11 +25,14 @@ interface ResultsTabContentProps {
 const ResultsTabContent: React.FC<ResultsTabContentProps> = ({ platformResults }) => {
   const [visibleCards, setVisibleCards] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasInitialized, setHasInitialized] = useState(false);
   
   // Ensure platformResults is always an array
   const results = Array.isArray(platformResults) ? platformResults : [];
   
   useEffect(() => {
+    if (hasInitialized) return; // Prevent multiple initializations
+    
     console.log("ResultsTabContent received platformResults:", results);
     
     // Reset visible cards when results change
@@ -38,6 +41,7 @@ const ResultsTabContent: React.FC<ResultsTabContentProps> = ({ platformResults }
     // Set loading state based on results
     if (results.length > 0) {
       setIsLoading(false);
+      setHasInitialized(true);
       
       // Animate cards one by one
       results.forEach((_, index) => {
@@ -49,11 +53,12 @@ const ResultsTabContent: React.FC<ResultsTabContentProps> = ({ platformResults }
       // Show loading for at least 3 seconds
       const loadingTimer = setTimeout(() => {
         setIsLoading(false);
+        setHasInitialized(true);
       }, 3000);
       
       return () => clearTimeout(loadingTimer);
     }
-  }, [results]);
+  }, [results, hasInitialized]);
 
   if (isLoading) {
     return (
@@ -94,15 +99,16 @@ const ResultsTabContent: React.FC<ResultsTabContentProps> = ({ platformResults }
   if (results.length === 0) {
     return (
       <motion.div
-        key="no-results"
+        key="loading-alt"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
         transition={{ duration: 0.4 }}
-        className="p-8 text-center"
+        className="flex flex-col items-center justify-center p-8"
       >
-        <p className="text-gray-300">No platform results available.</p>
-        <p className="text-gray-400 text-sm mt-1">Please complete the analysis process first.</p>
+        <Loader2 size={40} className="text-violet-400 animate-spin mb-4" />
+        <h3 className="text-lg font-medium text-violet-200 mb-2">Loading platform results</h3>
+        <p className="text-gray-400 text-sm">Retrieving data from AI platforms...</p>
       </motion.div>
     );
   }
