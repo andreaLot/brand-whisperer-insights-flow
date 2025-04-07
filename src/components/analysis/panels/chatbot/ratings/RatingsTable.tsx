@@ -56,9 +56,10 @@ const RatingsTable: React.FC<RatingsTableProps> = ({ businessName, platformResul
     if (results.length > 0) {
       setIsLoading(false);
     } else {
+      // Show loading state for at least 5 seconds if no results
       const loadingTimeout = setTimeout(() => {
         setIsLoading(false);
-      }, 3000);
+      }, 5000);
       
       return () => clearTimeout(loadingTimeout);
     }
